@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Dasher {
+public class DasherEntity {
     @Id
     private ObjectId id;
 
