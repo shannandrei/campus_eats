@@ -43,6 +43,8 @@ public class UserService {
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
             user.setVerified(true);
+            confirmation.getUser().setVerified(true);
+            confirmationRepository.save(confirmation);
             userRepository.save(user);
             return Boolean.TRUE;
         } else {
