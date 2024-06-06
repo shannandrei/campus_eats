@@ -4,7 +4,7 @@ import com.capstone.campuseats.Entity.ConfirmationEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Repository.ConfirmationRepository;
 import com.capstone.campuseats.Repository.UserRepository;
-import com.capstone.campuseats.config.CustomSignupException;
+import com.capstone.campuseats.config.CustomException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,14 +52,14 @@ public class UserService {
         }
     }
 
-    public UserEntity signup(UserEntity user) throws CustomSignupException {
+    public UserEntity signup(UserEntity user) throws CustomException {
 
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new CustomSignupException("The username is already in use by another account.");
+            throw new CustomException("The username is already in use by another account.");
         }
 
         if (userRepository.findByEmailIgnoreCase(user.getEmail()).isPresent()) {
-            throw new CustomSignupException("The email address is already in use by another account.");
+            throw new CustomException("The email address is already in use by another account.");
         }
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
@@ -79,5 +79,36 @@ public class UserService {
 //        TODO send email to user with token
         emailService.sendEmail(user.getUsername(), user.getEmail(), confirmation.getToken());
         return savedUser;
+    }
+
+    public UserEntity login(String usernameOrEmail, String password) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(usernameOrEmail);
+        if (optionalUser.isEmpty()) {
+            optionalUser = userRepository.findByEmailIgnoreCase(usernameOrEmail);
+        }
+
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            if (!user.isVerified()) {
+                resendVerificationLink(user);
+                throw new CustomException("Your account is not verified. Please check your email for the verification link.");
+            }
+
+            // Verify password
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return user;
+            } else {
+                throw new CustomException("Invalid username/email or password.");
+            }
+        } else {
+            throw new CustomException("User not found.");
+        }
+    }
+
+    private void resendVerificationLink(UserEntity user) {
+        Optional<ConfirmationEntity> confirmation = confirmationRepository.findById(user.getId());
+        System.out.println("user = " + user.getId());
+        System.out.println("confirmation = " + confirmation);
+        confirmation.ifPresent(confirmationEntity -> emailService.sendEmail(user.getUsername(), user.getEmail(), confirmationEntity.getToken()));
     }
 }

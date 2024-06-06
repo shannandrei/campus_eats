@@ -2,7 +2,7 @@ package com.capstone.campuseats.Controller;
 
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.UserService;
-import com.capstone.campuseats.config.CustomSignupException;
+import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -36,7 +38,7 @@ public class UserController {
         try {
             UserEntity createdUser = userService.signup(user);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (CustomSignupException ex) {
+        } catch (CustomException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -45,5 +47,22 @@ public class UserController {
     public ResponseEntity<?> verifyToken(@RequestParam("token") String token) {
         Boolean verified = userService.verifyToken(token);
         return new ResponseEntity<>(verified, HttpStatus.OK);
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<Map<String, Object>> authenticateUser(@RequestBody Map<String, String> credentials) {
+        String usernameOrEmail = credentials.get("usernameOrEmail");
+        String password = credentials.get("password");
+
+        try {
+            UserEntity user = userService.login(usernameOrEmail, password);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException ex) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
