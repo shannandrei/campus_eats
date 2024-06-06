@@ -52,6 +52,13 @@ public class UserService {
         }
     }
 
+    private void resendVerificationLink(UserEntity user) {
+        Optional<ConfirmationEntity> confirmation = confirmationRepository.findById(user.getId());
+        System.out.println("user = " + user.getId());
+        System.out.println("confirmation = " + confirmation);
+        confirmation.ifPresent(confirmationEntity -> emailService.sendEmail(user.getUsername(), user.getEmail(), confirmationEntity.getToken()));
+    }
+
     public UserEntity signup(UserEntity user) throws CustomException {
 
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -105,10 +112,5 @@ public class UserService {
         }
     }
 
-    private void resendVerificationLink(UserEntity user) {
-        Optional<ConfirmationEntity> confirmation = confirmationRepository.findById(user.getId());
-        System.out.println("user = " + user.getId());
-        System.out.println("confirmation = " + confirmation);
-        confirmation.ifPresent(confirmationEntity -> emailService.sendEmail(user.getUsername(), user.getEmail(), confirmationEntity.getToken()));
-    }
+
 }
