@@ -25,12 +25,21 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    public List<UserEntity> allUsers(){
+    public List<UserEntity> getAllUsers(){
         return userRepository.findAll();
     }
 
-    public Optional<UserEntity> findUserById(ObjectId id){
+    public Optional<UserEntity> findUserById(ObjectId id) {
         return userRepository.findById(id);
+    }
+
+    public String getUserAccountType(ObjectId id) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get().getAccountType();
+        } else {
+            throw new CustomException("User not found.");
+        }
     }
 
     public Boolean verifyToken(String token) {

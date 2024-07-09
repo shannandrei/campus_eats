@@ -4,6 +4,7 @@ import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.UserService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,12 +26,22 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return new ResponseEntity<List<UserEntity>>(userService.allUsers(), HttpStatus.OK);
+        return new ResponseEntity<List<UserEntity>>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<UserEntity>> getUserById(@PathVariable ObjectId id) {
         return new ResponseEntity<Optional<UserEntity>>(userService.findUserById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/accountType")
+    public ResponseEntity<?> getUserAccountType(@PathVariable ObjectId id) {
+        try {
+            String accountType = userService.getUserAccountType(id);
+            return new ResponseEntity<>(accountType, HttpStatus.OK);
+        } catch (CustomException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/signup")
