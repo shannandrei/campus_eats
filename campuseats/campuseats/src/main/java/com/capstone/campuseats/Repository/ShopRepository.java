@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface ShopRepository extends MongoRepository<ShopEntity, ObjectId> {
     List<ShopEntity> findByStatus(String status);
+    List<ShopEntity> findByStatusNot(String status);
+//    List<ShopEntity> findByDeliveryFee(String deliveryFee);
 }

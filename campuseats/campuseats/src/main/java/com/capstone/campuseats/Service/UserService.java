@@ -1,6 +1,7 @@
 package com.capstone.campuseats.Service;
 
 import com.capstone.campuseats.Entity.ConfirmationEntity;
+import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Repository.ConfirmationRepository;
 import com.capstone.campuseats.Repository.UserRepository;
@@ -119,6 +120,34 @@ public class UserService {
         } else {
             throw new CustomException("User not found.");
         }
+    }
+
+    public void updateUser(ObjectId id, UserEntity user) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            UserEntity existingUser = optionalUser.get();
+            existingUser.setFirstName(user.getFirstName());
+            existingUser.setLastName(user.getLastName());
+            existingUser.setPhone(user.getPhone());
+            existingUser.setUsername(user.getUsername());
+            existingUser.setDateCreated(user.getDateCreated());
+            existingUser.setAccountType(user.getAccountType());
+            existingUser.setVerified(user.isVerified());
+            userRepository.save(existingUser);
+        } else {
+            throw new CustomException("User not found.");
+        }
+    }
+
+    public boolean updateAccountType(ObjectId userId, String accountType) {
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            UserEntity user = userOptional.get();
+            user.setAccountType(accountType);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 
 

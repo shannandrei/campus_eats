@@ -76,4 +76,25 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable ObjectId id, @RequestBody UserEntity user) {
+        try {
+            System.out.println("id:"+ id);
+            userService.updateUser(id, user);
+            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+        } catch (CustomException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/update/{userId}/accountType")
+    public ResponseEntity<Boolean> updateAccountType(@PathVariable ObjectId userId, @RequestParam String accountType) {
+        boolean isUpdated = userService.updateAccountType(userId, accountType);
+        if (isUpdated) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
 }
