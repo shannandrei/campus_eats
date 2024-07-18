@@ -139,4 +139,88 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
         }
     }
+
+    @GetMapping("/dasher/active-orders/{uid}")
+    public ResponseEntity<?> getActiveOrdersForDasher(@PathVariable String uid) {
+        try {
+            List<OrderEntity> activeOrders = orderService.getActiveOrdersForDasher(uid);
+
+            if (activeOrders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No active orders found for this dasher"));
+            }
+
+            return ResponseEntity.ok(activeOrders);
+        } catch (Exception e) {
+            System.err.println("Error fetching active orders for dasher: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/dasher/all-orders-list/{uid}")
+    public ResponseEntity<?> getOrdersForDasher(@PathVariable ObjectId uid) {
+        try {
+            List<OrderEntity> orders = orderService.getOrdersByDasherId(uid);
+
+            if (orders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found for this user"));
+            }
+
+            List<OrderEntity> activeOrders = orders.stream()
+                    .filter(order -> order.getStatus().startsWith("active"))
+                    .collect(Collectors.toList());
+
+            List<OrderEntity> nonActiveOrders = orders.stream()
+                    .filter(order -> !order.getStatus().startsWith("active"))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = Map.of(
+                    "orders", nonActiveOrders,
+                    "activeOrders", activeOrders
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error fetching orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+    @GetMapping("/incoming-orders/dasher")
+    public ResponseEntity<?> getIncomingOrdersForDasher() {
+        try {
+            List<OrderEntity> activeOrders = orderService.getOrdersWaitingForDasher();
+
+            if (activeOrders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found"));
+            }
+
+            return ResponseEntity.ok(activeOrders);
+        } catch (Exception e) {
+            System.err.println("Error fetching orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/completed-orders")
+    public ResponseEntity<?> getCompletedOrders() {
+        try {
+            List<OrderEntity> orders = orderService.getAllOrders();
+
+            if (orders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found"));
+            }
+
+            List<OrderEntity> completedOrders = orders.stream()
+                    .filter(order -> !order.getStatus().startsWith("active"))
+                    .collect(Collectors.toList());
+
+            List<OrderEntity> activeOrders = orders.stream()
+                    .filter(order -> order.getStatus().startsWith("active"))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of("completedOrders", completedOrders, "activeOrders", activeOrders));
+        } catch (Exception e) {
+            System.err.println("Error fetching completed orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
 }

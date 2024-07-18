@@ -25,6 +25,7 @@ public class OrderEntity {
     private ObjectId dasherId;
     private ObjectId shopId;
     private float changeFor;
+    private float deliveryFee;
     private String deliverTo;
     private String firstName;
     private String lastName;

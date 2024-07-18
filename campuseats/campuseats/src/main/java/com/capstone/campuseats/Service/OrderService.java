@@ -82,4 +82,20 @@ public class OrderService {
         return orderRepository.findByStatusStartingWith("active_waiting_for_admin");
     }
 
+    public List<OrderEntity> getOrdersByDasherId(ObjectId dasherId) {
+        return orderRepository.findByDasherId(dasherId);
+    }
+
+    public List<OrderEntity> getOrdersWaitingForDasher() {
+        return orderRepository.findByStatusStartingWith("active_waiting_for_dasher");
+    }
+
+    public List<OrderEntity> getActiveOrdersForDasher(String uid) {
+        return orderRepository.findByDasherIdAndStatusStartingWith(new ObjectId(uid), "active");
+    }
+
+    public List<OrderEntity> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
 }

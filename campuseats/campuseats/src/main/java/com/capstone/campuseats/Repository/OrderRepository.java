@@ -13,4 +13,5 @@ public interface OrderRepository extends MongoRepository<OrderEntity, ObjectId> 
     List<OrderEntity> findByUid(ObjectId uid);
     List<OrderEntity> findByDasherId(ObjectId dasherId);
     List<OrderEntity> findByStatusStartingWith(String status);
+    List<OrderEntity> findByDasherIdAndStatusStartingWith(ObjectId dasherId, String statusPrefix);
 }
