@@ -106,13 +106,12 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
-            if (!user.isVerified()) {
-                resendVerificationLink(user);
-                throw new CustomException("Your account is not verified. Please check your email for the verification link.");
-            }
-
             // Verify password
             if (passwordEncoder.matches(password, user.getPassword())) {
+                if (!user.isVerified()) {
+                    resendVerificationLink(user);
+                    throw new CustomException("Your account is not verified. Please check your email for the verification link.");
+                }
                 return user;
             } else {
                 throw new CustomException("Invalid username/email or password.");

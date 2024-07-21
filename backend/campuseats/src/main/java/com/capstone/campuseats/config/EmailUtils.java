@@ -3,7 +3,7 @@ package com.capstone.campuseats.config;
 public class EmailUtils {
 
     public static String getEmailMessage(String name, String host, String token){
-        return "Hello "+name+ ",\n\nYour new account has been created. Please click the link below to verify your account. \n\n"
+        return "Hello "+name+ ",\n\nPlease click the link below to verify your account. \n\n"
                 + getVerificationUrl(host, token) + "\n\nCampus Eats Team";
     }
 

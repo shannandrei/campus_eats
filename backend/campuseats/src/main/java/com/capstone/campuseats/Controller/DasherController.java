@@ -18,6 +18,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/dashers")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class DasherController {
 
     private final DasherService dasherService;

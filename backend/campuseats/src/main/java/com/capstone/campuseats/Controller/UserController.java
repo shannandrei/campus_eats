@@ -19,6 +19,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     @Autowired
@@ -57,8 +58,14 @@ public class UserController {
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken(@RequestParam("token") String token) {
         Boolean verified = userService.verifyToken(token);
-        return new ResponseEntity<>(verified, HttpStatus.OK);
+        if (verified) {
+            return ResponseEntity.ok("Your email has been successfully verified! You can now close this tab and log in to your account.");
+        } else {
+            // Handle verification failure
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Verification failed");
+        }
     }
+
 
     @PostMapping("/authenticate")
     public ResponseEntity<Map<String, Object>> authenticateUser(@RequestBody Map<String, String> credentials) {
@@ -77,7 +84,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@PathVariable ObjectId id, @RequestBody UserEntity user) {
         try {
             System.out.println("id:"+ id);

@@ -21,6 +21,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/shops")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class ShopController {
 
     private final ShopService shopService;
