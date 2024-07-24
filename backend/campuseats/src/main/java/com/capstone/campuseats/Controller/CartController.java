@@ -45,12 +45,12 @@ public class CartController {
     @PostMapping("/add-to-cart")
     public ResponseEntity<?> addItemToCart(@RequestBody Map<String, Object> payload) {
         try {
-            String uid = new String((String) payload.get("uid"));
-            String shopID = new String((String) payload.get("shopID"));
+            String uid = (String) payload.get("uid");
+            String shopId = (String) payload.get("shopId");
             Map<String, Object> itemData = (Map<String, Object>) payload.get("item");
 
             CartItem newItem = CartItem.builder()
-                    .id(new String((String) itemData.get("id")))
+                    .id((String) itemData.get("id"))
                     .name((String) itemData.get("name"))
                     .unitPrice(Float.parseFloat(itemData.get("price").toString()))
                     .price(Float.parseFloat(itemData.get("price").toString()) * Integer.parseInt(itemData.get("userQuantity").toString()))
@@ -60,13 +60,14 @@ public class CartController {
 
             float totalPrice = Float.parseFloat(payload.get("totalPrice").toString());
 
-            CartEntity updatedCart = cartService.addItemToCart(uid, newItem, totalPrice, shopID);
+            CartEntity updatedCart = cartService.addItemToCart(uid, newItem, totalPrice, shopId);
 
             return new ResponseEntity<>(Map.of("message", "Item added to cart successfully", "cartId", updatedCart.getId().toString()), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PostMapping("/update-cart-item")
     public ResponseEntity<?> updateCartItem(@RequestBody Map<String, Object> payload) {

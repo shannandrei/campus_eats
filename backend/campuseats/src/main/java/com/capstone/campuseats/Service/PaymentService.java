@@ -119,7 +119,7 @@ public class PaymentService {
             JsonNode responseBody = objectMapper.readTree(response.body());
             String checkoutUrl = responseBody.at("/data/attributes/checkout_url").asText();
             String id = responseBody.at("/data/id").asText();
-
+            System.out.println("checkoutURL: " +checkoutUrl);
             if (response.statusCode() != 200) {
                 String errorDetail = responseBody.at("/errors/0/detail").asText();
                 throw new RuntimeException(errorDetail);

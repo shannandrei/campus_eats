@@ -28,5 +28,6 @@ public class UserEntity {
     private String phone;
     private String dob;
     private String courseYear;
+    private String schoolIdNum;
 
 }

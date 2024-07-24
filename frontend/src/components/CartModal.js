@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./css/CartModal.css";
-import {  Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import axios from '../utils/axiosConfig';
 
 const CartModal = ({ showModal, onClose }) => {
     const { currentUser } = useAuth();
@@ -15,12 +16,10 @@ const CartModal = ({ showModal, onClose }) => {
     useEffect(() => {
         const fetchCartData = async () => {
             try {
-                const response = await fetch(`/api/cart?uid=${currentUser.id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch cart data');
-                }
-                const data = await response.json();
-                setCartData(data);
+                const response = await axios.get(`/carts/cart`, {
+                    params: { uid: currentUser.id }
+                });
+                setCartData(response.data);
             } catch (error) {
                 console.error('Error fetching cart data:', error);
             }
@@ -33,14 +32,10 @@ const CartModal = ({ showModal, onClose }) => {
 
     useEffect(() => {
         const fetchShopData = async () => {
-            if (cartData && cartData.shopID) {
+            if (cartData && cartData.id) {
                 try {
-                    const response = await fetch(`/api/shop/${cartData.shopID}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch shop data');
-                    }
-                    const data = await response.json();
-                    setShopData(data);
+                    const response = await axios.get(`/shops/${cartData.id}`);
+                    setShopData(response.data);
                 } catch (error) {
                     console.error('Error fetching shop data:', error);
                 }
@@ -52,27 +47,19 @@ const CartModal = ({ showModal, onClose }) => {
 
     const updateCartItem = async (itemId, action) => {
         try {
-            const response = await fetch('/api/update-cart-item', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ uid: currentUser.uid, itemId, action })
+            const response = await axios.post('/carts/update-cart-item', {
+                uid: currentUser.id,
+                itemId,
+                action
             });
 
-            if (!response.ok) {
-                if (response.status === 400) {
-                    alert('Quantity limit reached');
-                } else {
-                    alert(`Error: ${response.statusText}`);
-                }
-                return;
-            }
-
-            const data = await response.json();
-            setCartData(data.cartData);
+            setCartData(response.data.cartData);
         } catch (error) {
-            console.error('Error updating cart item:', error);
+            if (error.response && error.response.status === 400) {
+                alert('Quantity limit reached');
+            } else {
+                alert(`Error: ${error.message}`);
+            }
         }
     };
 
@@ -91,24 +78,14 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     const handleShopRemove = async () => {
-        if (window.confirm(`Are you sure you want to remove ${shopData.name}? This will remove all items in your cart.`)) {
+        if (window.confirm(`Are you sure you want to remove ${shopData.shopName}? This will remove all items in your cart.`)) {
             try {
-                const response = await fetch('/api/remove-cart', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ uid: currentUser.uid })
+                const response = await axios.delete('/carts/remove-cart', {
+                    data: { uid: currentUser.id }
                 });
-    
-                if (!response.ok) {
-                    alert(`Error: ${response.statusText}`);
-                    return;
-                }
-    
-                const data = await response.json();
-                alert(data.message);
-                setCartData(null);  // Clear the cart data from state
+
+                alert(response.data.message);
+                setCartData(null);
             } catch (error) {
                 console.error('Error removing cart:', error);
             }
@@ -116,7 +93,7 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     const handleProceedToCheckout = () => {
-        navigate(`/checkout/${currentUser.uid}/${cartData.shopID}`);
+        navigate(`/checkout/${currentUser.id}/${cartData.id}`);
     };
 
     return (
@@ -135,8 +112,8 @@ const CartModal = ({ showModal, onClose }) => {
                                         <div className="cm-item-left">
                                             <img src={'/Assets/store-location-icon.png'} alt="store loc" className="cm-image-store" />
                                             <div className="cm-store-title">
-                                                <h4>{shopData ? shopData.shopName : 'Store Name'}</h4>
-                                                <p>{shopData ? shopData.shopAddress : 'Store Address'}</p>
+                                                <h4>{shopData ? shopData.name : 'Store Name'}</h4>
+                                                <p>{shopData ? shopData.address : 'Store Address'}</p>
                                             </div>
                                         </div>
                                         <div className="cm-item-right">

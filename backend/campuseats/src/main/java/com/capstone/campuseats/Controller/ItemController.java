@@ -40,7 +40,7 @@ public class ItemController {
 
         try {
             ItemEntity createdItem = itemService.createItem(item, image, shopId);
-            return new ResponseEntity<>(Map.of("message", "Item created successfully", "itemId", createdItem.getId().toString()), HttpStatus.OK);
+            return new ResponseEntity<>(createdItem, HttpStatus.CREATED);
 
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

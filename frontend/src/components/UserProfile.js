@@ -21,7 +21,7 @@ const UserProfile = () => {
     const [username, setUsername] = useState('');
     const [editUsername, setEditUsername] = useState(false);
     const [courseYear, setCourseYear] = useState('');
-    const [schoolId, setSchoolId] = useState('');
+    const [schoolIdNum, setSchoolIdNum] = useState('');
     const [oldPwd, setOldPwd] = useState('');
     const [accountType, setAccountType] = useState('');
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -42,7 +42,7 @@ const UserProfile = () => {
                     setPhone(data.phone || '');
                     setDob(data.dob || '');
                     setCourseYear(data.courseYear || '');
-                    setSchoolId(data.schoolId || '');
+                    setSchoolIdNum(data.schoolIdNum || '');
                     setAccountType(data.accountType);
                 } catch (error) {
                     console.error('Error fetching user data:', error);
@@ -59,7 +59,7 @@ const UserProfile = () => {
             phone !== (initialData.phone || '') ||
             dob !== (initialData.dob || '') ||
             courseYear !== (initialData.courseYear || '') ||
-            schoolId !== (initialData.schoolId || '') ||
+            schoolIdNum !== (initialData.schoolIdNum || '') ||
             username !== initialData.username ||
             pwd !== '' ||
             confirmpwd !== '' ||
@@ -94,7 +94,7 @@ const UserProfile = () => {
                 phone,
                 dob,
                 courseYear,
-                schoolId,
+                schoolIdNum,
                 username
             });
 
@@ -111,7 +111,7 @@ const UserProfile = () => {
                     phone,
                     dob,
                     courseYear,
-                    schoolId,
+                    schoolIdNum,
                     username
                 });
             }
@@ -224,8 +224,8 @@ const UserProfile = () => {
                                             <input
                                                 type="text"
                                                 className="schoolid"
-                                                value={schoolId}
-                                                onChange={(e) => setSchoolId(e.target.value)}
+                                                value={schoolIdNum}
+                                                onChange={(e) => setSchoolIdNum(e.target.value)}
                                             />
                                         </div>
                                     </div>

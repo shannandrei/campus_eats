@@ -140,6 +140,7 @@ public class UserService {
             existingUser.setVerified(user.isVerified());
             existingUser.setDob(user.getDob());
             existingUser.setCourseYear(user.getCourseYear());
+            existingUser.setSchoolIdNum(user.getSchoolIdNum());
             userRepository.save(existingUser);
         } else {
             throw new CustomException("User not found.");

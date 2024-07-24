@@ -72,10 +72,9 @@ public class CartService {
         }
 
         cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
-        String stringId = UUID.randomUUID().toString();
-        cart.setId(stringId);
         return cartRepository.save(cart);
     }
+
 
     public CartEntity updateCartItem(String uid, String itemId, String action) {
         Optional<CartEntity> optionalCart = cartRepository.findById(uid);

@@ -19,14 +19,11 @@ const Navbar = () => {
     const [cartData, setCartData] = useState(null);
 
     useEffect(() => {
-        console.log("currentUseasdfr: ", currentUser);
         if (currentUser) {
             const fetchUserAccountType = async () => {
                 try {
-                    console.log("currentasdfasdfsdfdfffffffffffffffff: ", currentUser.id);
                     const response = await api.get(`/users/${currentUser.id}/accountType`);
                     setUserAccountType(response.data); // Directly setting the response data since it's a plain string
-                    console.log("accounttyoe: ",response.data);
                 } catch (error) {
                     console.error('Error fetching user account type:', error);
                 }
@@ -42,13 +39,10 @@ const Navbar = () => {
         if (currentUser) {
             const fetchCartData = async () => {
                 try {
-                    const response = await api.get(`/carts/cart?id=${currentUser.id}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch cart data');
-                    }
-                    const data = await response.json();
+                    const response = await api.get(`/carts/cart?uid=${currentUser.id}`);
+                    // Directly access response.data with axios
+                    const data = response.data;
                     setCartData(data);
-                    console.log("navbar data: ", data);
                 } catch (error) {
                     console.error('Error fetching cart data:', error);
                 }
@@ -159,7 +153,7 @@ const Navbar = () => {
                     <div className='nav'>
                         <ul>
                             <li className={`nb-icon ${location.pathname === '/home' ? 'active' : ''}`}>
-                                <Link to="/">
+                                <Link to="/home">
                                     <div className="svg-container">
                                         <img src={'/Assets/dashboard.svg'} alt="Dashboard" className="nb-image" />
                                     </div>

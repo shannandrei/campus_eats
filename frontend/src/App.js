@@ -5,18 +5,19 @@ import { AuthProvider } from './utils/AuthContext';
 import LandingPage from './components/LandingPage';
 import Home from './components/Home';
 import UserProfile from './components/UserProfile';
-// import Shop from './components/Shop';
+import Shop from './components/Shop';
 // import ShopApplication from './components/ShopApplication';
 // import DasherApplication from './components/DasherApplication';
 import AdminDasherList from './components/AdminDasherList';
 import AdminIncomingOrder from './components/AdminIncomingOrder';
 import AdminOrderHistory from './components/AdminOrderHistory';
+import Order from './components/Order';
 // import PrivateRoute from './components/PrivateRoute';
 // import AdminRoute from './components/AdminRoute';
 // import PublicRoute from './components/PublicRoute';
 // import AddItem from './components/AddItem';
 // import ShopRoute from './components/ShopRoute';
-// import Checkout from './components/Checkout';
+import Checkout from './components/Checkout';
 // import ShopManage from './components/ShopManage';
 // import UpdateItem from './components/UpdateItem';
 // import UpdateShop from './components/UpdateShop';
@@ -44,14 +45,16 @@ function App() {
           <Route path="/admin-incoming-order" element={<AdminIncomingOrder />} />
           <Route path="/admin-order-history" element={<AdminOrderHistory />} />
           <Route path="/admin-shops" element={<AdminShopList />} />
-          {/* <Route path="/orders" element={<PrivateRoute Component={Order} />} />
+          <Route path="/checkout/:uid/:shopId" element={<Checkout />} />
+          <Route path="/shop/:shopId" element={<Shop />} />
+          <Route path="/orders" element={<Order />} />
+          {/* 
           
           
-          <Route path="/shop/:shopId" element={<PrivateRoute Component={Shop} />} />
           
           <Route path="/shop-application" element={<PrivateRoute Component={ShopApplication} />} />
           <Route path="/dasher-application" element={<PrivateRoute Component={DasherApplication} />} />
-          <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} /> */}
+           */}
           
           
         </Routes>
