@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./css/CartModal.css";
-import { Modal, Button } from 'react-bootstrap';
+import {  Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from 'react-router-dom';
 

@@ -11,8 +11,8 @@ const UserProfile = () => {
     const { logout, currentUser, updatePassword } = useAuth();
     const navigate = useNavigate();
     const [initialData, setInitialData] = useState({});
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [firstname, setFirstname] = useState('');
+    const [lastname, setLastname] = useState('');
     const [phone, setPhone] = useState('');
     const [dob, setDob] = useState('');
     const [confirmpwd, setConfirmpwd] = useState('');
@@ -36,8 +36,8 @@ const UserProfile = () => {
 
                     setInitialData(data);
                     console.log("initial data:", initialData);
-                    setFirstName(data.firstName);
-                    setLastName(data.lastName);
+                    setFirstname(data.firstname);
+                    setLastname(data.lastname);
                     setUsername(data.username);
                     setPhone(data.phone || '');
                     setDob(data.dob || '');
@@ -54,8 +54,8 @@ const UserProfile = () => {
 
     const isFormChanged = () => {
         return (
-            firstName !== initialData.firstName ||
-            lastName !== initialData.lastName ||
+            firstname !== initialData.firstname ||
+            lastname !== initialData.lastname ||
             phone !== (initialData.phone || '') ||
             dob !== (initialData.dob || '') ||
             courseYear !== (initialData.courseYear || '') ||
@@ -89,8 +89,8 @@ const UserProfile = () => {
 
             // Update other user data
             const response = await axios.put(`/users/update/${currentUser.id}`, {
-                firstName,
-                lastName,
+                firstname,
+                lastname,
                 phone,
                 dob,
                 courseYear,
@@ -106,8 +106,8 @@ const UserProfile = () => {
                 setEditMode(false);
                 setEditUsername(false);
                 setInitialData({
-                    firstName,
-                    lastName,
+                    firstname,
+                    lastname,
                     phone,
                     dob,
                     courseYear,
@@ -165,8 +165,8 @@ const UserProfile = () => {
                                             <input
                                                 type="text"
                                                 className="firstname"
-                                                value={firstName}
-                                                onChange={(e) => setFirstName(e.target.value)}
+                                                value={firstname}
+                                                onChange={(e) => setFirstname(e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -176,8 +176,8 @@ const UserProfile = () => {
                                             <input
                                                 type="text"
                                                 className="lastname"
-                                                value={lastName}
-                                                onChange={(e) => setLastName(e.target.value)}
+                                                value={lastname}
+                                                onChange={(e) => setLastname(e.target.value)}
                                             />
                                         </div>
                                     </div>

@@ -10,7 +10,7 @@ import UserProfile from './components/UserProfile';
 // import DasherApplication from './components/DasherApplication';
 import AdminDasherList from './components/AdminDasherList';
 import AdminIncomingOrder from './components/AdminIncomingOrder';
-// import AdminOrderHistory from './components/AdminOrderHistory';
+import AdminOrderHistory from './components/AdminOrderHistory';
 // import PrivateRoute from './components/PrivateRoute';
 // import AdminRoute from './components/AdminRoute';
 // import PublicRoute from './components/PublicRoute';
@@ -20,7 +20,7 @@ import AdminIncomingOrder from './components/AdminIncomingOrder';
 // import ShopManage from './components/ShopManage';
 // import UpdateItem from './components/UpdateItem';
 // import UpdateShop from './components/UpdateShop';
-// import AdminShopList from './components/AdminShopList';
+import AdminShopList from './components/AdminShopList';
 // import DasherRoute from './components/DasherRoute';
 // import DasherIncomingOrder from './components/DasherIncomingOrder';
 // import DasherHome from './components/DasherHome';
@@ -42,6 +42,8 @@ function App() {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/admin-dashers" element={<AdminDasherList />} />
           <Route path="/admin-incoming-order" element={<AdminIncomingOrder />} />
+          <Route path="/admin-order-history" element={<AdminOrderHistory />} />
+          <Route path="/admin-shops" element={<AdminShopList />} />
           {/* <Route path="/orders" element={<PrivateRoute Component={Order} />} />
           
           
@@ -56,10 +58,10 @@ function App() {
 
         {/* <Routes> */}
           {/* 
-          <Route path="/admin-shops" element={<AdminRoute Component={AdminShopList} />} />
+          
           <Route path="/admin-dashboard" element={<AdminRoute Component={AdminDashboard} />} />
           
-          <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
+          
           <Route path="/admin-shops" element={<AdminRoute Component={AdminShopList} />} /> */}
         {/* </Routes> */}
 

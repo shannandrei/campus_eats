@@ -84,8 +84,8 @@ public class ShopController {
         }
     }
     @PutMapping("/update/{shopId}/deliveryFee")
-    public ResponseEntity<Boolean> updateShopDeliveryFee(@PathVariable String shopId, @RequestParam String status) {
-        boolean isUpdated = shopService.updateShopStatus(shopId, status);
+    public ResponseEntity<Boolean> updateShopDeliveryFee(@PathVariable String shopId, @RequestParam float deliveryFee) {
+        boolean isUpdated = shopService.updateShopDeliveryFee(shopId, deliveryFee);
         if (isUpdated) {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } else {

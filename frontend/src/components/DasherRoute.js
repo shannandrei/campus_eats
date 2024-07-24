@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import LoginSignUp from "./LoginSignUp";
 import Home from "./Home";
-import axios from 'axios';
-import LandingPage from "./LandingPage";
-import AdminDashboard from "./AdminDashboard";
 import ShopManage from "./ShopManage";
 
 const DasherRoute = ({ Component }) => {
