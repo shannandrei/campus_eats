@@ -3,7 +3,7 @@ package com.capstone.campuseats.Controller;
 import com.capstone.campuseats.Entity.CartEntity;
 import com.capstone.campuseats.Entity.CartItem;
 import com.capstone.campuseats.Service.CartService;
-import org.bson.types.ObjectId;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/carts")
+@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class CartController {
 
@@ -27,7 +28,7 @@ public class CartController {
                 return new ResponseEntity<>(Map.of("error", "Missing user ID"), HttpStatus.BAD_REQUEST);
             }
 
-            ObjectId userId = new ObjectId(uid);
+            String userId = new String(uid);
             Optional<CartEntity> cartOptional = cartService.getCartByUserId(userId);
 
             if (cartOptional.isEmpty()) {
@@ -44,12 +45,12 @@ public class CartController {
     @PostMapping("/add-to-cart")
     public ResponseEntity<?> addItemToCart(@RequestBody Map<String, Object> payload) {
         try {
-            ObjectId uid = new ObjectId((String) payload.get("uid"));
-            ObjectId shopID = new ObjectId((String) payload.get("shopID"));
+            String uid = new String((String) payload.get("uid"));
+            String shopID = new String((String) payload.get("shopID"));
             Map<String, Object> itemData = (Map<String, Object>) payload.get("item");
 
             CartItem newItem = CartItem.builder()
-                    .id(new ObjectId((String) itemData.get("id")))
+                    .id(new String((String) itemData.get("id")))
                     .name((String) itemData.get("name"))
                     .unitPrice(Float.parseFloat(itemData.get("price").toString()))
                     .price(Float.parseFloat(itemData.get("price").toString()) * Integer.parseInt(itemData.get("userQuantity").toString()))
@@ -70,8 +71,8 @@ public class CartController {
     @PostMapping("/update-cart-item")
     public ResponseEntity<?> updateCartItem(@RequestBody Map<String, Object> payload) {
         try {
-            ObjectId uid = new ObjectId((String) payload.get("uid"));
-            ObjectId itemId = new ObjectId((String) payload.get("itemId"));
+            String uid = new String((String) payload.get("uid"));
+            String itemId = new String((String) payload.get("itemId"));
             String action = (String) payload.get("action");
 
             CartEntity updatedCart = cartService.updateCartItem(uid, itemId, action);
@@ -85,7 +86,7 @@ public class CartController {
     @DeleteMapping("/remove-cart")
     public ResponseEntity<?> removeCart(@RequestBody Map<String, Object> payload) {
         try {
-            ObjectId uid = new ObjectId((String) payload.get("uid"));
+            String uid = new String((String) payload.get("uid"));
 
             cartService.removeCart(uid);
 

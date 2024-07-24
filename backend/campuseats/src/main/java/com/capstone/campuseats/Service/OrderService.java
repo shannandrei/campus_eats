@@ -2,7 +2,7 @@ package com.capstone.campuseats.Service;
 
 import com.capstone.campuseats.Entity.OrderEntity;
 import com.capstone.campuseats.Repository.OrderRepository;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OrderService {
@@ -31,11 +32,13 @@ public class OrderService {
 
         order.setStatus("active_waiting_for_admin");
         order.setCreatedAt(LocalDateTime.now());
+        String stringId = UUID.randomUUID().toString();
+        order.setId(stringId);
 
         return orderRepository.save(order);
     }
 
-    public void updateOrderStatus(ObjectId orderId, String status) {
+    public void updateOrderStatus(String orderId, String status) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
 
         if (orderOptional.isEmpty()) {
@@ -48,7 +51,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public ResponseEntity<Map<String, Object>> assignDasher(ObjectId orderId, ObjectId dasherId) {
+    public ResponseEntity<Map<String, Object>> assignDasher(String orderId, String dasherId) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Order not found", "success", false));
@@ -74,7 +77,7 @@ public class OrderService {
         return ResponseEntity.ok(Map.of("message", "Dasher assigned successfully", "success", true));
     }
 
-    public List<OrderEntity> getOrdersByUserId(ObjectId uid) {
+    public List<OrderEntity> getOrdersByUserId(String uid) {
         return orderRepository.findByUid(uid);
     }
 
@@ -82,7 +85,7 @@ public class OrderService {
         return orderRepository.findByStatusStartingWith("active_waiting_for_admin");
     }
 
-    public List<OrderEntity> getOrdersByDasherId(ObjectId dasherId) {
+    public List<OrderEntity> getOrdersByDasherId(String dasherId) {
         return orderRepository.findByDasherId(dasherId);
     }
 
@@ -91,7 +94,7 @@ public class OrderService {
     }
 
     public List<OrderEntity> getActiveOrdersForDasher(String uid) {
-        return orderRepository.findByDasherIdAndStatusStartingWith(new ObjectId(uid), "active");
+        return orderRepository.findByDasherIdAndStatusStartingWith(new String(uid), "active");
     }
 
     public List<OrderEntity> getAllOrders() {

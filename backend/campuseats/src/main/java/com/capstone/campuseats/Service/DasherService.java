@@ -7,7 +7,7 @@ import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Repository.DasherRepository;
 import com.capstone.campuseats.config.CustomException;
 import jakarta.annotation.PostConstruct;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class DasherService {
@@ -67,7 +64,7 @@ public class DasherService {
         return dashersMap;
     }
 
-    public Optional<DasherEntity> getDasherById(ObjectId id) {
+    public Optional<DasherEntity> getDasherById(String id) {
         return dasherRepository.findById(id);
     }
 
@@ -75,7 +72,7 @@ public class DasherService {
         return dasherRepository.findByStatus("active");
     }
 
-    public boolean updateDasherStatus(ObjectId dasherId, String status) {
+    public boolean updateDasherStatus(String dasherId, String status) {
         Optional<DasherEntity> dasherOptional = dasherRepository.findById(dasherId);
         if (dasherOptional.isPresent()) {
             DasherEntity dasher = dasherOptional.get();
@@ -86,7 +83,7 @@ public class DasherService {
         return false;
     }
 
-    public DasherEntity createDasher(DasherEntity dasher, MultipartFile image, ObjectId userId) throws IOException {
+    public DasherEntity createDasher(DasherEntity dasher, MultipartFile image, String userId) throws IOException {
         if (dasherRepository.existsById(userId)) {
             throw new CustomException("Dasher already exists.");
         }
@@ -107,12 +104,12 @@ public class DasherService {
 
         blobClient.upload(image.getInputStream(), image.getSize(), true);
 
-        String imageUrl = blobClient.getBlobUrl();
-        dasher.setImageUrl(imageUrl);
+        String schoolId = blobClient.getBlobUrl();
+        dasher.setSchoolId(schoolId);
         return dasherRepository.save(dasher);
     }
 
-    public DasherEntity updateDasher(ObjectId dasherId, DasherEntity dasher, MultipartFile image) throws IOException {
+    public DasherEntity updateDasher(String dasherId, DasherEntity dasher, MultipartFile image) throws IOException {
         Optional<DasherEntity> optionalDasher = dasherRepository.findById(dasherId);
         if (optionalDasher.isEmpty()) {
             throw new CustomException("Dasher not found.");
@@ -123,7 +120,7 @@ public class DasherService {
         if (image != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             String formattedTimestamp = LocalDateTime.now().format(formatter);
-            String sanitizedDasherName = "dasher_" + formattedTimestamp + "_" + dasherId;
+            String sanitizedDasherName = "dasher/" + formattedTimestamp + "_" + dasherId;
 
             BlobClient blobClient = blobServiceClient
                     .getBlobContainerClient(containerName)
@@ -131,13 +128,13 @@ public class DasherService {
 
             blobClient.upload(image.getInputStream(), image.getSize(), true);
 
-            String imageUrl = blobClient.getBlobUrl();
-            existingDasher.setImageUrl(imageUrl);
+            String schoolId = blobClient.getBlobUrl();
+            existingDasher.setSchoolId(schoolId);
         }
 
-        existingDasher.setAvailableTimeStart(dasher.getAvailableTimeStart());
-        existingDasher.setAvailableTimeEnd(dasher.getAvailableTimeEnd());
-        existingDasher.setAvailableDays(dasher.getAvailableDays());
+        existingDasher.setAvailableStartTime(dasher.getAvailableStartTime());
+        existingDasher.setAvailableEndTime(dasher.getAvailableEndTime());
+        existingDasher.setDaysAvailable(dasher.getDaysAvailable());
         existingDasher.setSchoolId(dasher.getSchoolId());
         existingDasher.setGcashName(dasher.getGcashName());
         existingDasher.setStatus(dasher.getStatus());

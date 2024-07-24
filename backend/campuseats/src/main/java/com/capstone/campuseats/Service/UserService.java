@@ -6,7 +6,6 @@ import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Repository.ConfirmationRepository;
 import com.capstone.campuseats.Repository.UserRepository;
 import com.capstone.campuseats.config.CustomException;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -30,11 +30,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<UserEntity> findUserById(ObjectId id) {
+    public Optional<UserEntity> findUserById(String id) {
         return userRepository.findById(id);
     }
 
-    public String getUserAccountType(ObjectId id) throws CustomException {
+    public String getUserAccountType(String id) throws CustomException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             return optionalUser.get().getAccountType();
@@ -86,6 +86,11 @@ public class UserService {
         user.setDateCreated(new Date());
         user.setVerified(false);
         user.setPhone(null);
+        user.setDob(null);
+        user.setCourseYear(null);
+
+        String stringId = UUID.randomUUID().toString();
+        user.setId(stringId);
 
         UserEntity savedUser = userRepository.save(user);
 
@@ -121,24 +126,27 @@ public class UserService {
         }
     }
 
-    public void updateUser(ObjectId id, UserEntity user) throws CustomException {
+    public void updateUser(String id, UserEntity user) throws CustomException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
+
             UserEntity existingUser = optionalUser.get();
-            existingUser.setFirstName(user.getFirstName());
-            existingUser.setLastName(user.getLastName());
+            existingUser.setFirstname(user.getFirstname());
+            existingUser.setLastname(user.getLastname());
             existingUser.setPhone(user.getPhone());
             existingUser.setUsername(user.getUsername());
-            existingUser.setDateCreated(user.getDateCreated());
-            existingUser.setAccountType(user.getAccountType());
+            existingUser.setDateCreated(existingUser.getDateCreated());
+            existingUser.setAccountType(existingUser.getAccountType());
             existingUser.setVerified(user.isVerified());
+            existingUser.setDob(user.getDob());
+            existingUser.setCourseYear(user.getCourseYear());
             userRepository.save(existingUser);
         } else {
             throw new CustomException("User not found.");
         }
     }
 
-    public boolean updateAccountType(ObjectId userId, String accountType) {
+    public boolean updateAccountType(String userId, String accountType) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
@@ -149,5 +157,20 @@ public class UserService {
         return false;
     }
 
-
+    public void updatePassword(String userId, String oldPassword, String newPassword) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            // Check if the old password matches
+            if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+                // Encode and update the new password
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+            } else {
+                throw new CustomException("Old password is incorrect.");
+            }
+        } else {
+            throw new CustomException("User not found.");
+        }
+    }
 }

@@ -3,7 +3,6 @@ package com.capstone.campuseats.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -18,14 +17,13 @@ import java.util.List;
 @NoArgsConstructor
 public class DasherEntity {
     @Id
-    private ObjectId id;
-    private LocalTime availableTimeStart; // Available time start
-    private LocalTime availableTimeEnd;
-    private List<String> availableDays;
+    private String id;
+    private LocalTime availableStartTime; // Available time start
+    private LocalTime availableEndTime;
+    private List<String> daysAvailable;
     private String status;
     private String schoolId;
-    private String imageUrl;
-    private String GcashName;
-    private String GcashNumber;
+    private String gcashName;
+    private String gcashNumber;
     private LocalDateTime createdAt;
 }

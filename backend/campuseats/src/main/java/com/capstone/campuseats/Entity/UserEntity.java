@@ -2,7 +2,6 @@ package com.capstone.campuseats.Entity;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,15 +16,17 @@ import java.util.Date;
 @Getter
 public class UserEntity {
     @Id
-    private ObjectId id;
+    private String id;
     private String username;
     private String password;
     private String email;
     private boolean isVerified;
     private String accountType;
     private Date dateCreated;
-    private String firstName;
-    private String lastName;
+    private String firstname;
+    private String lastname;
     private String phone;
+    private String dob;
+    private String courseYear;
 
 }

@@ -3,7 +3,7 @@ package com.capstone.campuseats.Controller;
 import com.capstone.campuseats.Entity.CartItem;
 import com.capstone.campuseats.Entity.OrderEntity;
 import com.capstone.campuseats.Service.OrderService;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,18 +43,18 @@ public class OrderController {
     @PostMapping("/place-order")
     public ResponseEntity<?> placeOrder(@RequestBody Map<String, Object> payload) {
         try {
-            ObjectId uid = new ObjectId((String) payload.get("uid"));
+            String uid = new String((String) payload.get("uid"));
 
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
                     .status("active_waiting_for_admin")
                     .createdAt(LocalDateTime.now())
                     .dasherId(null) // Handle dasherId
-                    .shopId(new ObjectId((String) payload.get("shopId")))
+                    .shopId(new String((String) payload.get("shopId")))
                     .changeFor(Float.parseFloat(payload.get("changeFor").toString()))
                     .deliverTo((String) payload.get("deliverTo"))
-                    .firstName((String) payload.get("firstName"))
-                    .lastName((String) payload.get("lastName"))
+                    .firstname((String) payload.get("firstname"))
+                    .lastname((String) payload.get("lastname"))
                     .items((List<CartItem>) payload.get("items"))
                     .mobileNum((String) payload.get("mobileNum"))
                     .note((String) payload.get("note"))
@@ -82,7 +82,7 @@ public class OrderController {
                 return new ResponseEntity<>(Map.of("error", "Order ID and status are required"), HttpStatus.BAD_REQUEST);
             }
 
-            ObjectId orderId = new ObjectId(orderIdStr);
+            String orderId = new String(orderIdStr);
             orderService.updateOrderStatus(orderId, status);
 
             return new ResponseEntity<>(Map.of("message", "Order status updated successfully"), HttpStatus.OK);
@@ -101,8 +101,8 @@ public class OrderController {
                 return ResponseEntity.badRequest().body("Order ID and Dasher ID are required");
             }
 
-            ObjectId orderId = new ObjectId(orderIdStr);
-            ObjectId dasherId = new ObjectId(dasherIdStr);
+            String orderId = new String(orderIdStr);
+            String dasherId = new String(dasherIdStr);
 
             ResponseEntity<?> response = orderService.assignDasher(orderId, dasherId);
             return response;
@@ -115,7 +115,7 @@ public class OrderController {
     @GetMapping("/user/{uid}")
     public ResponseEntity<?> getOrdersByUserId(@PathVariable String uid) {
         try {
-            List<OrderEntity> orders = orderService.getOrdersByUserId(new ObjectId(uid));
+            List<OrderEntity> orders = orderService.getOrdersByUserId(new String(uid));
 
             if (orders.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found for this user"));
@@ -158,7 +158,7 @@ public class OrderController {
     }
 
     @GetMapping("/dasher/all-orders-list/{uid}")
-    public ResponseEntity<?> getOrdersForDasher(@PathVariable ObjectId uid) {
+    public ResponseEntity<?> getOrdersForDasher(@PathVariable String uid) {
         try {
             List<OrderEntity> orders = orderService.getOrdersByDasherId(uid);
 

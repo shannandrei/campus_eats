@@ -3,7 +3,7 @@ package com.capstone.campuseats.Controller;
 import com.capstone.campuseats.Entity.ItemEntity;
 import com.capstone.campuseats.Entity.ShopEntity;
 import com.capstone.campuseats.Service.ItemService;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +28,13 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<ItemEntity>> getItemById(@PathVariable ObjectId id) {
+    public ResponseEntity<Optional<ItemEntity>> getItemById(@PathVariable String id) {
         return new ResponseEntity<>(itemService.getItemById(id), HttpStatus.OK);
     }
 
     @PostMapping("/shop-add-item/{shopId}")
     public ResponseEntity<?> addItemToShop(
-            @PathVariable ObjectId shopId,
+            @PathVariable String shopId,
             @RequestPart("item") ItemEntity item,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
@@ -49,7 +49,7 @@ public class ItemController {
 
     @PutMapping("/shop-update-item/{itemId}")
     public ResponseEntity<?> updateItem(
-            @PathVariable ObjectId itemId,
+            @PathVariable String itemId,
             @RequestPart("item") ItemEntity item,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
@@ -63,7 +63,7 @@ public class ItemController {
     }
 
     @GetMapping("/{shopId}/shop-items")
-    public ResponseEntity<?> getItemsByShopId(@PathVariable ObjectId shopId) {
+    public ResponseEntity<?> getItemsByShopId(@PathVariable String shopId) {
         try {
             List<ItemEntity> items = itemService.getItemsByShopId(shopId);
             if (items.isEmpty()) {

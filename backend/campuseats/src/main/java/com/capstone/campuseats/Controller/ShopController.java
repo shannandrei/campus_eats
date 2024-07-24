@@ -6,7 +6,7 @@ import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.ShopService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class ShopController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<ShopEntity>> getShopById(@PathVariable ObjectId id) {
+    public ResponseEntity<Optional<ShopEntity>> getShopById(@PathVariable String id) {
         return new ResponseEntity<>(shopService.getShopById(id), HttpStatus.OK);
     }
 
@@ -48,7 +48,7 @@ public class ShopController {
             @RequestPart("image") MultipartFile image,
             @RequestPart("userId") String userIdStr) throws IOException {
         try {
-            ObjectId userId = new ObjectId(userIdStr);
+            String userId = new String(userIdStr);
             ShopEntity createdShop = shopService.createShop(shop, image, userId);
             return new ResponseEntity<>(createdShop, HttpStatus.CREATED);
         } catch (CustomException ex) {
@@ -58,7 +58,7 @@ public class ShopController {
 
     @PutMapping("/shop-update/{shopId}")
     public ResponseEntity<?> updateShop(
-            @PathVariable ObjectId shopId,
+            @PathVariable String shopId,
             @RequestPart("shop") ShopEntity shop,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
@@ -75,7 +75,7 @@ public class ShopController {
     }
 
     @PutMapping("/update/{shopId}/status")
-    public ResponseEntity<Boolean> updateShopStatus(@PathVariable ObjectId shopId, @RequestParam String status) {
+    public ResponseEntity<Boolean> updateShopStatus(@PathVariable String shopId, @RequestParam String status) {
         boolean isUpdated = shopService.updateShopStatus(shopId, status);
         if (isUpdated) {
             return new ResponseEntity<>(true, HttpStatus.OK);
@@ -84,7 +84,7 @@ public class ShopController {
         }
     }
     @PutMapping("/update/{shopId}/deliveryFee")
-    public ResponseEntity<Boolean> updateShopDeliveryFee(@PathVariable ObjectId shopId, @RequestParam String status) {
+    public ResponseEntity<Boolean> updateShopDeliveryFee(@PathVariable String shopId, @RequestParam String status) {
         boolean isUpdated = shopService.updateShopStatus(shopId, status);
         if (isUpdated) {
             return new ResponseEntity<>(true, HttpStatus.OK);

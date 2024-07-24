@@ -6,12 +6,13 @@ import com.capstone.campuseats.Entity.ItemEntity;
 import com.capstone.campuseats.Repository.CartRepository;
 import com.capstone.campuseats.Repository.ItemRepository;
 import com.capstone.campuseats.Repository.ShopRepository;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CartService {
@@ -25,12 +26,12 @@ public class CartService {
     @Autowired
     private ItemRepository itemRepository;
 
-    public Optional<CartEntity> getCartByUserId(ObjectId uid) {
+    public Optional<CartEntity> getCartByUserId(String uid) {
         return cartRepository.findById(uid);
     }
 
 
-    public CartEntity addItemToCart(ObjectId uid, CartItem newItem, float totalPrice, ObjectId shopId) {
+    public CartEntity addItemToCart(String uid, CartItem newItem, float totalPrice, String shopId) {
         Optional<CartEntity> optionalCart = cartRepository.findById(uid);
         CartEntity cart;
 
@@ -71,11 +72,12 @@ public class CartService {
         }
 
         cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
-
+        String stringId = UUID.randomUUID().toString();
+        cart.setId(stringId);
         return cartRepository.save(cart);
     }
 
-    public CartEntity updateCartItem(ObjectId uid, ObjectId itemId, String action) {
+    public CartEntity updateCartItem(String uid, String itemId, String action) {
         Optional<CartEntity> optionalCart = cartRepository.findById(uid);
         if (optionalCart.isEmpty()) {
             throw new RuntimeException("Cart not found");
@@ -121,7 +123,7 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public void removeCart(ObjectId uid) {
+    public void removeCart(String uid) {
         cartRepository.deleteById(uid);
     }
 }

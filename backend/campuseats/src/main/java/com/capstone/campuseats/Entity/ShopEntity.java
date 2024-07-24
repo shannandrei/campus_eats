@@ -4,7 +4,7 @@ package com.capstone.campuseats.Entity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.Binary;
-import org.bson.types.ObjectId;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 public class ShopEntity {
     @Id
-    private ObjectId id;
+    private String id;
     private String gcashName;
     private String gcashNumber;
     private List<String> categories;

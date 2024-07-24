@@ -10,7 +10,7 @@ import com.capstone.campuseats.config.CustomException;
 import jakarta.annotation.PostConstruct;
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ShopService {
@@ -52,11 +49,11 @@ public class ShopService {
         return shopRepository.findAll();
     }
 
-    public Optional<ShopEntity> getShopById(ObjectId id) {
+    public Optional<ShopEntity> getShopById(String id) {
         return shopRepository.findById(id);
     }
 
-    public ShopEntity createShop(ShopEntity shop, MultipartFile image, ObjectId userId) throws IOException {
+    public ShopEntity createShop(ShopEntity shop, MultipartFile image, String userId) throws IOException {
         if (shopRepository.existsById(userId)) {
             throw new CustomException("Shop already exists.");
         }
@@ -76,7 +73,7 @@ public class ShopService {
         String sanitizedShopName = shop.getName().replaceAll("[^a-zA-Z0-9-_\\.]", "_");
 
         // Create the blob filename
-        String blobFilename = "shop_" + formattedTimestamp + "_" + sanitizedShopName;
+        String blobFilename = "shop/" + formattedTimestamp + "_" + sanitizedShopName;
 
         BlobClient blobClient = blobServiceClient
                 .getBlobContainerClient(containerName)
@@ -90,7 +87,7 @@ public class ShopService {
         return shopRepository.save(shop);
     }
 
-    public ShopEntity updateShop(ObjectId shopId, ShopEntity shop, MultipartFile image) throws IOException {
+    public ShopEntity updateShop(String shopId, ShopEntity shop, MultipartFile image) throws IOException {
         Optional<ShopEntity> optionalShop = shopRepository.findById(shopId);
         if (optionalShop.isEmpty()) {
             throw new CustomException("Shop not found.");
@@ -153,7 +150,7 @@ public class ShopService {
         return shopsMap;
     }
 
-    public boolean updateShopStatus(ObjectId shopId, String status) {
+    public boolean updateShopStatus(String shopId, String status) {
         Optional<ShopEntity> shopOptional = shopRepository.findById(shopId);
         if (shopOptional.isPresent()) {
             ShopEntity shop = shopOptional.get();
@@ -164,7 +161,7 @@ public class ShopService {
         return false;
     }
 
-    public boolean updateShopDeliveryFee(ObjectId shopId, float deliveryFee) {
+    public boolean updateShopDeliveryFee(String shopId, float deliveryFee) {
         Optional<ShopEntity> shopOptional = shopRepository.findById(shopId);
         if (shopOptional.isPresent()) {
             ShopEntity shop = shopOptional.get();

@@ -5,7 +5,7 @@ import com.capstone.campuseats.Service.OrderService;
 import com.capstone.campuseats.Service.PaymentService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +25,10 @@ public class PaymentController {
     @PostMapping("/confirm-order-completion")
     public ResponseEntity<?> confirmOrderCompletion(@RequestBody Map<String, Object> payload) {
         try {
-            ObjectId orderId = new ObjectId((String) payload.get("orderId"));
-            ObjectId dasherId = new ObjectId((String) payload.get("dasherId"));
-            ObjectId shopId = new ObjectId((String) payload.get("shopId"));
-            ObjectId userId = new ObjectId((String) payload.get("userId"));
+            String orderId = new String((String) payload.get("orderId"));
+            String dasherId = new String((String) payload.get("dasherId"));
+            String shopId = new String((String) payload.get("shopId"));
+            String userId = new String((String) payload.get("userId"));
             String paymentMethod = (String) payload.get("paymentMethod");
             float deliveryFee = Float.parseFloat(payload.get("deliveryFee").toString());
             float totalPrice = Float.parseFloat(payload.get("totalPrice").toString());
@@ -36,7 +36,7 @@ public class PaymentController {
 
             List<CartItem> items = itemsPayload.stream().map(itemMap ->
                     CartItem.builder()
-                            .id(new ObjectId((String) itemMap.get("id")))
+                            .id(new String((String) itemMap.get("id")))
                             .name((String) itemMap.get("name"))
                             .unitPrice(Float.parseFloat(itemMap.get("unitPrice").toString()))
                             .price(Float.parseFloat(itemMap.get("price").toString()))
@@ -60,7 +60,7 @@ public class PaymentController {
         try {
             float amount = Float.parseFloat(payload.get("amount").toString());
             String description = payload.get("description").toString();
-            ObjectId orderId = new ObjectId((String) payload.get("orderId"));
+            String orderId = new String((String) payload.get("orderId"));
 
             return paymentService.createGcashPayment(amount, description, orderId);
         } catch (Exception e) {

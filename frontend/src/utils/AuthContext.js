@@ -1,6 +1,6 @@
-import React, {createContext, useContext, useState, useEffect} from "react";
-
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from './axiosConfig';
 
 const AuthContext = createContext();
 
@@ -21,42 +21,34 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:8080/api/users/authenticate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usernameOrEmail: email, password })
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Login failed');
+            const response = await axios.post('/users/authenticate', { usernameOrEmail: email, password });
+
+            if (!response.data) {
+                throw new Error('Login failed');
             }
-    
-            const data = await response.json();
-            localStorage.setItem('currentUser', JSON.stringify(data.user));
-            setCurrentUser(data.user); // This should update context
-            console.log('Login successful', data);
+
+            localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+            setCurrentUser(response.data.user);
+            console.log('Login successful', response.data);
         } catch (error) {
             console.error('Login failed', error);
             throw error;
         }
     };
-    
-    
 
     const signup = async (email, password, username, firstName, lastName) => {
-        // Call your signup API here
         try {
-            const response = await fetch('http://localhost:8080/api/users/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, username, firstName, lastName })
-            });
-            const data = await response.json();
-            // handle post-registration steps, e.g., navigate to login or home
-            navigate('/login');
+            const response = await axios.post('/users/signup', { email, password, username, firstName, lastName });
+
+            if (!response.data) {
+                throw new Error('Signup failed');
+            }
+
+            console.log('Signup successful', response.data);
+            navigate("/login");
         } catch (error) {
             console.error('Signup failed', error);
+            throw error;
         }
     };
 
@@ -66,11 +58,22 @@ export function AuthProvider({ children }) {
         navigate('/login');
     };
 
+    const updatePassword = async (userId, oldPassword, newPassword) => {
+        try {
+            await axios.put(`/users/${userId}/updatePassword`, { oldPassword, newPassword });
+            console.log('Password updated successfully');
+        } catch (error) {
+            console.error('Error updating password', error);
+            throw error;
+        }
+    };
+
     const value = {
         currentUser,
         login,
-        logout, 
-        signup
+        logout,
+        signup,
+        updatePassword
     };
 
     return (

@@ -23,10 +23,7 @@ const LoginSignUp = () => {
     }, [currentUser, location.pathname, navigate]);
 
     useEffect(() => {
-        console.log("currentUser:", currentUser);
-        console.log("what: ",localStorage.getItem('currentUser'));
         if(currentUser){
-            console.log("navigating to homeasdfasf");
             navigate('/home')
         }
     },[]);
@@ -93,9 +90,9 @@ const LoginSignUp = () => {
             return setError('Please fill in all fields');
         }
         
-        if (!regisEmail.endsWith('@cit.edu')) {
-            return setError('Please use a Microsoft account with the domain "@cit.edu"');
-        }
+        // if (!regisEmail.endsWith('@cit.edu')) {
+        //     return setError('Please use a Microsoft account with the domain "@cit.edu"');
+        // }
 
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(regisPwd)) {
@@ -106,7 +103,10 @@ const LoginSignUp = () => {
             setLoading(true);
             signup(regisEmail, regisPwd, regisUsername, regisFirstname, regisLastname);
             logout();
+            setSuccess('Please check your email for a verification link to activate your account.');
             toggleForm();
+
+
 
         }catch (e) {
             setSuccess('');
@@ -132,13 +132,9 @@ const LoginSignUp = () => {
             console.log("Logged in successfully: ", currentUser); // This might log the previous state
             navigate('/home');
         } catch (e) {
-            console.log("Error:", e);
+            console.log("Error:", e.response.data.error);
             setSuccess('');
-            if (e.message.includes('not verified')) {
-                setError(e.message);
-            } else {
-                setError(e.message || 'Invalid Credentials.');
-            }
+            setError(e.response.data.error);
         } finally {
             setLoading(false);
         }

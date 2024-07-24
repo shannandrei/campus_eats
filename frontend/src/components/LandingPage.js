@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import './css/LandingPage.css';
-// import Navbar from './Navbar';
+import Navbar from './Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   return (
     <div className='landing-page'>
-        {/* <Navbar /> */}
+        <Navbar />
       <div className="image-container">     
         <img src={'/Assets/clouds.svg'} alt="Cloud" className="cloud-image" />
         <img src={'/Assets/big-cloud.svg'} alt="Big Cloud" className="big-cloud-image" />

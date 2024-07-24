@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.*;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,10 +27,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +40,7 @@ public class PaymentService {
     @Value("${PAYMONGO_SECRET}")
     private String paymongoSecret;
 
-    public void confirmOrderCompletion(ObjectId orderId, ObjectId dasherId, ObjectId shopId, ObjectId userId, String paymentMethod, float deliveryFee, float totalPrice, List<CartItem> items) {
+    public void confirmOrderCompletion(String orderId, String dasherId, String shopId, String userId, String paymentMethod, float deliveryFee, float totalPrice, List<CartItem> items) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
             throw new CustomException("Order not found");
@@ -74,11 +71,13 @@ public class PaymentService {
                 .deliveryFee(deliveryFee)
                 .totalPrice(totalPrice)
                 .build();
+        String stringId = UUID.randomUUID().toString();
+        payment.setId(stringId);
         paymentRepository.save(payment);
     }
 
 
-    public ResponseEntity<?> createGcashPayment(float amount, String description, ObjectId orderId) {
+    public ResponseEntity<?> createGcashPayment(float amount, String description, String orderId) {
         try {
             // Check for active orders
             List<OrderEntity> existingOrders = orderRepository.findByUid(orderId);

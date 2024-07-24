@@ -5,7 +5,7 @@ import com.capstone.campuseats.Service.UserService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +31,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<UserEntity>> getUserById(@PathVariable ObjectId id) {
+    public ResponseEntity<Optional<UserEntity>> getUserById(@PathVariable String id) {
         return new ResponseEntity<Optional<UserEntity>>(userService.findUserById(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/accountType")
-    public ResponseEntity<?> getUserAccountType(@PathVariable ObjectId id) {
+    public ResponseEntity<?> getUserAccountType(@PathVariable String id) {
         try {
             String accountType = userService.getUserAccountType(id);
             return new ResponseEntity<>(accountType, HttpStatus.OK);
@@ -51,7 +51,9 @@ public class UserController {
             UserEntity createdUser = userService.signup(user);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (CustomException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -85,7 +87,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable ObjectId id, @RequestBody UserEntity user) {
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserEntity user) {
         try {
             System.out.println("id:"+ id);
             userService.updateUser(id, user);
@@ -96,12 +98,25 @@ public class UserController {
     }
 
     @PutMapping("/update/{userId}/accountType")
-    public ResponseEntity<Boolean> updateAccountType(@PathVariable ObjectId userId, @RequestParam String accountType) {
+    public ResponseEntity<Boolean> updateAccountType(@PathVariable String userId, @RequestParam String accountType) {
         boolean isUpdated = userService.updateAccountType(userId, accountType);
         if (isUpdated) {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{userId}/updatePassword")
+    public ResponseEntity<?> updatePassword(@PathVariable String userId, @RequestBody Map<String, String> passwords) {
+        String oldPassword = passwords.get("oldPassword");
+        String newPassword = passwords.get("newPassword");
+
+        try {
+            userService.updatePassword(userId, oldPassword, newPassword);
+            return new ResponseEntity<>("Password updated successfully", HttpStatus.OK);
+        } catch (CustomException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }

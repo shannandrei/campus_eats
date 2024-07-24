@@ -9,7 +9,7 @@ import com.capstone.campuseats.Repository.ItemRepository;
 import com.capstone.campuseats.Repository.ShopRepository;
 import com.capstone.campuseats.config.CustomException;
 import jakarta.annotation.PostConstruct;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ItemService {
@@ -50,11 +51,11 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
-    public Optional<ItemEntity> getItemById(ObjectId id) {
+    public Optional<ItemEntity> getItemById(String id) {
         return itemRepository.findById(id);
     }
 
-    public ItemEntity createItem(ItemEntity item, MultipartFile image, ObjectId shopId) throws IOException {
+    public ItemEntity createItem(ItemEntity item, MultipartFile image, String shopId) throws IOException {
         // Validate that the shop exists
         Optional<ShopEntity> optionalShop = shopRepository.findById(shopId);
         if (optionalShop.isEmpty()) {
@@ -96,11 +97,13 @@ public class ItemService {
             String imageUrl = blobClient.getBlobUrl();
             item.setImageUrl(imageUrl);
         }
+        String stringId = UUID.randomUUID().toString();
+        item.setId(stringId);
 
         return itemRepository.save(item);
     }
 
-    public ItemEntity updateItem(ObjectId itemId, ItemEntity item, MultipartFile image) throws IOException {
+    public ItemEntity updateItem(String itemId, ItemEntity item, MultipartFile image) throws IOException {
         Optional<ItemEntity> optionalItem = itemRepository.findById(itemId);
         if (optionalItem.isEmpty()) {
             throw new CustomException("Item not found.");
@@ -144,7 +147,7 @@ public class ItemService {
         existingItem.setPrice(item.getPrice());
         return itemRepository.save(existingItem);
     }
-    public List<ItemEntity> getItemsByShopId(ObjectId shopId) {
+    public List<ItemEntity> getItemsByShopId(String shopId) {
         return itemRepository.findByShopIdAndQuantityGreaterThan(shopId, 0);
     }
 }

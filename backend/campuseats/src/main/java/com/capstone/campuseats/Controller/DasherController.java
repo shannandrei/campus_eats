@@ -4,7 +4,6 @@ import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Service.DasherService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +28,7 @@ public class DasherController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<DasherEntity>> getDasherById(@PathVariable ObjectId id) {
+    public ResponseEntity<Optional<DasherEntity>> getDasherById(@PathVariable String id) {
         return new ResponseEntity<>(dasherService.getDasherById(id), HttpStatus.OK);
     }
 
@@ -52,7 +51,7 @@ public class DasherController {
             @RequestPart("image") MultipartFile image,
             @RequestPart("userId") String userIdStr) throws IOException {
         try {
-            ObjectId userId = new ObjectId(userIdStr);
+            String userId = new String(userIdStr);
             DasherEntity createdDasher = dasherService.createDasher(dasher, image, userId);
             return new ResponseEntity<>(createdDasher, HttpStatus.CREATED);
         } catch (CustomException ex) {
@@ -62,7 +61,7 @@ public class DasherController {
 
     @PutMapping("/update/{dasherId}")
     public ResponseEntity<?> updateDasher(
-            @PathVariable ObjectId dasherId,
+            @PathVariable String dasherId,
             @RequestPart("dasher") DasherEntity dasher,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
@@ -74,7 +73,7 @@ public class DasherController {
     }
 
     @PutMapping("/update/{dasherId}/status")
-    public ResponseEntity<Boolean> updateDasherStatus(@PathVariable ObjectId dasherId, @RequestParam String status) {
+    public ResponseEntity<Boolean> updateDasherStatus(@PathVariable String dasherId, @RequestParam String status) {
         boolean isUpdated = dasherService.updateDasherStatus(dasherId, status);
         if (isUpdated) {
             return new ResponseEntity<>(true, HttpStatus.OK);
