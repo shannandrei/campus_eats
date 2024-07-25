@@ -20,6 +20,8 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+
+
     public OrderEntity placeOrder(OrderEntity order) {
         List<OrderEntity> existingOrders = orderRepository.findByUid(order.getUid());
 
@@ -46,8 +48,9 @@ public class OrderService {
         }
 
         OrderEntity order = orderOptional.get();
+        System.out.println("ordeer: "+ order);
         order.setStatus(status);
-        order.setDasherId(null);
+        order.setDasherId(order.getDasherId());
         orderRepository.save(order);
     }
 

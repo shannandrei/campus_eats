@@ -20,7 +20,7 @@ const AdminIncomingOrder = () => {
       try {
         const response = await axios.get('/orders/active-lists');
         const ordersWithShopData = await Promise.all(response.data.map(async order => {
-          const shopDataResponse = await axios.get(`/shops/${order.shopID}`);
+          const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
@@ -122,10 +122,10 @@ const AdminIncomingOrder = () => {
             <div className="ao-card-current ao-card-large">
               <div className="ao-card-content" onClick={() => toggleAccordion(order.id)}>
                 <div className="ao-order-img-holder">
-                  <img src='/Assets/Panda.png' alt="food" className="ao-order-img" />
+                  <img src={order.shopData.imageUrl? order.shopData.imageUrl : '/Assets/Panda.png'} alt="food" className="ao-order-img" />
                 </div>
                 <div className="ao-card-text">
-                  <h3>{`${order.firstName} ${order.lastName}`}</h3>
+                  <h3>{`${order.firstname} ${order.lastname}`}</h3>
                   <p>{`Order #${order.id}`}</p>
                   <p>{order.paymentMethod=== 'gcash'? 'Online Payment' : 'Cash on Delivery'}</p>
                 </div>

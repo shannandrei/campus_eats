@@ -52,7 +52,7 @@ public class PaymentService {
         orderRepository.save(order);
 
         for (CartItem item : items) {
-            Optional<ItemEntity> itemOptional = itemRepository.findById(item.getId());
+            Optional<ItemEntity> itemOptional = itemRepository.findById(item.getItemId());
             if (itemOptional.isPresent()) {
                 ItemEntity itemEntity = itemOptional.get();
                 int newQuantity = itemEntity.getQuantity() - item.getQuantity();

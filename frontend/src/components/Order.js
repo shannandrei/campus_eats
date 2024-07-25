@@ -59,7 +59,6 @@ const Order = () => {
                 }
             }
 
-            console.log("orders data: ", ordersData);
             const ordersShopData = await Promise.all(
                 ordersData.orders.map(async (order) => {
                     const ordersShopDataResponse = await axios.get(`/shops/${order.shopId}`);
@@ -69,7 +68,6 @@ const Order = () => {
                 })
             );
 
-            console.log("Orders shop data:", ordersShopData);
             setOrders(ordersShopData);
             
         } catch (error) {
@@ -86,7 +84,6 @@ const Order = () => {
                 throw new Error('Failed to fetch shop data');
             }
             const data = response.data;
-            console.log('Shop data:', data);
             setShop(data);
         } catch (error) {
             console.error('Error fetching shop data:', error);
@@ -135,8 +132,8 @@ const Order = () => {
                                 <div className="o-order-details">
 
                                     <div className="o-order-text">
-                                            <h3>{shop ? shop.shopName : ''}</h3>
-                                            <p>{shop ? shop.shopAddress : ''}</p>
+                                            <h3>{shop ? shop.name : ''}</h3>
+                                            <p>{shop ? shop.address : ''}</p>
                                         <div className="o-order-subtext">
                                             
                                             <p>Delivery Location</p> 

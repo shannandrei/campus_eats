@@ -14,6 +14,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
     useEffect(() => {
         if (item) {
             setTotalPrice(item.price * userQuantity);
+            console.log('Item:', item.id);
         }
     }, [userQuantity, item]);
 
@@ -39,7 +40,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
 
     const addToCart = async () => {
         try {
-            console.log('Adding item to cart:', item.shopId, item.id, userQuantity, totalPrice, currentUser.id);
+            
             const response = await axios.post('/carts/add-to-cart', {
                 item: {
                     id: item.id,
@@ -52,13 +53,14 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                 uid: currentUser.id,
                 shopId: item.shopId
             });
+            console.log('Response:', response);
 
             if (response.status !== 200) {
                 throw new Error(response.data.error || 'Failed to add item to cart');
             }
 
             onClose();
-            window.location.reload();
+            // window.location.reload();
         } catch (error) {
             console.error('Error adding item to cart:', error);
             alert(error.message);

@@ -55,7 +55,7 @@ public class CartService {
 
         int newItemIndex = -1;
         for (int i = 0; i < cart.getItems().size(); i++) {
-            if (cart.getItems().get(i).getId().equals(newItem.getId())) {
+            if (cart.getItems().get(i).getItemId().equals(newItem.getItemId())) {
                 newItemIndex = i;
                 break;
             }
@@ -84,7 +84,7 @@ public class CartService {
 
         CartEntity cart = optionalCart.get();
         Optional<CartItem> optionalItem = cart.getItems().stream()
-                .filter(item -> item.getId().equals(itemId))
+                .filter(item -> item.getItemId().equals(itemId))
                 .findFirst();
 
         if (optionalItem.isEmpty()) {

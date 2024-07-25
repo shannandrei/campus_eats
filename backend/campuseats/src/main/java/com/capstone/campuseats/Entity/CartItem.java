@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CartItem {
-    private String id;
+    private String itemId;
     private String name;
     private float unitPrice;
     private float price;

@@ -50,7 +50,7 @@ public class CartController {
             Map<String, Object> itemData = (Map<String, Object>) payload.get("item");
 
             CartItem newItem = CartItem.builder()
-                    .id((String) itemData.get("id"))
+                    .itemId((String) itemData.get("id"))
                     .name((String) itemData.get("name"))
                     .unitPrice(Float.parseFloat(itemData.get("price").toString()))
                     .price(Float.parseFloat(itemData.get("price").toString()) * Integer.parseInt(itemData.get("userQuantity").toString()))

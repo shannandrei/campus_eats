@@ -162,11 +162,12 @@ const Checkout = () => {
         return <div>Fetching...</div>; // Show a loading state while fetching data
     }
     const handleOrderSubmission = async () => {
+        console.log("cart items: ", cart.items);
         const order = {
             uid: currentUser.id,
             shopId: cart.shopId,
-            firstName,
-            lastName,
+            firstname: firstName,
+            lastname: lastName,
             mobileNum,
             deliverTo,
             paymentMethod,
@@ -179,6 +180,7 @@ const Checkout = () => {
 
         try {
             const response = await axios.post("/orders/place-order", order);
+            
             try {
                 const removeCartResponse = await axios.delete('/carts/remove-cart', {
                     data: { uid: currentUser.id }

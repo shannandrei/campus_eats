@@ -2,6 +2,7 @@ package com.capstone.campuseats.Controller;
 
 import com.capstone.campuseats.Entity.CartItem;
 import com.capstone.campuseats.Entity.OrderEntity;
+import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,10 @@ public class OrderController {
     private OrderService orderService;
 
 
+    @GetMapping
+    public ResponseEntity<List<OrderEntity>> getAllOrders() {
+        return new ResponseEntity<List<OrderEntity>>(orderService.getAllOrders(), HttpStatus.OK);
+    }
     @GetMapping("/active-lists")
     public ResponseEntity<?> getAllActiveOrders() {
         try {
@@ -61,10 +66,11 @@ public class OrderController {
                     .paymentMethod((String) payload.get("paymentMethod"))
                     .totalPrice(Float.parseFloat(payload.get("totalPrice").toString()))
                     .build();
+            System.out.println("items: "+ order.getItems());
 
             OrderEntity placedOrder = orderService.placeOrder(order);
 
-            return new ResponseEntity<>(Map.of("message", "Order placed successfully", "id", placedOrder.getId().toString()), HttpStatus.OK);
+            return new ResponseEntity<>(Map.of("message", "Order placed successfully", "data", placedOrder), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {

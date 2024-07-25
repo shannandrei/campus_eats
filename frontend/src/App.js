@@ -23,8 +23,8 @@ import Checkout from './components/Checkout';
 // import UpdateShop from './components/UpdateShop';
 import AdminShopList from './components/AdminShopList';
 // import DasherRoute from './components/DasherRoute';
-// import DasherIncomingOrder from './components/DasherIncomingOrder';
-// import DasherHome from './components/DasherHome';
+import DasherIncomingOrder from './components/DasherIncomingOrder';
+import DasherHome from './components/DasherHome';
 // import ShopUpdate from './components/ShopUpdate';
 // import DasherUpdate from './components/DasherUpdate';
 
@@ -50,10 +50,8 @@ function App() {
           <Route path="/orders" element={<Order />} />
           <Route path="/dasher-application" element={<DasherApplication />} />
           <Route path="/shop-application" element={<ShopApplication />} />
-          
-          
-          
-          
+          <Route path="/dasher-orders" element={<DasherHome />} />
+          <Route path="/dasher-incoming-order" element={<DasherIncomingOrder />} />
         </Routes>
 
         {/* <Routes> */}
@@ -74,8 +72,8 @@ function App() {
         {/* </Routes> */}
 
         {/* <Routes> */}
-          {/* <Route path="/dasher-incoming-order" element={<DasherRoute Component={DasherIncomingOrder} />} />
-          <Route path="/dasher-orders" element={<DasherRoute Component={DasherHome} />} />
+          {/* 
+          
           <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate} />} /> */}
         {/* </Routes> */}
         </AuthProvider>

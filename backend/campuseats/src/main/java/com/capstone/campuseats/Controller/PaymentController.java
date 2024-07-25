@@ -36,7 +36,7 @@ public class PaymentController {
 
             List<CartItem> items = itemsPayload.stream().map(itemMap ->
                     CartItem.builder()
-                            .id(new String((String) itemMap.get("id")))
+                            .itemId(new String((String) itemMap.get("itemId")))
                             .name((String) itemMap.get("name"))
                             .unitPrice(Float.parseFloat(itemMap.get("unitPrice").toString()))
                             .price(Float.parseFloat(itemMap.get("price").toString()))
