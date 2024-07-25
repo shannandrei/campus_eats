@@ -4,12 +4,16 @@ import com.capstone.campuseats.Entity.ItemEntity;
 import com.capstone.campuseats.Entity.ShopEntity;
 import com.capstone.campuseats.Service.ItemService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.DataInput;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,16 +38,20 @@ public class ItemController {
 
     @PostMapping("/shop-add-item/{shopId}")
     public ResponseEntity<?> addItemToShop(
-            @PathVariable String shopId,
-            @RequestPart("item") ItemEntity item,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart("shopId") String shopIdStr,
+            @RequestPart("item") String itemStr,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            ItemEntity item = mapper.readValue(itemStr, ItemEntity.class);
+            String shopId = new String(shopIdStr);
             ItemEntity createdItem = itemService.createItem(item, image, shopId);
             return new ResponseEntity<>(createdItem, HttpStatus.CREATED);
 
         } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 

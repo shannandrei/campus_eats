@@ -15,10 +15,10 @@ import Order from './components/Order';
 // import PrivateRoute from './components/PrivateRoute';
 // import AdminRoute from './components/AdminRoute';
 // import PublicRoute from './components/PublicRoute';
-// import AddItem from './components/AddItem';
+import AddItem from './components/AddItem';
 // import ShopRoute from './components/ShopRoute';
 import Checkout from './components/Checkout';
-// import ShopManage from './components/ShopManage';
+import ShopManage from './components/ShopManage';
 // import UpdateItem from './components/UpdateItem';
 // import UpdateShop from './components/UpdateShop';
 import AdminShopList from './components/AdminShopList';
@@ -26,7 +26,7 @@ import AdminShopList from './components/AdminShopList';
 import DasherIncomingOrder from './components/DasherIncomingOrder';
 import DasherHome from './components/DasherHome';
 // import ShopUpdate from './components/ShopUpdate';
-// import DasherUpdate from './components/DasherUpdate';
+import DasherUpdate from './components/DasherUpdate';
 
 
 function App() {
@@ -52,6 +52,9 @@ function App() {
           <Route path="/shop-application" element={<ShopApplication />} />
           <Route path="/dasher-orders" element={<DasherHome />} />
           <Route path="/dasher-incoming-order" element={<DasherIncomingOrder />} />
+          <Route path="/shop-add-item" element={<AddItem />} />
+          <Route path="/shop-manage-item" element={<ShopManage />} />
+          <Route path="/dasher-update" element={<DasherUpdate/>} />
         </Routes>
 
         {/* <Routes> */}
@@ -65,8 +68,8 @@ function App() {
 
         {/* <Routes> */}
           {/* <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
-          <Route path="/shop-add-item" element={<ShopRoute Component={AddItem} />} />
-          <Route path="/shop-manage-item" element={<ShopRoute Component={ShopManage} />} />
+          
+          
           <Route path="/edit-shop" element={<ShopRoute Component={UpdateShop} />} />
           <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} /> */}
         {/* </Routes> */}
@@ -74,7 +77,7 @@ function App() {
         {/* <Routes> */}
           {/* 
           
-          <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate} />} /> */}
+           */}
         {/* </Routes> */}
         </AuthProvider>
       </Router>

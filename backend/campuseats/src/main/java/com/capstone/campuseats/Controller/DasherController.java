@@ -69,15 +69,26 @@ public class DasherController {
     @PutMapping("/update/{dasherId}")
     public ResponseEntity<?> updateDasher(
             @PathVariable String dasherId,
-            @RequestPart("dasher") DasherEntity dasher,
+            @RequestPart("dasher") String dasherStr,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
+            // Print to check if image exists
+            if (image != null && !image.isEmpty()) {
+                System.out.println("Image file exists: " + image.getOriginalFilename());
+            } else {
+                System.out.println("No image file provided.");
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            DasherEntity dasher = mapper.readValue(dasherStr, DasherEntity.class);
             DasherEntity updatedDasher = dasherService.updateDasher(dasherId, dasher, image);
             return new ResponseEntity<>(updatedDasher, HttpStatus.OK);
         } catch (CustomException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @PutMapping("/update/{dasherId}/status")
     public ResponseEntity<Boolean> updateDasherStatus(@PathVariable String dasherId, @RequestParam String status) {

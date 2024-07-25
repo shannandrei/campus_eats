@@ -119,6 +119,7 @@ public class DasherService {
 
         DasherEntity existingDasher = optionalDasher.get();
 
+
         if (image != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             String formattedTimestamp = LocalDateTime.now().format(formatter);
@@ -131,17 +132,20 @@ public class DasherService {
             blobClient.upload(image.getInputStream(), image.getSize(), true);
 
             String schoolId = blobClient.getBlobUrl();
+            System.out.println("schoolId URL: "+schoolId);
             existingDasher.setSchoolId(schoolId);
+            System.out.println("schoolId URL after set: "+existingDasher.getSchoolId());
         }
 
         existingDasher.setAvailableStartTime(dasher.getAvailableStartTime());
         existingDasher.setAvailableEndTime(dasher.getAvailableEndTime());
         existingDasher.setDaysAvailable(dasher.getDaysAvailable());
-        existingDasher.setSchoolId(dasher.getSchoolId());
         existingDasher.setGcashName(dasher.getGcashName());
-        existingDasher.setStatus(dasher.getStatus());
+        existingDasher.setStatus(existingDasher.getStatus());
         existingDasher.setGcashNumber(dasher.getGcashNumber());
 
+        System.out.println("user: "+existingDasher);
+        System.out.println("test df: "+existingDasher.getGcashNumber());
         return dasherRepository.save(existingDasher);
     }
 
