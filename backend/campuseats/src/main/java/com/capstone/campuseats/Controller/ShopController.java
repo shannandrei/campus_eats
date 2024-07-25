@@ -65,9 +65,12 @@ public class ShopController {
     @PutMapping("/shop-update/{shopId}")
     public ResponseEntity<?> updateShop(
             @PathVariable String shopId,
-            @RequestPart("shop") ShopEntity shop,
+            @RequestPart("shop") String shopStr,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            ShopEntity shop = mapper.readValue(shopStr, ShopEntity.class);
             ShopEntity updatedShop = shopService.updateShop(shopId, shop, image);
             return new ResponseEntity<>(updatedShop, HttpStatus.OK);
         } catch (CustomException ex) {

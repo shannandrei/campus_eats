@@ -72,12 +72,7 @@ public class DasherController {
             @RequestPart("dasher") String dasherStr,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
-            // Print to check if image exists
-            if (image != null && !image.isEmpty()) {
-                System.out.println("Image file exists: " + image.getOriginalFilename());
-            } else {
-                System.out.println("No image file provided.");
-            }
+
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
