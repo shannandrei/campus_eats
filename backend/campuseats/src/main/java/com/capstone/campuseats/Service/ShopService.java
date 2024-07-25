@@ -84,6 +84,7 @@ public class ShopService {
         String imageUrl = blobClient.getBlobUrl();
 
         shop.setImageUrl(imageUrl);
+        shop.setStatus("pending");
         return shopRepository.save(shop);
     }
 

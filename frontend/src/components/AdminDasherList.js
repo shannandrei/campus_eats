@@ -12,7 +12,7 @@ const AdminDasherList = () => {
     const handleDeclineClick = async (dasherId) => {
         if (window.confirm("Are you sure you want to decline this dasher?")) {
             try {
-                await axios.put(`/update/${dasherId}/status`, null, { params: { status: 'declined' } });
+                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'declined' } });
                 alert('Dasher status updated successfully');
                 window.location.reload();
             } catch (error) {
@@ -25,7 +25,7 @@ const AdminDasherList = () => {
     const handleAcceptClick = async (dasherId) => {
         if (window.confirm("Are you sure you want to accept this dasher?")) {
             try {
-                await axios.put(`/update/${dasherId}/status`, null, { params: { status: 'active' } });
+                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'active' } });
                 alert('Dasher status updated successfully');
                 window.location.reload();
             } catch (error) {

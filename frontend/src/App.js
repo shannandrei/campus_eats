@@ -6,8 +6,8 @@ import LandingPage from './components/LandingPage';
 import Home from './components/Home';
 import UserProfile from './components/UserProfile';
 import Shop from './components/Shop';
-// import ShopApplication from './components/ShopApplication';
-// import DasherApplication from './components/DasherApplication';
+import ShopApplication from './components/ShopApplication';
+import DasherApplication from './components/DasherApplication';
 import AdminDasherList from './components/AdminDasherList';
 import AdminIncomingOrder from './components/AdminIncomingOrder';
 import AdminOrderHistory from './components/AdminOrderHistory';
@@ -48,13 +48,10 @@ function App() {
           <Route path="/checkout/:uid/:shopId" element={<Checkout />} />
           <Route path="/shop/:shopId" element={<Shop />} />
           <Route path="/orders" element={<Order />} />
-          {/* 
+          <Route path="/dasher-application" element={<DasherApplication />} />
+          <Route path="/shop-application" element={<ShopApplication />} />
           
           
-          
-          <Route path="/shop-application" element={<PrivateRoute Component={ShopApplication} />} />
-          <Route path="/dasher-application" element={<PrivateRoute Component={DasherApplication} />} />
-           */}
           
           
         </Routes>

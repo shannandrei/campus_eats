@@ -5,6 +5,8 @@ import com.capstone.campuseats.Entity.ShopEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.ShopService;
 import com.capstone.campuseats.config.CustomException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +46,13 @@ public class ShopController {
 
     @PostMapping("/apply")
     public ResponseEntity<?> applyShop(
-            @RequestPart("shop") ShopEntity shop,
+            @RequestPart("shop") String shopStr,
             @RequestPart("image") MultipartFile image,
             @RequestPart("userId") String userIdStr) throws IOException {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            ShopEntity shop = mapper.readValue(shopStr, ShopEntity.class);
             String userId = new String(userIdStr);
             ShopEntity createdShop = shopService.createShop(shop, image, userId);
             return new ResponseEntity<>(createdShop, HttpStatus.CREATED);
@@ -55,6 +60,7 @@ public class ShopController {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @PutMapping("/shop-update/{shopId}")
     public ResponseEntity<?> updateShop(

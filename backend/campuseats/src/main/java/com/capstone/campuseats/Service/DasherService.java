@@ -105,7 +105,9 @@ public class DasherService {
         blobClient.upload(image.getInputStream(), image.getSize(), true);
 
         String schoolId = blobClient.getBlobUrl();
+        dasher.setStatus("pending");
         dasher.setSchoolId(schoolId);
+        dasher.setCreatedAt(LocalDateTime.now());
         return dasherRepository.save(dasher);
     }
 

@@ -3,6 +3,8 @@ package com.capstone.campuseats.Controller;
 import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Service.DasherService;
 import com.capstone.campuseats.config.CustomException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,17 +49,22 @@ public class DasherController {
 
     @PostMapping("/apply")
     public ResponseEntity<?> applyDasher(
-            @RequestPart("dasher") DasherEntity dasher,
+            @RequestPart("dasher") String dasherStr,
             @RequestPart("image") MultipartFile image,
-            @RequestPart("userId") String userIdStr) throws IOException {
+            @RequestPart("userId") String userId) throws IOException {
         try {
-            String userId = new String(userIdStr);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            DasherEntity dasher = mapper.readValue(dasherStr, DasherEntity.class);
             DasherEntity createdDasher = dasherService.createDasher(dasher, image, userId);
             return new ResponseEntity<>(createdDasher, HttpStatus.CREATED);
         } catch (CustomException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
 
     @PutMapping("/update/{dasherId}")
     public ResponseEntity<?> updateDasher(
