@@ -118,6 +118,7 @@ public class ItemService {
         }
 
         // Handle image upload if new image is provided
+
         if (image != null) {
             // Format the timestamp
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -137,6 +138,10 @@ public class ItemService {
 
             String imageUrl = blobClient.getBlobUrl();
             existingItem.setImageUrl(imageUrl);
+            System.out.println("new image: "+imageUrl);
+            System.out.println("old image: "+existingItem.getImageUrl());
+        }else {
+            System.out.println("hi");
         }
 
         // Update the item fields

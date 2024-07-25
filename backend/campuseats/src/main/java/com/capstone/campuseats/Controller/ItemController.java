@@ -1,5 +1,6 @@
 package com.capstone.campuseats.Controller;
 
+import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.ItemEntity;
 import com.capstone.campuseats.Entity.ShopEntity;
 import com.capstone.campuseats.Service.ItemService;
@@ -58,10 +59,13 @@ public class ItemController {
     @PutMapping("/shop-update-item/{itemId}")
     public ResponseEntity<?> updateItem(
             @PathVariable String itemId,
-            @RequestPart("item") ItemEntity item,
+            @RequestPart("item") String itemStr,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            ItemEntity item = mapper.readValue(itemStr, ItemEntity.class);
             ItemEntity updatedItem = itemService.updateItem(itemId, item, image);
             return new ResponseEntity<>(Map.of("message", "Item updated successfully", "itemId", updatedItem.getId().toString()), HttpStatus.OK);
 
