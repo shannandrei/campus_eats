@@ -35,10 +35,11 @@ export function AuthProvider({ children }) {
             throw error;
         }
     };
+    
 
-    const signup = async (email, password, username, firstName, lastName) => {
+    const signup = async (email, password, username, firstname, lastname) => {
         try {
-            const response = await axios.post('/users/signup', { email, password, username, firstName, lastName });
+            const response = await axios.post('/users/signup', { email, password, username, firstname, lastname });
 
             if (!response.data) {
                 throw new Error('Signup failed');

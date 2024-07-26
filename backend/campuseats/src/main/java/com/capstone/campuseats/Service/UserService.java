@@ -1,19 +1,17 @@
 package com.capstone.campuseats.Service;
 
 import com.capstone.campuseats.Entity.ConfirmationEntity;
-import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Repository.ConfirmationRepository;
 import com.capstone.campuseats.Repository.UserRepository;
 import com.capstone.campuseats.config.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -25,6 +23,45 @@ public class UserService {
     private ConfirmationRepository confirmationRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    public class VerificationCodeService {
+
+        // Assuming you have a cache implementation, you can use a Map for simplicity
+        private Map<String, String> verificationCodeCache = new HashMap<>();
+
+        // Other methods...
+
+        public void storeVerificationCode(String email, String code) {
+            // Store the verification code in the cache
+            verificationCodeCache.put(email, code);
+        }
+
+        public String getVerificationCode(String email) {
+            // Retrieve the verification code from the cache
+            return verificationCodeCache.get(email);
+        }
+    }
+
+    public String sendVerificationCode(String to, String verificationCode) {
+        try {
+            // Send verification code to user's email
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("xiannandreicabana@gmail.com"); // replace with your email
+            message.setTo(to);
+            message.setSubject("Verification Code");
+            message.setText("Your verification code is: " + verificationCode);
+
+            javaMailSender.send(message);
+
+            // Return the verification code
+            return verificationCode;
+        } catch (Exception e) {
+            // Handle exceptions, log errors, etc.
+            throw new RuntimeException("Failed to send verification code. Please try again.", e);
+        }
+    }
 
     public List<UserEntity> getAllUsers(){
         return userRepository.findAll();
@@ -33,6 +70,12 @@ public class UserService {
     public Optional<UserEntity> findUserById(String id) {
         return userRepository.findById(id);
     }
+    public Optional<UserEntity> checkUserExistsByEmail(String email) {
+        System.out.println("email: "+email);
+        System.out.println("response: "+userRepository.findByEmailIgnoreCase(email));
+        return userRepository.findByEmailIgnoreCase(email);
+    }
+
 
     public String getUserAccountType(String id) throws CustomException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
@@ -129,23 +172,52 @@ public class UserService {
     public void updateUser(String id, UserEntity user) throws CustomException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
-
             UserEntity existingUser = optionalUser.get();
-            existingUser.setFirstname(user.getFirstname());
-            existingUser.setLastname(user.getLastname());
-            existingUser.setPhone(user.getPhone());
-            existingUser.setUsername(user.getUsername());
+
+            // Update only the fields that are not null
+            if (user.getFirstname() != null) {
+                existingUser.setFirstname(user.getFirstname());
+            }
+            if (user.getLastname() != null) {
+                existingUser.setLastname(user.getLastname());
+            }
+            if (user.getPhone() != null) {
+                existingUser.setPhone(user.getPhone());
+            }
+            if (user.getUsername() != null) {
+                existingUser.setUsername(user.getUsername());
+            }
+
             existingUser.setDateCreated(existingUser.getDateCreated());
+
+
             existingUser.setAccountType(existingUser.getAccountType());
-            existingUser.setVerified(user.isVerified());
-            existingUser.setDob(user.getDob());
-            existingUser.setCourseYear(user.getCourseYear());
-            existingUser.setSchoolIdNum(user.getSchoolIdNum());
+
+
+            existingUser.setVerified(existingUser.isVerified());
+
+            if (user.getDob() != null) {
+                existingUser.setDob(user.getDob());
+            }
+            if (user.getCourseYear() != null) {
+                existingUser.setCourseYear(user.getCourseYear());
+            }
+            if (user.getSchoolIdNum() != null) {
+                existingUser.setSchoolIdNum(user.getSchoolIdNum());
+            }
+            System.out.println("password new: "+user.getPassword());
+            if (user.getPassword() != null) {
+                String encodedPassword = passwordEncoder.encode(user.getPassword());
+                existingUser.setPassword(encodedPassword); // Ensure that the password is updated securely
+            }
+
+            // Save the updated user
             userRepository.save(existingUser);
         } else {
             throw new CustomException("User not found.");
         }
     }
+
 
     public boolean updateAccountType(String userId, String accountType) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);

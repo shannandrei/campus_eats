@@ -2,6 +2,7 @@ package com.capstone.campuseats.Controller;
 
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.UserService;
+import com.capstone.campuseats.Service.VerificationCodeService;
 import com.capstone.campuseats.config.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,63 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+
+    private String generateVerificationCode() {
+        // Generate a random alphanumeric verification code
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder code = new StringBuilder();
+
+        for (int i = 0; i < 6; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return code.toString();
+    }
+
+    @PostMapping("/sendVerificationCode")
+    public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
+        try {
+            // You can add additional validation for the email if needed
+
+            // Generate verification code
+            String verificationCode = generateVerificationCode();
+
+            // Store the verification code in the cache
+            verificationCodeService.storeVerificationCode(email, verificationCode);
+
+            // Send verification code to user's email
+            userService.sendVerificationCode(email, verificationCode);
+
+            // Return the verification code to the frontend
+            return ResponseEntity.ok(verificationCode);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to send verification code. Please try again.");
+        }
+    }
+
+    @PostMapping("/verifyCode")
+    public ResponseEntity<String> verifyCode(@RequestParam String email, @RequestParam String enteredCode) {
+        try {
+            // Retrieve the stored verification code from the cache
+            String storedCode = verificationCodeService.getVerificationCode(email);
+
+            // Check if the entered code matches the stored code
+            if (enteredCode.equals(storedCode)) {
+                // Code verification successful
+                return ResponseEntity.ok("success");
+            } else {
+                // Code verification failed
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect verification code");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to verify code. Please try again.");
+        }
+    }
     @GetMapping
     public ResponseEntity<List<UserEntity>> getAllUsers() {
         return new ResponseEntity<List<UserEntity>>(userService.getAllUsers(), HttpStatus.OK);
@@ -34,6 +93,13 @@ public class UserController {
     public ResponseEntity<Optional<UserEntity>> getUserById(@PathVariable String id) {
         return new ResponseEntity<Optional<UserEntity>>(userService.findUserById(id), HttpStatus.OK);
     }
+
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<Optional<UserEntity>> checkUserByEmail(@PathVariable String email) {
+        return new ResponseEntity<Optional<UserEntity>>(userService.checkUserExistsByEmail(email), HttpStatus.OK);
+    }
+
+
 
     @GetMapping("/{id}/accountType")
     public ResponseEntity<?> getUserAccountType(@PathVariable String id) {

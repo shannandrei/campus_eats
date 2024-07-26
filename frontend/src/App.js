@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import LoginSignUp from './components/LoginSignUp';
 import { AuthProvider } from './utils/AuthContext';
 import LandingPage from './components/LandingPage';
@@ -36,6 +37,7 @@ function App() {
         <AuthProvider>
         <Routes>
           <Route path="/forgot-password" element={<PublicRoute Component={ForgotPassword} />} />
+          <Route path="/reset-password/" element={<PublicRoute Component={ResetPassword} />} />
           <Route path="/login" element={<PublicRoute Component={LoginSignUp} />} />
           <Route path="/signup" element={<PublicRoute Component={LoginSignUp} />} />
           <Route path="/" element={<PublicRoute Component={LandingPage} />} />
