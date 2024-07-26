@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
 import LoginSignUp from "./LoginSignUp";
 import Home from "./Home";
-import ShopManage from "./ShopManage";
-import axios from '../utils/axiosConfig';
+import axios from 'axios';
+import DasherHome from "./DasherHome";
 
-const DasherRoute = ({ Component }) => {
+const ShopRoute = ({ Component }) => {
   const { currentUser } = useAuth();
   const [accountType, setAccountType] = useState('');
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,6 @@ const DasherRoute = ({ Component }) => {
     
 }, [currentUser]);
 
-  
   if (loading) {
     return <div>Checking permissions...</div>; // Or a loading spinner
   }
@@ -40,7 +39,7 @@ const DasherRoute = ({ Component }) => {
   }
 
   if (accountType === 'shop') {
-    return <ShopManage />;
+    return <Component />;
   }
 
   if (accountType === 'regular') {
@@ -48,12 +47,11 @@ const DasherRoute = ({ Component }) => {
   }
 
   if (accountType === 'dasher' || accountType === 'admin') {
-    return <Component />;
+    return <DasherHome />
   }
-
 
 
   return <Home />;
 };
 
-export default DasherRoute;
+export default ShopRoute;
