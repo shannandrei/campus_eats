@@ -255,7 +255,6 @@ const Navbar = () => {
                         <Link to="/" style={{ textDecoration: 'none' }}>
                             <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                         </Link>
-                        <p>{userAccountType}</p>
                     </div>
                     <div className='nav'>
                         <ul>
