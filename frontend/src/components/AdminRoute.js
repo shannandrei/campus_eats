@@ -12,6 +12,7 @@ const AdminRoute = ({ Component }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("admin route current user: ", currentUser);
     setLoading(true);
     if (currentUser) {
         const fetchUserAccountType = async () => {

@@ -29,16 +29,11 @@ const Checkout = () => {
 
     useEffect(() => {
         setLoading(true);
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get(`/users/${uid}`);
-                setFirstName(response.data.firstname || "");
-                setLastName(response.data.lastname || "");
-                setMobileNum(response.data.phone || "");
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            }
-        };
+        
+        setFirstName(currentUser.firstname || "");
+        setLastName(currentUser.lastname || "");
+        setMobileNum(currentUser.phone || "");
+        
 
         const fetchCartData = async () => {
             try {
@@ -49,8 +44,6 @@ const Checkout = () => {
                 console.error("Error fetching cart data:", error);
             }
         };
-
-        fetchUserData();
         fetchCartData();
         setLoading(false);
     }, []);

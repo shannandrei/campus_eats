@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
 import LoginSignUp from "./LoginSignUp";
 import Home from "./Home";
-import axios from 'axios';
 import DasherHome from "./DasherHome";
+import axios from "../utils/axiosConfig";
 
 const ShopRoute = ({ Component }) => {
   const { currentUser } = useAuth();
@@ -12,12 +12,13 @@ const ShopRoute = ({ Component }) => {
 
   useEffect(() => {
     setLoading(true);
+    console.log("shop route current user: ", currentUser);
     if (currentUser) {
         const fetchUserAccountType = async () => {
             try {
                 const response = await axios.get(`/users/${currentUser.id}/accountType`);
                 setAccountType(response.data); 
-                console.log("admin route account type: ", response.data);
+                console.log("shop route account type: ", response.data);
                 // Directly setting the response data since it's a plain string
             } catch (error) {
                 console.error('Error fetching user account type:', error);

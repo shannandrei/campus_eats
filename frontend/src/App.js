@@ -45,8 +45,8 @@ function App() {
           <Route path="/profile" element={<PrivateRoute Component={UserProfile} />} />
 
           <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
-          <Route path="/admin-incoming-order" element={<AdminIncomingOrder />} />
-          <Route path="/admin-order-history" element={<AdminOrderHistory />} />
+          <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
+          <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
           <Route path="/admin-shops" element={<AdminShopList />} />
 
           <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} />

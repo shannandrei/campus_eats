@@ -26,24 +26,6 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public class VerificationCodeService {
-
-        // Assuming you have a cache implementation, you can use a Map for simplicity
-        private Map<String, String> verificationCodeCache = new HashMap<>();
-
-        // Other methods...
-
-        public void storeVerificationCode(String email, String code) {
-            // Store the verification code in the cache
-            verificationCodeCache.put(email, code);
-        }
-
-        public String getVerificationCode(String email) {
-            // Retrieve the verification code from the cache
-            return verificationCodeCache.get(email);
-        }
-    }
-
     public String sendVerificationCode(String to, String verificationCode) {
         try {
             // Send verification code to user's email

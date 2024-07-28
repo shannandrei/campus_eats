@@ -83,7 +83,7 @@ const ShopManage = () => {
                                 <h4>₱{shop.deliveryFee}</h4>
                             </div>
                         </div>
-                        <div className="sm-plus-icon" onClick={() => navigate(`/edit-shop`)}>
+                        <div className="sm-plus-icon" onClick={() => navigate(`/shop-update`)}>
                             <FontAwesomeIcon icon={faPen} />
                         </div>
                     </div>
