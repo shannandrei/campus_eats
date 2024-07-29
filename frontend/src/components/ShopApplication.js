@@ -78,38 +78,41 @@
     const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
+      
       const hasCategorySelected = Object.values(categories).some(
         (selected) => selected
       );
+    
       if (!hasCategorySelected) {
         alert("Please select at least one category.");
         setLoading(false);
         return;
       }
+    
       if (!uploadedImage) {
         alert("Please upload a shop image.");
         setLoading(false);
         return;
       }
-
+    
       if (!googleLink.startsWith("https://maps.app.goo.gl/")) {
         alert("Please provide a valid Google Maps address link.");
         setLoading(false);
         return;
       }
-
+    
       if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
         alert("Please provide a valid GCASH Number.");
         setLoading(false);
         return;
       }
-
+    
       if (shopOpen >= shopClose) {
         alert("Shop close time must be later than shop open time.");
         setLoading(false);
         return;
       }
-
+    
       const selectedCategories = Object.keys(categories).filter(category => categories[category]);
       const shop = {
         gcashName: GCASHName,
@@ -122,21 +125,40 @@
         timeOpen: shopOpen,
         timeClose: shopClose,
       }
-
+    
       const formData = new FormData();
       
       formData.append("image", imageFile);
       formData.append("userId", new Blob([currentUser.id], { type: "text/plain" }));
       formData.append("shop", new Blob([JSON.stringify(shop)], { type: "application/json" }));
-
+    
       try {
         const response = await axios.post("/shops/apply", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        alert("Shop application submitted successfully!");
-        navigate("/profile");
+    
+        if (response.status === 200 || response.status === 201) {
+          alert("Shop application submitted successfully!");
+    
+          // Update account type to "shop"
+          const updateResponse = await axios.put(`/users/update/${currentUser.id}/accountType`, null, {
+            params: {
+              accountType: "shop"
+            }
+          });
+    
+          if (updateResponse.status === 200 && updateResponse.data) {
+            console.log("Account type updated to shop.");
+          } else {
+            console.log("Failed to update account type.");
+          }
+    
+          navigate("/profile");
+        } else {
+          alert("Failed to submit shop application.");
+        }
         setLoading(false);
       } catch (error) {
         if (error.response && error.response.data) {
@@ -148,6 +170,7 @@
         setLoading(false);
       }
     };
+    
 
     return (
       <>

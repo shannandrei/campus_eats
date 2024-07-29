@@ -131,7 +131,7 @@ const UserProfile = () => {
                         <div className="p-container">
                             <div className="p-content">
                                 <div className="p-img-holder">
-                                    <img src='/Assets/Panda.png' alt="food" className="p-img"/>
+                                    <img src={'/Assets/profile-picture.jpg'} alt="food" className="p-img"/>
                                 </div>
                                 <div className="p-text">
                                     {editUsername ? (

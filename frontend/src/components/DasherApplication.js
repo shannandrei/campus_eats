@@ -69,29 +69,29 @@ const DasherApplication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const hasCategorySelected = Object.values(days).some(selected => selected);
-
+  
     if (!hasCategorySelected) {
       alert("Please select at least one day.");
       return;
     }
-
+  
     if (!uploadedImage) {
       alert("Please upload a School ID image.");
       return;
     }
-
+  
     if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
       alert("Please provide a valid GCASH Number.");
       return;
     }
-
+  
     if (availableStartTime >= availableEndTime) {
       alert("Available end time must be later than start time.");
       return;
     }
-
+  
     const selectedDays = Object.keys(days).filter(day => days[day]);
     const dasher = {
       daysAvailable: selectedDays,
@@ -100,20 +100,42 @@ const DasherApplication = () => {
       gcashName: GCASHName,
       gcashNumber: GCASHNumber
     };
-
+  
     const formData = new FormData();
     formData.append("dasher", new Blob([JSON.stringify(dasher)], { type: "application/json" }));
     formData.append("image", imageFile);
     formData.append("userId", new Blob([currentUser.id], { type: "text/plain" }));
-
+  
     try {
       const response = await axios.post("/dashers/apply", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      alert("Dasher application submitted successfully.");
-      navigate("/profile");
+      console.log("response: ", response);
+  
+      if (response.status === 200 || response.status === 201) {
+        alert("Dasher application submitted successfully.");
+  
+        // Update account type to "dasher"
+        const updateResponse = await axios.put(`/users/update/${currentUser.id}/accountType`, null, {
+          params: {
+            accountType: "dasher"
+          }
+        });
+
+        // console.log("updateResponse: ", updateResponse);
+  
+        // if (updateResponse.status === 200 && updateResponse.data) {
+        //   console.log("Account type updated to dasher.");
+        // } else {
+        //   console.log("Failed to update account type.");
+        // }
+  
+        navigate("/profile");
+      } else {
+        alert("Failed to submit dasher application.");
+      }
     } catch (error) {
       if (error.response && error.response.data) {
         alert(error.response.data);
@@ -123,6 +145,7 @@ const DasherApplication = () => {
       }
     }
   };
+  
 
   return (
     <>
