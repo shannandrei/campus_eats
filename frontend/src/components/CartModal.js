@@ -34,7 +34,7 @@ const CartModal = ({ showModal, onClose }) => {
         const fetchShopData = async () => {
             if (cartData && cartData.id) {
                 try {
-                    const response = await axios.get(`/shops/${cartData.id}`);
+                    const response = await axios.get(`/shops/${cartData.shopId}`);
                     setShopData(response.data);
                 } catch (error) {
                     console.error('Error fetching shop data:', error);
@@ -93,7 +93,7 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     const handleProceedToCheckout = () => {
-        navigate(`/checkout/${currentUser.id}/${cartData.id}`);
+        navigate(`/checkout/${currentUser.id}/${cartData.shopId}`);
     };
 
     return (
