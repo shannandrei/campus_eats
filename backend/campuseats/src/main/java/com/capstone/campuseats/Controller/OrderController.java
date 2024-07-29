@@ -47,16 +47,16 @@ public class OrderController {
 
     @PostMapping("/place-order")
     public ResponseEntity<?> placeOrder(@RequestBody Map<String, Object> payload) {
+        System.out.println("place order received: " + payload);
         try {
-            String uid = new String((String) payload.get("uid"));
+            String uid = (String) payload.get("uid");
 
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
                     .status("active_waiting_for_admin")
                     .createdAt(LocalDateTime.now())
-                    .dasherId(null) // Handle dasherId
-                    .shopId(new String((String) payload.get("shopId")))
-                    .changeFor(Float.parseFloat(payload.get("changeFor").toString()))
+                    .dasherId(null)
+                    .shopId((String) payload.get("shopId"))
                     .deliverTo((String) payload.get("deliverTo"))
                     .firstname((String) payload.get("firstname"))
                     .lastname((String) payload.get("lastname"))
@@ -66,7 +66,12 @@ public class OrderController {
                     .paymentMethod((String) payload.get("paymentMethod"))
                     .totalPrice(Float.parseFloat(payload.get("totalPrice").toString()))
                     .build();
-            System.out.println("items: "+ order.getItems());
+
+            if (payload.get("changeFor") != null && !((String) payload.get("changeFor")).isEmpty()) {
+                order.setChangeFor(Float.parseFloat(payload.get("changeFor").toString()));
+            }
+
+            System.out.println("items: " + order.getItems());
 
             OrderEntity placedOrder = orderService.placeOrder(order);
 
@@ -77,6 +82,8 @@ public class OrderController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     @PostMapping("/update-order-status")
     public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> payload) {

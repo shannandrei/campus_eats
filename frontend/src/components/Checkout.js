@@ -95,6 +95,7 @@ const Checkout = () => {
         try {
             const response = await axios.request(options);
             const paymentStatus = response.data.data.attributes.status;
+            console.log("Payment status:", paymentStatus);
             if (paymentStatus === 'paid') {
                 setWaitingForPayment(false);
                 handleOrderSubmission();
@@ -155,7 +156,6 @@ const Checkout = () => {
         return <div>Fetching...</div>; // Show a loading state while fetching data
     }
     const handleOrderSubmission = async () => {
-        console.log("cart items: ", cart.items);
         const order = {
             uid: currentUser.id,
             shopId: cart.shopId,
@@ -164,16 +164,20 @@ const Checkout = () => {
             mobileNum,
             deliverTo,
             paymentMethod,
-            changeFor,
             note,
             items: cart.items,
             totalPrice: cart.totalPrice,
         };
+    
+        if (paymentMethod === "cash" && changeFor) {
+            order.changeFor = changeFor;
+        }
+    
         console.log("Order:", order);
-
+    
         try {
             const response = await axios.post("/orders/place-order", order);
-            
+    
             try {
                 const removeCartResponse = await axios.delete('/carts/remove-cart', {
                     data: { uid: currentUser.id }
@@ -189,9 +193,11 @@ const Checkout = () => {
         } catch (error) {
             console.log("Error placing order:", error);
         }
-        
+    
         setLoading(false);
     };
+    
+    
 
     return (
         <>

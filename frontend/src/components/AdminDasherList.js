@@ -3,11 +3,14 @@ import { useAuth } from "../utils/AuthContext";
 import Navbar from "./Navbar";
 import "./css/AdminDasherLists.css";
 import axios from "../utils/axiosConfig";
+import { useNavigate } from "react-router-dom";
 
 const AdminDasherList = () => {
     const { currentUser } = useAuth();
     const [pendingDashers, setPendingDashers] = useState([]);
     const [currentDashers, setCurrentDashers] = useState([]);
+    const navigate = useNavigate();
+
 
     const handleDeclineClick = async (dasherId) => {
         if (window.confirm("Are you sure you want to decline this dasher?")) {
@@ -78,7 +81,12 @@ const AdminDasherList = () => {
         };
 
         fetchDashers();
+        console.log("currentUser: ", currentUser);
     }, []);
+
+    if(!currentUser){
+        navigate('/login');
+    }
 
     return (
         <>
@@ -101,6 +109,7 @@ const AdminDasherList = () => {
                         <div className="adl-container">
                             {pendingDashers.map(dasher => (
                                 <div key={dasher.id} className="adl-box">
+                                    {console.log("dasher pending: ", dasher.userData.firstname)}
                                     <div className="adl-box-content">
                                         <div>{dasher.userData.firstname + " " + dasher.userData.lastname}</div>
                                         <div>{dasher.daysAvailable.join(', ')}</div>
@@ -139,6 +148,7 @@ const AdminDasherList = () => {
                         <div className="adl-container">
                             {currentDashers.map(dasher => (
                                 <div key={dasher.id} className="adl-box">
+                                    {console.log("dasher current: ", dasher)}
                                     <div className="adl-box-content">
                                         <div>{dasher.userData.firstname + " " + dasher.userData.lastname}</div>
                                         <div>{dasher.daysAvailable.join(', ')}</div>
