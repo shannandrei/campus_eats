@@ -105,80 +105,65 @@ const UpdateItem = () => {
     }, [itemId]);
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const hasCategorySelected = Object.values(categories).some(selected => selected);
-
-    if (!hasCategorySelected) {
-        alert("Please select at least one category.");
-        setLoading(false);
-        return;
-    }
-
-    if (quantity < 1) {
-        alert("Quantity must be at least 1.");
-        setLoading(false);
-        return;
-    }
-
-    if (!description && !window.confirm("You have not set a description. Are you sure you want to continue?")) {
-        setLoading(false);
-        return;
-    }
-
-    if (!uploadedImage && !window.confirm("You have not set an item image. Are you sure you want to continue?")) {
-        setLoading(false);
-        return;
-    }
-
-    const selectedCategories = Object.keys(categories).filter(category => categories[category]);
-    const formData = new FormData();
-    const item = JSON.stringify({
-        name: itemName,
-        price,
-        quantity,
-        description,
-        categories: selectedCategories
-    });
-    formData.append("item", item);
-
-    if (imageFile) {
-        formData.append("image", imageFile);
-    }
-
-    try {
-        const response = await axiosConfig.put(`/items/shop-update-item/${itemId}`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-
-        console.log('Response:', response);
-
-        if (response.data) {
-            alert(response.data.message);
-            setSuccess("Item updated successfully!");
-
-            // Ensure state is updated correctly after the response
-            if (response.data.item && response.data.item.imageUrl) {
-                // Append a unique query parameter to avoid caching issues
-                const newImageUrl = `${response.data.item.imageUrl}?t=${new Date().getTime()}`;
-                setUploadedImage(newImageUrl);
-            }
-
-            setLoading(false);
-            navigate("/shop-manage-item");
-        } else {
-            throw new Error("Invalid response from the server");
+        e.preventDefault();
+        setLoading(true);
+        const hasCategorySelected = Object.values(categories).some(selected => selected);
+      
+        if (!hasCategorySelected) {
+          alert("Please select at least one category.");
+          setLoading(false);
+          return;
         }
-    } catch (error) {
-        console.error("Error updating item:", error);
-        alert(error.response?.data?.error || error.message || "An error occurred. Please try again.");
-        setLoading(false);
-    }
-};
-
-
+      
+        if (quantity < 1) {
+          alert("Quantity must be at least 1.");
+          setLoading(false);
+          return;
+        }
+      
+        if (!description && !window.confirm("You have not set a description. Are you sure you want to continue?")) {
+          setLoading(false);
+          return;
+        }
+      
+        if (!uploadedImage && !window.confirm("You have not set an item image. Are you sure you want to continue?")) {
+          setLoading(false);
+          return;
+        }
+      
+        const selectedCategories = Object.keys(categories).filter(category => categories[category]);
+        const formData = new FormData();
+        const item = JSON.stringify({
+            name: itemName,
+            price,
+            quantity,
+            description,
+            categories: selectedCategories
+        });
+        formData.append("item", item);
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
+      
+        try {
+          const response = await axiosConfig.put(`/items/shop-update-item/${itemId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          alert(response.data.message);
+          setSuccess("Item updated successfully!");
+          setLoading(false);
+          navigate("/shop-manage-item");
+        } catch (error) {
+          console.error("Error updating item:", error.response.data.error);
+          alert(error.response.data.error || "An error occurred. Please try again.");
+          setLoading(false);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
     return (
         <>
             <Navbar />
