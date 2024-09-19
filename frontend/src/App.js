@@ -28,6 +28,8 @@ import DasherIncomingOrder from './components/DasherIncomingOrder';
 import DasherHome from './components/DasherHome';
 import ShopUpdate from './components/ShopUpdate';
 import DasherUpdate from './components/DasherUpdate';
+import DasherCashout from './components/DasherCashout';
+import AdminCashoutList from './components/AdminCashoutList';
 
 
 function App() {
@@ -61,6 +63,10 @@ function App() {
           <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate}/>} />
           <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
           <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
+
+          <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
+          <Route path="/admin-cashouts" element={<AdminRoute Component={AdminCashoutList} />} />
+          
           
         </Routes>
 

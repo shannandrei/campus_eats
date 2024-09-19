@@ -143,17 +143,7 @@
           alert("Shop application submitted successfully!");
     
           // Update account type to "shop"
-          const updateResponse = await axios.put(`/users/update/${currentUser.id}/accountType`, null, {
-            params: {
-              accountType: "shop"
-            }
-          });
-    
-          if (updateResponse.status === 200 && updateResponse.data) {
-            console.log("Account type updated to shop.");
-          } else {
-            console.log("Failed to update account type.");
-          }
+          
     
           navigate("/profile");
         } else {

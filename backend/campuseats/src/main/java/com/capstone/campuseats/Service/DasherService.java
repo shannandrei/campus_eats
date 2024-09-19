@@ -83,6 +83,17 @@ public class DasherService {
         return false;
     }
 
+    public boolean updateDasherWallet(String dasherId, double amountPaid) {
+        Optional<DasherEntity> dasherOptional = dasherRepository.findById(dasherId);
+        if (dasherOptional.isPresent()) {
+            DasherEntity dasher = dasherOptional.get();
+            dasher.setWallet(dasher.getWallet()-amountPaid);
+            dasherRepository.save(dasher);
+            return true;
+        }
+        return false;
+    }
+
     public DasherEntity createDasher(DasherEntity dasher, MultipartFile image, String userId) throws IOException {
         if (dasherRepository.existsById(userId)) {
             throw new CustomException("Dasher already exists.");
@@ -107,6 +118,7 @@ public class DasherService {
         String schoolId = blobClient.getBlobUrl();
         dasher.setStatus("pending");
         dasher.setSchoolId(schoolId);
+        dasher.setWallet(0);
         dasher.setCreatedAt(LocalDateTime.now());
         return dasherRepository.save(dasher);
     }

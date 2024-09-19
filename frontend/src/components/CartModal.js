@@ -47,34 +47,44 @@ const CartModal = ({ showModal, onClose }) => {
 
     const updateCartItem = async (itemId, action) => {
         try {
+            console.log('Updating cart item:', itemId, action, currentUser.id);
             const response = await axios.post('/carts/update-cart-item', {
                 uid: currentUser.id,
                 itemId,
                 action
             });
-
+            console.log(response.data);
             setCartData(response.data.cartData);
+            
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 alert('Quantity limit reached');
             } else {
-                alert(`Error: ${error.message}`);
+                console.log(error.response);
             }
         }
     };
 
     const handleItemIncrease = (item) => {
-        updateCartItem(item.id, 'increase');
+        updateCartItem(item.itemId, 'increase');
     };
 
     const handleItemDecrease = (item) => {
-        updateCartItem(item.id, 'decrease');
+        console.log('decreasing item:', item.itemId);
+        updateCartItem(item.itemId, 'decrease');
     };
 
     const handleItemRemove = (item) => {
         if (window.confirm(`Are you sure you want to remove ${item.name} from your cart?`)) {
-            updateCartItem(item.id, 'remove');
+            updateCartItem(item.itemId, 'remove');
         }
+        // setCartData(prevCartData => {
+        //     return {
+        //         ...prevCartData,
+        //         items: prevCartData.items.filter(cartItem => cartItem.id !== item.id)
+        //     };
+        // });
+        console.log('Removing item:', item.id);
     };
 
     const handleShopRemove = async () => {

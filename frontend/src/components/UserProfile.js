@@ -24,6 +24,7 @@ const UserProfile = () => {
     const [schoolIdNum, setSchoolIdNum] = useState('');
     const [oldPwd, setOldPwd] = useState('');
     const [accountType, setAccountType] = useState('');
+    const [dasherData, setDasherData] = useState({});
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     useEffect(() => {
@@ -51,6 +52,23 @@ const UserProfile = () => {
         };
         fetchUserData();
     }, [currentUser]);
+
+    useEffect(() => {
+        
+        const fetchDasherData = async () => {
+          try {
+            const response = await axios.get(`/dashers/${currentUser.id}`);
+            const data = response.data;
+            setDasherData(data);
+            console.log("fetch dasher data:", data);
+          } catch (error) {
+            console.error("Error fetching dasher data:", error);
+          }
+        };
+        if(initialData && initialData.accountType === 'dasher') {
+            fetchDasherData();
+        }
+      }, [initialData]);
 
     const isFormChanged = () => {
         return (
@@ -314,8 +332,22 @@ const UserProfile = () => {
                             <div className="p-upgrade-container">
                                 <div className="p-content">
                                     <div className="p-upgrade-text">
-                                        <h3>Account Type</h3>
-                                        <h4>{accountType ? accountType : ''}</h4>
+                                        {accountType === 'dasher' ? (
+                                        <>
+                                            <h3>Wallet</h3>
+
+                                            {dasherData && dasherData.wallet ? (
+                                            <h4>₱{dasherData.wallet.toFixed(2)}</h4>
+                                            ) : (
+                                            <h4>₱0.00</h4>
+                                            )}  
+                                        </>
+                                        ) : (
+                                        <> 
+                                            <h3>Account Type</h3>
+                                            <h4>{accountType ? accountType : ''}</h4>
+                                        </> 
+                                        )}
                                     </div>
                                 </div>
                             {accountType === 'shop' ? (
@@ -326,6 +358,13 @@ const UserProfile = () => {
                                 </div>
                             ): accountType === 'dasher' ? (
                                 <div className="p-info">
+                                    
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-cashout')} className="p-upgrade-button">Cash Out</button>
+                                    </div>
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-reimburse')} className="p-upgrade-button">Reimbursement</button>
+                                    </div>
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/dasher-update')} className="p-upgrade-button">Edit Dasher Profile</button>
                                     </div>

@@ -19,8 +19,10 @@ const Shop = () => {
 
     const fetchShop = async (shopId) => {
         try {
+            console.log("shopId GAYGAYGYAYG", shopId);
             const response = await axios.get(`/shops/${shopId}`);
             setShop(response.data);
+            console.log("shop GAYGAYGAY", response.data);
         } catch (error) {
             console.error('Error fetching shop:', error);
             if(error.response.status === 404) {
@@ -36,9 +38,9 @@ const Shop = () => {
             console.log("items", response.data);
         } catch (error) {
             console.error('Error fetching shop items:', error);
-            if(error.response.status === 404 ) {
-                navigate('/home');
-            }
+            // if(error.response.status === 404 ) {
+            //     navigate('/home');
+            // }
         }
     };
 

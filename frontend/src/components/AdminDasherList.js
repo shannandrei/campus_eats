@@ -38,12 +38,17 @@ const AdminDasherList = () => {
 
             try {
                 console.log("dasherid: ", dasherId);
-                await axios.put('/update-account-type', { uid: dasherId, account_type: 'dasher' });
+                
+                
+                // window.location.reload();
+                const updateResponse = await axios.put(`/users/update/${dasherId}/accountType`, null, {
+                    params: {
+                      accountType: "dasher"
+                    }
+                  });
                 alert('Account type updated successfully');
-                window.location.reload();
             } catch (error) {
                 console.error('Error updating account type:', error);
-                alert('Error updating account type');
             }
         }
     };

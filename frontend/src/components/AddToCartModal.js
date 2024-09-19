@@ -7,14 +7,41 @@ import axios from "../utils/axiosConfig"; // Import the pre-configured axios ins
 
 const AddToCartModal = ({ showModal, onClose, item }) => {
     const { currentUser } = useAuth();
-    const [userQuantity, setUserQuantity] = useState(1);
-    const [itemQty, setItemQty] = useState(item.quantity - 1);
+    const [userQuantity, setUserQuantity] = useState(0);
+    const [itemQty, setItemQty] = useState(item ? item.quantity : 0);
     const [totalPrice, setTotalPrice] = useState(item ? item.price : 0);
+
+    useEffect(() => {
+        const fetchCartData = async () => {
+            if (showModal && currentUser) {
+                try {
+                    const response = await axios.get(`/carts/cart?uid=${currentUser.id}`);
+                    const cart = response.data;
+                    console.log('Cart:', cart);
+
+                    // Check if the item is already in the cart
+                    const existingItem = cart.items.find(cartItem => cartItem.id === item.itemId);
+                    console.log('Existing item:', existingItem.itemQuantity - existingItem.quantity - 1);
+                    const existingItemQuantityLeft = existingItem.itemQuantity - existingItem.quantity;
+
+                    // Calculate available quantity for the user
+                    setItemQty(existingItemQuantityLeft);
+                } catch (error) {
+                    console.error('Error fetching cart data:', error);
+                    if(error.response.status === 404) {
+                        console.log(item.quantity);
+                        setItemQty(item.quantity-1);
+                    }
+                }
+            }
+        };
+
+        fetchCartData();
+    }, [showModal, currentUser, item]);
 
     useEffect(() => {
         if (item) {
             setTotalPrice(item.price * userQuantity);
-            console.log('Item:', item.id);
         }
     }, [userQuantity, item]);
 
@@ -29,7 +56,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
     };
 
     const decreaseUserQuantity = () => {
-        if (userQuantity > 1) {
+        if (userQuantity > 0) {
             setUserQuantity(prevUserQuantity => {
                 const newUserQuantity = prevUserQuantity - 1;
                 setItemQty(itemQty + 1);
@@ -40,7 +67,6 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
 
     const addToCart = async () => {
         try {
-            
             const response = await axios.post('/carts/add-to-cart', {
                 item: {
                     id: item.id,
@@ -82,7 +108,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                         <div className="info">
                             <div className="header">
                                 <h3>Description:</h3>
-                                <h3>Qty: {itemQty}</h3>
+                                <h3>Available: {itemQty}</h3>
                             </div>
                             <p>{item.description}</p>
                         </div>
@@ -95,7 +121,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                                     <FontAwesomeIcon icon={faMinus} />
                                 </button>
                                 <span className="quantity-number">{userQuantity}</span>
-                                <button className="quantity-button" onClick={increaseUserQuantity} disabled={item.quantity === 0}>
+                                <button className="quantity-button" onClick={increaseUserQuantity} disabled={itemQty === 0}>
                                     <FontAwesomeIcon icon={faPlus} />
                                 </button>
                             </div>

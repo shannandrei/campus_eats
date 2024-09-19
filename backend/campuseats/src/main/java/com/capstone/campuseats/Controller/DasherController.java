@@ -95,6 +95,16 @@ public class DasherController {
         }
     }
 
+    @PutMapping("/update/{dasherId}/wallet")
+    public ResponseEntity<Boolean> updateDasherWallet(@PathVariable String dasherId, @RequestParam double amountPaid) {
+        boolean isUpdated = dasherService.updateDasherWallet(dasherId, amountPaid);
+        if (isUpdated) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 }
