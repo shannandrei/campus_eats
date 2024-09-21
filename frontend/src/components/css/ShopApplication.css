@@ -179,3 +179,28 @@
 .gcash-num {
   flex: 1;
 }
+
+.sa-label-two select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: none;
+  appearance: none; /* Removes the default dropdown arrow for custom styling */
+  -webkit-appearance: none; /* Removes default styles on Webkit browsers */
+  -moz-appearance: none; /* Removes default styles on Firefox */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 15px;
+}
+
+.sa-label-two select:focus {
+  outline: none;
+  border: 2px solid #000000; /* Optional: adds focus border */
+}
+
+.sa-label-two select option {
+  color: #515050; /* Optional: add a custom color for the dropdown options */
+}
+

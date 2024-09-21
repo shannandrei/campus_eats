@@ -198,6 +198,22 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
         }
     }
+
+    @GetMapping("/dasher/no-show-orders/{uid}")
+    public ResponseEntity<?> getNoShowOrdersForDasher(@PathVariable String uid) {
+        try {
+            List<OrderEntity> noShowOrders = orderService.getNoShowOrdersForDasher(uid);
+
+            if (noShowOrders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No 'no-show' orders found for this dasher"));
+            }
+
+            return ResponseEntity.ok(noShowOrders);
+        } catch (Exception e) {
+            System.err.println("Error fetching 'no-show' orders for dasher: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
     @GetMapping("/incoming-orders/dasher")
     public ResponseEntity<?> getIncomingOrdersForDasher() {
         try {

@@ -1,6 +1,4 @@
-/* ImageModal.css */
-
-.modal-overlay {
+.image-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -10,23 +8,23 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Make sure it's above other content */
+    z-index: 9999999; /* Set to a higher value to ensure it's above everything */
 }
 
-.modal-content {
+.image-modal-content {
     position: relative;
 }
 
-.modal-image {
+.image-modal-image {
     max-width: 90vw; /* Adjust as needed */
     max-height: 90vh; /* Adjust as needed */
 }
 
-.close-button {
+.image-close-button {
     position: absolute;
     top: 10px;
     right: 15px;
-    color: white;
+    color: #d15d61;
     font-size: 24px;
     cursor: pointer;
 }

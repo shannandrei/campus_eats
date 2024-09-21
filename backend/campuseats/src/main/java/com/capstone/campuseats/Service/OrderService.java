@@ -100,6 +100,11 @@ public class OrderService {
         return orderRepository.findByDasherIdAndStatusStartingWith(new String(uid), "active");
     }
 
+    public List<OrderEntity> getNoShowOrdersForDasher(String dasherId) {
+        System.out.println("dasherid:"+dasherId );
+        return orderRepository.findByDasherIdAndStatus(dasherId, "no-show");
+    }
+
     public List<OrderEntity> getAllOrders() {
         return orderRepository.findAll();
     }

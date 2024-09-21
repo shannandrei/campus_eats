@@ -224,6 +224,14 @@ const Navbar = () => {
                                     </div>
                                 </Link>
                             </li>
+
+                            <li className={`nb-icon ${location.pathname === '/admin-reimburse' ? 'active' : ''}`}>
+                                <Link to="/admin-reimburse">
+                                    <div className="svg-container">
+                                        <img src={'/Assets/reimburses.svg'} alt="cashout" className={`nb-image ${location.pathname === '/admin-reimburse' ? 'active' : ''}`} />
+                                    </div>
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
