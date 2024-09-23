@@ -115,7 +115,7 @@ const DasherApplication = () => {
       console.log("response: ", response);
   
       if (response.status === 200 || response.status === 201) {
-        alert("GAYYY");
+        alert("Dasher Application Submitted Successfully");
         
   
         navigate("/profile");
