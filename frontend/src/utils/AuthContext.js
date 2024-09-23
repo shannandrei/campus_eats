@@ -40,18 +40,19 @@ export function AuthProvider({ children }) {
     const signup = async (email, password, username, firstname, lastname) => {
         try {
             const response = await axios.post('/users/signup', { email, password, username, firstname, lastname });
-
+    
             if (!response.data) {
-                throw new Error('Signup failed');
+                return { success: false, message: 'Signup failed' };
             }
-
+    
             console.log('Signup successful', response.data);
-            navigate("/login");
+            return { success: true, data: response.data }; // Return success and the data
         } catch (error) {
             console.error('Signup failed', error);
-            throw error;
+            return { success: false, message: error.response?.data?.error || 'An error occurred during signup' }; // Return error message
         }
     };
+    
 
     const logout = () => {
         localStorage.removeItem('currentUser');

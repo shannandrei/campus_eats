@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import "./css/AdminDasherLists.css";
 import AdminAcceptDasherModal from "./AdminAcceptDasherModal";
 import axios from "../utils/axiosConfig"; // Use axios from axiosConfig.js
+import ImageModal from "./ImageModal";
 
 const AdminShopList = () => {
     const { currentUser } = useAuth();
@@ -12,6 +13,16 @@ const AdminShopList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGoogleLink, setSelectedGoogleLink] = useState(null);
     const [selectedShopId, setSelectedShopId] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageModalOpen, setImageModalOpen] = useState(false);
+    const closeModal = () => {
+        setImageModalOpen(false); // Close the modal
+        setSelectedImage(""); // Reset selected image
+    };
+    const handleImageClick = (imageSrc) => {
+        setSelectedImage(imageSrc); // Set the selected image
+        setImageModalOpen(true); // Open the modal
+    };
 
     const handleDeclineClick = async (shopId) => {
         if (window.confirm("Are you sure you want to decline this shop?")) {
@@ -52,6 +63,11 @@ const AdminShopList = () => {
             <Navbar />
 
             <div className="adl-body">
+                <ImageModal 
+                    isOpen={imageModalOpen} 
+                    imageSrc={selectedImage} 
+                    onClose={closeModal} 
+                />
                 <div className="adl-title">
                     <h2>Pending Shops</h2>
                 </div>
@@ -79,7 +95,7 @@ const AdminShopList = () => {
                                         <div>{shop.timeOpen}</div>
                                         <div>{shop.timeClose}</div>
                                         <div>
-                                            <img src={shop.imageUrl} alt="shop banner" className="adl-list-pic" />
+                                            <img src={shop.imageUrl} onClick={() => handleImageClick(shop.imageUrl)} alt="shop banner" className="adl-list-pic" />
                                         </div>
                                         <div className="adl-buttons">
                                             <button className="adl-decline" onClick={() => handleDeclineClick(shop.id)}>Decline</button>

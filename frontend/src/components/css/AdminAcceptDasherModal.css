@@ -86,11 +86,18 @@
 }
 
 .aadm-cancel {
-    background: #cc514f; /* Adjust this color */
+    background: #cc514f; /* Red color for cancel button */
     color: #fff;
 }
 
 .aadm-confirm {
-    background: #5AC064; /* Adjust this color */
+    background: #5AC064; /* Green color for confirm button */
     color: #fff;
+}
+
+.aadm-confirm:disabled {
+    background: #b3b3b3; /* Gray background for disabled state */
+    color: #f0f0f0;      /* Light gray text for disabled state */
+    cursor: not-allowed; /* Change cursor to indicate disabled */
+    opacity: 0.6;        /* Slightly reduce opacity for visual effect */
 }

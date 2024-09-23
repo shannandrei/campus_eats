@@ -21,6 +21,7 @@ const ShopUpdate = () => {
   const [shopClose, setShopClose] = useState("");
   const [GCASHName, setGCASHName] = useState("");
   const [GCASHNumber, setGCASHNumber] = useState("");
+  const [acceptGCASH, setAcceptGCASH] = useState(null);
   const [categories, setCategories] = useState({
     food: false,
     drinks: false,
@@ -56,6 +57,7 @@ const ShopUpdate = () => {
         setGCASHName(shopData.gcashName);
         setGCASHNumber(shopData.gcashNumber);
         setUploadedImage(shopData.imageUrl);
+        setAcceptGCASH(shopData.acceptGCASH);
         setCategories((prevCategories) => {
           const updatedCategories = { ...prevCategories };
           response.data.categories.forEach(category => {
@@ -145,6 +147,11 @@ const ShopUpdate = () => {
       setLoading(false);
       return;
     }
+    if (acceptGCASH === null) {
+      alert("Please select whether you accept GCASH payment.");
+      setLoading(false);
+      return;
+    }
 
     const selectedCategories = Object.keys(categories).filter(category => categories[category]);
     const formData = new FormData();
@@ -158,6 +165,7 @@ const ShopUpdate = () => {
       timeClose: shopClose,
       gcashName: GCASHName,
       gcashNumber: GCASHNumber,
+      acceptGCASH: acceptGCASH,
     }));
     if (imageFile) {
         formData.append("image", imageFile);
@@ -165,12 +173,13 @@ const ShopUpdate = () => {
     formData.append("shopId", currentUser.id);
 
     try {
+      console.log("acceptGCASH", acceptGCASH);
       const response = await axios.put(`/shops/shop-update/${currentUser.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert(response.data.message);
+      alert("Shop updated successfully!");
       setLoading(false);
       navigate("/profile");
     } catch (error) {
@@ -256,6 +265,24 @@ const ShopUpdate = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="sa-shop-categories">
+                        <h3>Accept GCASH Payment (Activates shop wallet)</h3>
+                        <div className="sa-category-checkboxes">
+                          <div
+                            className={`sa-category-item ${acceptGCASH === true ? "selected" : ""}`}
+                            onClick={() => setAcceptGCASH(true)}
+                          >
+                            Yes
+                          </div>
+                          <div
+                            className={`sa-category-item ${acceptGCASH === false ? "selected" : ""}`}
+                            onClick={() => setAcceptGCASH(false)}
+                          >
+                            No
+                          </div>
+                        </div>
+                      </div>
+                      {acceptGCASH === true && (
                   <div className="sa-two">
                     <div className="sa-field-two">
                       <div className="sa-label-two">
@@ -285,6 +312,7 @@ const ShopUpdate = () => {
                       </div>
                       </div>
                   </div>
+                  )}
                   <div className="sa-two">
                     <div className="sa-field-two">
                       <div className="sa-label-two">

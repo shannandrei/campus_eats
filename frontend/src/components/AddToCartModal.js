@@ -30,7 +30,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                     console.error('Error fetching cart data:', error);
                     if(error.response.status === 404) {
                         console.log(item.quantity);
-                        setItemQty(item.quantity-1);
+                        setItemQty(item.quantity);
                     }
                 }
             }
@@ -66,7 +66,9 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
     };
 
     const addToCart = async () => {
+        if(userQuantity > 0) {
         try {
+            
             const response = await axios.post('/carts/add-to-cart', {
                 item: {
                     id: item.id,
@@ -90,6 +92,7 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
         } catch (error) {
             console.error('Error adding item to cart:', error);
             alert(error.message);
+        }
         }
     };
 

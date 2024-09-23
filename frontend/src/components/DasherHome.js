@@ -72,10 +72,12 @@ const DasherHome = () => {
         };
 
         if (activeOrder && activeOrder.status) {
-            setCurrentStatus(activeOrder.status.replace("active_", ""));
+            const adjustedStatus = activeOrder.status === "active_waiting_for_confirmation" ? "delivered" : activeOrder.status.replace("active_", "");
+            console.log('adjustedStatus:', adjustedStatus);
+            setCurrentStatus(adjustedStatus);
             setButtonClicked(prevState => ({
                 ...prevState,
-                [activeOrder.status.replace("active_", "")]: true
+                [adjustedStatus]: true
             }));
         }
         fetchShopData();

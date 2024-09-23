@@ -132,7 +132,7 @@ const AdminCashoutList = () => {
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Timestamp</div>
-                            <div className="adl-word">Dasher Name</div>
+                            <div className="adl-word">Name</div>
                             <div className="adl-word">GCASH Name</div>
                             <div className="adl-word">GCASH Number</div>
                             <div className="adl-word">Amount</div>
@@ -181,7 +181,7 @@ const AdminCashoutList = () => {
                             <div className="adl-word">Date Requested</div>
                             <div className="adl-word">Date Paid</div>
                             <div className="adl-word">Reference No.</div>
-                            <div className="adl-word">Dasher Name</div>
+                            <div className="adl-word">Name</div>
                             <div className="adl-word">GCASH Name</div>
                             <div className="adl-word">GCASH Number</div>
                             <div className="adl-word">Amount</div>

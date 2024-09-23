@@ -13,6 +13,7 @@ const DasherIncomingOrder = () => {
   const [orders, setOrders] = useState([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isActive, setIsActive] = useState(false);
+  const[dasherData, setDasherData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,8 +42,14 @@ const DasherIncomingOrder = () => {
         const response = await axiosConfig.get(`/dashers/${currentUser.id}`);
         const data = response.data;
         console.log(data.status);
+        setDasherData(data);
         if(data.status === 'active'){
-          setIsActive(true);
+          if(data.wallet <= -150 ){
+            alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
+            setIsActive(false);
+          }else {
+            setIsActive(true);
+          }
         } else if(data.status === 'offline'){
           setIsActive(false);
         }
@@ -93,6 +100,11 @@ const DasherIncomingOrder = () => {
       setIsActive(!isActive);
       if(newStatus === 'offline'){
         setOrders([]);
+      } else {
+        if(dasherData.wallet <= -100){
+          alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
+          setIsActive(false);
+        }
       }
     } catch (error) {
       console.error('Error updating dasher status:', error);

@@ -34,4 +34,6 @@ public class ShopEntity {
     private String timeClose;
     private String status;
     private LocalDateTime createdAt;
+    private double wallet;
+    private boolean acceptGCASH;
 }

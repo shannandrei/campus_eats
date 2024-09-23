@@ -22,6 +22,7 @@
     const [shopClose, setShopClose] = useState(null);
     const [GCASHName, setGCASHName] = useState("");
     const [GCASHNumber, setGCASHNumber] = useState("");
+    const [acceptGCASH, setAcceptGCASH] = useState(null);
     const [categories, setCategories] = useState({
       food: false,
       drinks: false,
@@ -112,6 +113,12 @@
         setLoading(false);
         return;
       }
+
+      if (acceptGCASH === null) {
+        alert("Please select whether you accept GCASH payment.");
+        setLoading(false);
+        return;
+      }
     
       const selectedCategories = Object.keys(categories).filter(category => categories[category]);
       const shop = {
@@ -124,6 +131,7 @@
         desc: shopDesc, 
         timeOpen: shopOpen,
         timeClose: shopClose,
+        acceptGCASH,
       }
     
       const formData = new FormData();
@@ -238,6 +246,24 @@
                         </div>
                       </div>
                     </div>
+                    <div className="sa-shop-categories">
+                        <h3>Accept GCASH Payment (Activates shop wallet)</h3>
+                        <div className="sa-category-checkboxes">
+                          <div
+                            className={`sa-category-item ${acceptGCASH === true ? "selected" : ""}`}
+                            onClick={() => setAcceptGCASH(true)}
+                          >
+                            Yes
+                          </div>
+                          <div
+                            className={`sa-category-item ${acceptGCASH === false ? "selected" : ""}`}
+                            onClick={() => setAcceptGCASH(false)}
+                          >
+                            No
+                          </div>
+                        </div>
+                      </div>
+                      {acceptGCASH === true && (
                     <div className="sa-two">
                       <div className="sa-field-two">
                         <div className="sa-label-two">
@@ -267,6 +293,7 @@
                         </div>
                         </div>
                     </div>
+                  )}  
                     <div className="sa-two">
                       <div className="sa-field-two">
                         <div className="sa-label-two">

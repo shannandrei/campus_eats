@@ -45,6 +45,7 @@ public class PaymentController {
                             .build()
             ).collect(Collectors.toList());
 
+            // Call the service method with the necessary parameters
             paymentService.confirmOrderCompletion(orderId, dasherId, shopId, userId, paymentMethod, deliveryFee, totalPrice, items);
 
             return ResponseEntity.ok(Map.of("message", "Order completion confirmed successfully"));
@@ -55,6 +56,7 @@ public class PaymentController {
         }
     }
 
+
     @PostMapping("/create-gcash-payment")
     public ResponseEntity<?> createGcashPayment(@RequestBody Map<String, Object> payload) {
         try {
@@ -63,6 +65,19 @@ public class PaymentController {
             String orderId = new String((String) payload.get("orderId"));
 
             return paymentService.createGcashPayment(amount, description, orderId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/create-gcash-payment/topup")
+    public ResponseEntity<?> createTopupGcashPayment(@RequestBody Map<String, Object> payload) {
+        try {
+            float amount = Float.parseFloat(payload.get("amount").toString());
+            String description = payload.get("description").toString();
+
+            return paymentService.createTopupGcashPayment(amount, description);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));

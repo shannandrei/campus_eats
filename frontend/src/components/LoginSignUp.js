@@ -81,39 +81,44 @@ const LoginSignUp = () => {
     async function handleRegisSubmit(e) {
         e.preventDefault();
         setError('');
-
-        if(regisConfirmPwd !== regisPwd) {
+        setSuccess('');
+    
+        if (regisConfirmPwd !== regisPwd) {
             return setError('Passwords do not match');
         }
-
-        if(!regisEmail || !regisFirstname || !regisLastname || !regisPwd || !regisConfirmPwd || !regisUsername) {
+    
+        if (!regisEmail || !regisFirstname || !regisLastname || !regisPwd || !regisConfirmPwd || !regisUsername) {
             return setError('Please fill in all fields');
         }
-        
-        // if (!regisEmail.endsWith('@cit.edu')) {
-        //     return setError('Please use a Microsoft account with the domain "@cit.edu"');
-        // }
-
+    
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(regisPwd)) {
             return setError('Password must be at least 8 characters long and contain at least one uppercase letter and one digit');
         }
-
-        try{
+    
+        try {
             setLoading(true);
-            signup(regisEmail, regisPwd, regisUsername, regisFirstname, regisLastname);
-            logout();
-            setSuccess('Please check your email for a verification link to activate your account.');
-            toggleForm();
-
-
-
-        }catch (e) {
-            setSuccess('');
-            setError(e.message);
+    
+            // Call signup and await the result
+            const result = await signup(regisEmail, regisPwd, regisUsername, regisFirstname, regisLastname);
+    
+            if (result.success) {
+                // If signup was successful, log out the user and show success message
+                logout();
+                setSuccess('Signup successful. Please check your email for a verification link to activate your account.');
+                toggleForm();
+            } else {
+                // If there was an error, display the error message
+                setError(result.message);
+            }
+    
+        } catch (e) {
+            setError('An unexpected error occurred');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
+    
 
 
     async function handleLoginSubmit(e) {

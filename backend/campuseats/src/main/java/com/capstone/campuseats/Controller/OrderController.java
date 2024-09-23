@@ -1,6 +1,7 @@
 package com.capstone.campuseats.Controller;
 
 import com.capstone.campuseats.Entity.CartItem;
+import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.OrderEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Service.OrderService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,6 +29,11 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderEntity>> getAllOrders() {
         return new ResponseEntity<List<OrderEntity>>(orderService.getAllOrders(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<OrderEntity>> getOrderById(@PathVariable String id) {
+        return new ResponseEntity<>(orderService.getOrderById(id), HttpStatus.OK);
     }
     @GetMapping("/active-lists")
     public ResponseEntity<?> getAllActiveOrders() {
@@ -63,6 +70,7 @@ public class OrderController {
                     .items((List<CartItem>) payload.get("items"))
                     .mobileNum((String) payload.get("mobileNum"))
                     .note((String) payload.get("note"))
+                    .deliveryFee(Float.parseFloat(payload.get("deliveryFee").toString()))
                     .paymentMethod((String) payload.get("paymentMethod"))
                     .totalPrice(Float.parseFloat(payload.get("totalPrice").toString()))
                     .build();

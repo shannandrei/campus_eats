@@ -285,7 +285,6 @@ const AddItem = () => {
                     </div>
                   </div>
                   <div className="ai-buttons">
-                    <button className="p-logout-button">Cancel</button>
                     <button type="submit" className="ai-save-button" disabled={loading}>
                       {loading ? "Saving..." : "Save"}
                     </button>

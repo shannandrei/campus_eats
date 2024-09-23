@@ -25,6 +25,7 @@ const UserProfile = () => {
     const [oldPwd, setOldPwd] = useState('');
     const [accountType, setAccountType] = useState('');
     const [dasherData, setDasherData] = useState({});
+    const [shopData, setShopData] = useState({});
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     useEffect(() => {
@@ -65,8 +66,22 @@ const UserProfile = () => {
             console.error("Error fetching dasher data:", error);
           }
         };
+
+        const fetchShopData = async () => {
+            try {
+                const response = await axios.get(`/shops/${currentUser.id}`);
+                const data = response.data;
+                setShopData(data);
+                console.log("fetch shop data:", data);
+            } catch (error) {
+                console.error("Error fetching shop data:", error);
+            }
+        };
+
         if(initialData && initialData.accountType === 'dasher') {
             fetchDasherData();
+        } else if(initialData && initialData.accountType === 'shop') {
+            fetchShopData();
         }
       }, [initialData]);
 
@@ -342,16 +357,39 @@ const UserProfile = () => {
                                             <h4>₱0.00</h4>
                                             )}  
                                         </>
-                                        ) : (
+                                        ) : accountType === 'shop' ? (
                                         <> 
+                                            {shopData && shopData.acceptGCASH===true ? ( 
+                                                <>
+                                                <h3>Wallet</h3>
+
+                                                {dasherData && dasherData.wallet ? (
+                                                <h4>₱{shopData.wallet.toFixed(2)}</h4>
+                                                ) : (
+                                                <h4>₱0.00</h4>
+                                                )}  
+                                                </>
+                                            ) : (
+                                                <>
+                                                <h3>Wallet</h3>
+                                                <h4>Edit shop to activate</h4>
+                                                </>
+                                            )} 
+                                        </> 
+                                        ) : (
+                                            <>
                                             <h3>Account Type</h3>
                                             <h4>{accountType ? accountType : ''}</h4>
-                                        </> 
+                                            </>
                                         )}
                                     </div>
                                 </div>
                             {accountType === 'shop' ? (
                                 <div className="p-info">
+                                    
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-cashout')} className="p-upgrade-button">Cash Out</button>
+                                    </div>
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/shop-update')} className="p-upgrade-button">Edit Shop</button>
                                     </div>
@@ -361,6 +399,9 @@ const UserProfile = () => {
                                     
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/dasher-cashout')} className="p-upgrade-button">Cash Out</button>
+                                    </div>
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-topup')} className="p-upgrade-button">Top Up</button>
                                     </div>
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/dasher-reimburse')} className="p-upgrade-button">Reimbursement</button>

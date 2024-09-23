@@ -165,6 +165,7 @@ const Checkout = () => {
             deliverTo,
             paymentMethod,
             note,
+            deliveryFee: shop.deliveryFee,
             items: cart.items,
             totalPrice: cart.totalPrice,
         };
@@ -299,6 +300,13 @@ const Checkout = () => {
                                 </div>
                                 <div className="payment-method">
                                     <h2>Payment Method</h2>
+                                    {shop && shop.acceptGCASH === false? (
+                                            <>
+                                            <p>This shop doesn't accept online payment</p>
+                                            </>
+                                            ) : (
+                                                <></>
+                                            )}
                                     <div className="payment-options">
                                         <label className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}>
                                             <input
@@ -323,7 +331,8 @@ const Checkout = () => {
                                                 )}
                                             </div>
                                         </label>
-                                        {cart && shop && ((cart.totalPrice + shop.deliveryFee) >100) ? (
+                                        
+                                        {cart && shop && ((cart.totalPrice + shop.deliveryFee) >100) && shop.acceptGCASH === true ? (
                                         <label className={`payment-option ${paymentMethod === 'gcash' ? 'selected' : ''}`}>
                                             <input
                                                 type="radio"

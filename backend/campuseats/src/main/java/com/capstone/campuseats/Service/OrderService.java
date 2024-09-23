@@ -1,6 +1,8 @@
 package com.capstone.campuseats.Service;
 
+import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.OrderEntity;
+import com.capstone.campuseats.Repository.DasherRepository;
 import com.capstone.campuseats.Repository.OrderRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,18 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private DasherRepository dasherRepository;
 
+
+    public Optional<OrderEntity> getOrderById(String id) {
+        return orderRepository.findById(id);
+    }
 
     public OrderEntity placeOrder(OrderEntity order) {
         List<OrderEntity> existingOrders = orderRepository.findByUid(order.getUid());
 
+        // Check if the user has an active order
         boolean activeOrderExists = existingOrders.stream()
                 .anyMatch(existingOrder -> existingOrder.getStatus().startsWith("active"));
 
@@ -32,13 +41,23 @@ public class OrderService {
             throw new RuntimeException("An active order already exists for this user");
         }
 
-        order.setStatus("active_waiting_for_admin");
+        // Fetch active dashers
+        List<DasherEntity> activeDashers = dasherRepository.findByStatus("active");
+
+        // Set the order status based on dasher availability
+        if (activeDashers.isEmpty()) {
+            order.setStatus("active_waiting_for_admin");
+        } else {
+            order.setStatus("active_waiting_for_dasher");
+        }
+
+        // Generate a unique ID and set creation timestamp
         order.setCreatedAt(LocalDateTime.now());
-        String stringId = UUID.randomUUID().toString();
-        order.setId(stringId);
+        order.setId(UUID.randomUUID().toString());
 
         return orderRepository.save(order);
     }
+
 
     public void updateOrderStatus(String orderId, String status) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);

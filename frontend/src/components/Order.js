@@ -2,11 +2,10 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "./css/Order.css";
 import { useAuth } from "../utils/AuthContext";
-// import { useNavigate } from "react-router-dom";
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faHeart, faClock, faStar } from '@fortawesome/free-regular-svg-icons';
 import Navbar from "./Navbar";
 import axios from "../utils/axiosConfig";
+import ReviewModal from './ReviewModal'; // Adjust the path as needed
+import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -15,19 +14,19 @@ const Order = () => {
     const [shop, setShop] = useState(null);
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState(null);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isReviewShopModalOpen, setIsReviewShopModalOpen] = useState(false); // State for ReviewShopModal
+    const [selectedOrder, setSelectedOrder] = useState(null); // State for the selected order
 
     const fetchOrders = async () => {
-        
         try {
             const ordersResponse = await axios.get(`/orders/user/${currentUser.id}`);
-            
             if (ordersResponse.status !== 200) {
                 throw new Error("Failed to fetch orders");
             }
-            
+
             const ordersData = ordersResponse.data;
             const activeOrder = ordersData.activeOrders.length > 0 ? ordersData.activeOrders[0] : null;
-            console.log("Orders:", ordersResponse.data);
             setActiveOrder(activeOrder);
 
             if (ordersData.activeOrders.length > 0) {
@@ -45,8 +44,9 @@ const Order = () => {
                     case 'active_delivered':
                         setStatus('Order has been delivered');
                         break;
-                    case 'active_completed':
-                        setStatus('Order has been completed');
+                    case 'active_waiting_for_confirmation':
+                        setStatus('Waiting for your confirmation');
+                        setIsReviewModalOpen(true); // Open the modal
                         break;
                     case 'active_pickedUp':
                         setStatus('Order has been picked up');
@@ -62,7 +62,6 @@ const Order = () => {
             const ordersShopData = await Promise.all(
                 ordersData.orders.map(async (order) => {
                     const ordersShopDataResponse = await axios.get(`/shops/${order.shopId}`);
-                    console.log(order.shopId)
                     const ordersShop = ordersShopDataResponse.data;
                     return { ...order, shopData: ordersShop }; 
                 })
@@ -110,10 +109,32 @@ const Order = () => {
         return () => clearInterval(intervalId); // Clear interval on unmount
     }, []);
 
+    // Function to open the ReviewShopModal
+    const handleOpenReviewShopModal = (order) => {
+        setSelectedOrder(order);
+        setIsReviewShopModalOpen(true);
+    };
+
     return (
         <>
             <Navbar />
             <div className="o-body">
+            {isReviewModalOpen && (
+                <ReviewModal 
+                    isOpen={isReviewModalOpen} 
+                    order={activeOrder}
+                    shop={shop}
+                    onClose={() => setIsReviewModalOpen(false)} 
+                />
+            )}
+            {isReviewShopModalOpen && (
+                <ReviewShopModal
+                    isOpen={isReviewShopModalOpen}
+                    order={selectedOrder}
+                    shop={selectedOrder?.shopData}
+                    onClose={() => setIsReviewShopModalOpen(false)}
+                />
+            )}
                 <div className="o-title">
                     <h2>Active Order</h2>
                 </div>
@@ -124,18 +145,15 @@ const Order = () => {
                     <div className="o-card-current o-card-large">
                         <div className="o-text">
                             <h2>Order Details</h2>
-
                             <div className="o-order-content">
                                 <div className="o-order-img-holder">
                                     <img src={shop ? shop.imageUrl : '/Assets/Panda.png'} alt="food" className="o-order-img"/>
                                 </div>
                                 <div className="o-order-details">
-
                                     <div className="o-order-text">
-                                            <h3>{shop ? shop.name : ''}</h3>
-                                            <p>{shop ? shop.address : ''}</p>
+                                        <h3>{shop ? shop.name : ''}</h3>
+                                        <p>{shop ? shop.address : ''}</p>
                                         <div className="o-order-subtext">
-                                            
                                             <p>Delivery Location</p> 
                                             <h4>{activeOrder ? activeOrder.deliverTo : ''}</h4>
                                             <p>Order number</p> 
@@ -213,7 +231,11 @@ const Order = () => {
 
                 <div className="o-content-past">
                     {orders.map((order, index) => (
-                        <div className="o-card-past" key={index}>
+                        <div 
+                            className="o-card-past" 
+                            key={index}
+                            onClick={() => handleOpenReviewShopModal(order)} // Make the order clickable
+                        >
                             <div className="o-past-img-holder">
                                 <img src={order.shopData.imageUrl ? order.shopData.imageUrl : '/Assets/Panda.png'} alt="food" className="o-past-img"/>
                             </div>
@@ -227,9 +249,9 @@ const Order = () => {
                                         <h4>₱{order.totalPrice.toFixed(2)}</h4>
                                     </div>
                                     <div className="o-past-subtext">
-                                    <p>Delivered on {order.createdAt ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : ''}</p>
+                                        <p>Delivered on {order.createdAt ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : ''}</p>
                                         <p>Order #{order.id}</p>
-                                        <p>{order.paymentMethod ==='cash' ? 'Cash On Delivery' : 'GCASH'}</p> 
+                                        <p>{order.paymentMethod === 'cash' ? 'Cash On Delivery' : 'GCASH'}</p> 
                                     </div>
                                 </div>
                             </div>

@@ -60,19 +60,17 @@ public class ShopService {
 
         shop.setId(userId); // Set shopId to userId
 
-        // Ensure createdAt is set
         if (shop.getCreatedAt() == null) {
             shop.setCreatedAt(LocalDateTime.now());
         }
 
-        // Format the timestamp
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String formattedTimestamp = shop.getCreatedAt().format(formatter);
         System.out.println("timestamp: " + formattedTimestamp);
-        // Sanitize shop name (optional)
+
         String sanitizedShopName = shop.getName().replaceAll("[^a-zA-Z0-9-_\\.]", "_");
 
-        // Create the blob filename
+
         String blobFilename = "shop/" + formattedTimestamp + "_" + sanitizedShopName;
 
         BlobClient blobClient = blobServiceClient
@@ -84,7 +82,9 @@ public class ShopService {
         String imageUrl = blobClient.getBlobUrl();
 
         shop.setImageUrl(imageUrl);
+        shop.setWallet(0);
         shop.setStatus("pending");
+        shop.setCreatedAt(LocalDateTime.now());
         return shopRepository.save(shop);
     }
 
@@ -126,6 +126,7 @@ public class ShopService {
         existingShop.setTimeClose(shop.getTimeClose());
         existingShop.setGcashName(shop.getGcashName());
         existingShop.setGcashNumber(shop.getGcashNumber());
+        existingShop.setAcceptGCASH(shop.isAcceptGCASH());
 
         return shopRepository.save(existingShop);
     }
