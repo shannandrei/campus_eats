@@ -66,7 +66,6 @@ const DasherHome = () => {
                 setLoading(true);
                 try {
                     const response = await axios.get(`/shops/${activeOrder.shopId}`);
-                    console.log(response.data);
                     setShop(response.data);
                 } catch (error) {
                     console.error('Error fetching shop data:', error);
@@ -76,8 +75,11 @@ const DasherHome = () => {
         };
 
         if (activeOrder && activeOrder.status) {
-            const adjustedStatus = activeOrder.status === "active_waiting_for_confirmation" ? "delivered" : activeOrder.status.replace("active_", "");
-            console.log('adjustedStatus:', adjustedStatus);
+            const adjustedStatus = activeOrder.status === "active_waiting_for_confirmation" 
+                ? "delivered" 
+                : ["active_waiting_for_shop", "active_shop_confirmed"].includes(activeOrder.status) 
+                ? "toShop" 
+                : activeOrder.status.replace("active_", "");
             setCurrentStatus(adjustedStatus);
             setButtonClicked(prevState => ({
                 ...prevState,
@@ -92,12 +94,13 @@ const DasherHome = () => {
     // };
     useEffect(() => {
         let intervalId;
-        if (activeOrder && activeOrder.status === "active_toShop" && activeOrder.paymentMethod === "cash") {
+        if (activeOrder) {
             intervalId = setInterval(async () => {
                 try {
                     const response = await axios.get(`/orders/${activeOrder.id}`);
                     const updatedOrder = response.data;
                     console.log('updatedOrder:', updatedOrder);
+                    setActiveOrder(updatedOrder);
                     // Check if the status changed to active_waiting_for_cancel_confirmation
                     if (updatedOrder.status === "active_waiting_for_cancel_confirmation") {
                         setCancelModalOpen(true);  // Open the Cancel Order Modal
@@ -118,7 +121,7 @@ const DasherHome = () => {
         try {
             const response = await axios.post('/orders/update-order-status', {
                 orderId: activeOrder.id,
-                status: `active_${newStatus}`
+                status: `active_${newStatus}`   
             });
             if (response.status === 200) {
                 // Handle successful status update
@@ -134,27 +137,79 @@ const DasherHome = () => {
         if (newStatus === "completed") {
             setIsModalOpen(true);
         } else {
-            if (
-                (newStatus === "toShop" && !buttonClicked.toShop) ||
-                (newStatus === "preparing" && buttonClicked.toShop && !buttonClicked.preparing) ||
-                (newStatus === "pickedUp" && buttonClicked.preparing && !buttonClicked.pickedUp) ||
-                (newStatus === "onTheWay" && buttonClicked.pickedUp && !buttonClicked.onTheWay) ||
-                (newStatus === "delivered" && buttonClicked.onTheWay && !buttonClicked.delivered)
-            ) {
+            // Check conditions for status changes
+            console.log('currentStatus:', currentStatus);
+                console.log('activeOrder status:', activeOrder.status);
+                console.log('activeOrder paymentMethod:', activeOrder.paymentMethod);
+            console.log('newStatus:', newStatus);
+            if (newStatus === "toShop" && !buttonClicked.toShop) {
                 setCurrentStatus(newStatus);
                 setButtonClicked(prevState => ({
                     ...prevState,
                     [newStatus]: true
                 }));
                 updateOrderStatus(newStatus);
+            } else if (newStatus === "preparing") {
+                
+                if (currentStatus === "toShop" && activeOrder.paymentMethod === "cash") {
+                    setCurrentStatus(newStatus);
+                    setButtonClicked(prevState => ({
+                        ...prevState,
+                        [newStatus]: true
+                    }));
+                    updateOrderStatus(newStatus);
+                } else if (currentStatus === "toShop" && activeOrder.status === "active_shop_confirmed" && activeOrder.paymentMethod === "gcash") {
+                    setCurrentStatus(newStatus);
+                    setButtonClicked(prevState => ({
+                        ...prevState,
+                        [newStatus]: true
+                    }));
+                    updateOrderStatus(newStatus);
+                } else {
+                    alert("Please wait for the shop to confirm the order before marking it as 'preparing'.");
+                }
+            } else if (newStatus === "pickedUp") {
+                if (buttonClicked.preparing && !buttonClicked.pickedUp) {
+                    setCurrentStatus(newStatus);
+                    setButtonClicked(prevState => ({
+                        ...prevState,
+                        [newStatus]: true
+                    }));
+                    updateOrderStatus(newStatus);
+                } else {
+                    alert("You must mark the order as 'preparing' before you can mark it as 'picked up'.");
+                }
+            } else if (newStatus === "onTheWay") {
+                if (buttonClicked.pickedUp && !buttonClicked.onTheWay) {
+                    setCurrentStatus(newStatus);
+                    setButtonClicked(prevState => ({
+                        ...prevState,
+                        [newStatus]: true
+                    }));
+                    updateOrderStatus(newStatus);
+                } else {
+                    alert("You must mark the order as 'picked up' before you can mark it as 'on the way'.");
+                }
+            } else if (newStatus === "delivered") {
+                if (buttonClicked.onTheWay && !buttonClicked.delivered) {
+                    setCurrentStatus(newStatus);
+                    setButtonClicked(prevState => ({
+                        ...prevState,
+                        [newStatus]: true
+                    }));
+                    updateOrderStatus(newStatus);
+                } else {
+                    alert("You must mark the order as 'on the way' before you can mark it as 'delivered'.");
+                }
+            } else {
+                alert("Invalid status change. Please check your current status and try again.");
             }
         }
     };
+    
 
     const showCancelModal = () => {
-        console.log('showCancelModal');
         setDasherCancelModalOpen(true);
-        console.log('dasherCancelModalOpen:', dasherCancelModalOpen);
     };
     
     return (

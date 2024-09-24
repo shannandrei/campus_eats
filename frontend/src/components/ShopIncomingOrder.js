@@ -14,46 +14,53 @@ const ShopIncomingOrder = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('/orders/active-lists');
+        const response = await axios.get('/orders/active-waiting-for-shop'); // New endpoint for approving orders
         const ordersWithShopData = await Promise.all(response.data.map(async order => {
           const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
         setOrders(ordersWithShopData);
+        console.log('Approving Orders:', ordersWithShopData);
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error('Error fetching approving orders:', error);
       }
     };
+
     const fetchPastOrders = async () => {
       try {
-        const response = await axios.get('/orders/past-lists');
+        const response = await axios.get('/orders/past-orders'); // New endpoint for past orders
         const pastOrdersWithShopData = await Promise.all(response.data.map(async order => {
           const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
         setPastOrders(pastOrdersWithShopData);
+        console.log('Past Orders:', pastOrdersWithShopData);
       } catch (error) {
         console.error('Error fetching past orders:', error);
       }
     };
+
     const fetchOngoingOrders = async () => {
       try {
-        const response = await axios.get('/orders/ongoing');  // Replace with your actual ongoing orders endpoint
+        const response = await axios.get('/orders/ongoing-orders'); // New endpoint for ongoing orders
         const ongoingOrdersWithShopData = await Promise.all(response.data.map(async order => {
           const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
         setOngoingOrders(ongoingOrdersWithShopData);
+        console.log('Ongoing Orders:', ongoingOrdersWithShopData);
       } catch (error) {
         console.error('Error fetching ongoing orders:', error);
       }
     };
+
     fetchOrders();
     fetchPastOrders();
     fetchOngoingOrders();
@@ -74,12 +81,13 @@ const ShopIncomingOrder = () => {
   };
   const confirmDecline = async () => {
     try {
+      
       console.log('Declining order:', selectedOrder);
-      await axios.post('/orders/update-order-status', { orderId: selectedOrder, status: 'declined' });
+      await axios.post('/orders/update-order-status', { orderId: selectedOrder, status: 'cancelled_by_shop' });
       setOrders(prevOrders => {
         return prevOrders.map(order => {
           if (order.id === selectedOrder) {
-            return { ...order, status: 'declined' };
+            return { ...order, status: 'cancelled_by_shop' };
           } else {
             return order;
           }
@@ -93,11 +101,11 @@ const ShopIncomingOrder = () => {
   };
   const handleSubmit = async (orderId) => {
     try {
-      await axios.post('/orders/update-order-status', { orderId, status: 'active_waiting_for_dasher' });
+      await axios.post('/orders/update-order-status', { orderId, status: 'active_shop_confirmed' });
       setOrders(prevOrders => {
         return prevOrders.map(order => {
           if (order.id === orderId) {
-            return { ...order, status: 'active_waiting_for_dasher' };
+            return { ...order, status: 'active_shop_confirmed' };
           } else {
             return order;
           }

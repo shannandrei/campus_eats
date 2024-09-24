@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -143,5 +144,25 @@ public class OrderService {
         }
         orderRepository.save(order);
         return ResponseEntity.ok(Map.of("message", "Dasher removed successfully", "success", true));
+    }
+
+    public List<OrderEntity> getOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+
+    public List<OrderEntity> getPastOrders(String status) {
+        List<OrderEntity> allOrders = orderRepository.findAll();
+        return allOrders.stream()
+                .filter(order -> !order.getStatus().startsWith(status))
+                .collect(Collectors.toList());
+    }
+
+
+
+    public List<OrderEntity> getOngoingOrders() {
+        return orderRepository.findByStatusStartingWith("active")
+                .stream()
+                .filter(order -> order.getDasherId() != null && !order.getStatus().equals("active_waiting_for_shop"))
+                .collect(Collectors.toList());
     }
 }

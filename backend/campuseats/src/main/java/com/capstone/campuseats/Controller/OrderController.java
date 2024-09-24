@@ -282,4 +282,48 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/active-waiting-for-shop")
+    public ResponseEntity<?> getActiveWaitingForShopOrders() {
+        try {
+            List<OrderEntity> orders = orderService.getOrdersByStatus("active_waiting_for_shop");
+            if (orders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+            }
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            System.err.println("Error fetching active waiting for shop orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/past-orders")
+    public ResponseEntity<?> getPastOrders() {
+        try {
+            List<OrderEntity> orders = orderService.getPastOrders("active");
+
+            if (orders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+            }
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            System.err.println("Error fetching past orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/ongoing-orders")
+    public ResponseEntity<?> getOngoingOrders() {
+        try {
+            List<OrderEntity> orders = orderService.getOngoingOrders();
+            if (orders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+            }
+            System.out.println("wtf bro");
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            System.err.println("Error fetching ongoing orders: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
 }

@@ -352,7 +352,9 @@ const Checkout = () => {
                                     </div>
                                 </div>
                                 <div className="p-buttons">
+                                    {!waitingForPayment && (
                                     <button onClick={()=>navigate('/home')} className="p-logout-button">Cancel</button>
+                                    )}
                                     <button type="submit" className="p-save-button" disabled={loading || waitingForPayment}>
                                         {waitingForPayment ? "Waiting for Payment" : "Place Order"}
                                     </button>

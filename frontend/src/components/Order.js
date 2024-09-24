@@ -319,8 +319,12 @@ const Order = () => {
                                     </div>
                                     <div className="o-past-subtext">
                                         <p>
-                                            {order.status.startsWith('cancelled')
-                                                ? 'Order was cancelled'
+                                            {order.status === 'cancelled_by_shop'
+                                                ? 'Order was cancelled by shop'
+                                                : order.status === 'cancelled_by_customer'
+                                                ? 'Order was cancelled by customer'
+                                                : order.status === 'cancelled_by_dasher'
+                                                ? 'Order was cancelled by dasher'
                                                 : order.status === 'refunded'
                                                 ? 'Order was refunded'
                                                 : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
