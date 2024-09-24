@@ -274,6 +274,13 @@ const Navbar = () => {
                     </div>
                     <div className='nav'>
                         <ul>
+                            <li className={`nb-icon ${location.pathname === '/shop-dashboard' ? 'active' : ''}`}>
+                                <Link to="/shop-dashboard">
+                                    <div className="svg-container">
+                                        <img src={'/Assets/dashboard.svg'} alt="Dashboard" className={`nb-image ${location.pathname === '/shop-dashboard' ? 'active' : ''}`} />
+                                    </div>
+                                </Link>
+                            </li>
                             <li className={`nb-icon ${location.pathname === '/shop-add-item' ? 'active' : ''}`}>
                                 <Link to="/shop-add-item">
                                     <div className="svg-container">

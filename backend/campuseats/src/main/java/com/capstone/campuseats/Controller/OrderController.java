@@ -33,8 +33,15 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<OrderEntity>> getOrderById(@PathVariable String id) {
-        return new ResponseEntity<>(orderService.getOrderById(id), HttpStatus.OK);
+        Optional<OrderEntity> order = orderService.getOrderById(id);
+
+        if (order.isPresent()) {
+            return new ResponseEntity<>(order, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+
     @GetMapping("/active-lists")
     public ResponseEntity<?> getAllActiveOrders() {
         try {
@@ -259,6 +266,20 @@ public class OrderController {
         } catch (Exception e) {
             System.err.println("Error fetching completed orders: " + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+        }
+    }
+
+    @PostMapping("/remove-dasher")
+    public ResponseEntity<?> removeDasherFromOrder(@RequestBody Map<String, Object> payload) {
+        try {
+            String orderIdStr = (String) payload.get("orderId");
+            if (orderIdStr == null || orderIdStr.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Order ID is required"));
+            }
+            String orderId = new String(orderIdStr);
+            return orderService.removeDasherFromOrder(orderId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
 }

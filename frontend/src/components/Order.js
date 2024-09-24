@@ -6,6 +6,8 @@ import Navbar from "./Navbar";
 import axios from "../utils/axiosConfig";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
+import CancelOrderModal from "./CancelOrderModal";
+import RefundOrderModal from "./RefundOrderModal";
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -17,6 +19,8 @@ const Order = () => {
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isReviewShopModalOpen, setIsReviewShopModalOpen] = useState(false); // State for ReviewShopModal
     const [selectedOrder, setSelectedOrder] = useState(null); // State for the selected order
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
     const fetchOrders = async () => {
         try {
@@ -53,6 +57,18 @@ const Order = () => {
                         break;
                     case 'active_toShop':
                         setStatus('Dasher is on the way to the shop');
+                        break;
+                    case 'cancelled_by_customer': 
+                        setStatus('Order has been cancelled');
+                        break;
+                    case 'cancelled_by_dasher': 
+                        setStatus('Order has been cancelled');
+                        break;
+                    case 'refunded': 
+                        setStatus('Order has been refunded');
+                        break;
+                    case 'active_waiting_for_cancel_confirmation': 
+                        setStatus('Order is waiting for cancellation confirmation');
                         break;
                     default:
                         setStatus('Unknown status');
@@ -115,6 +131,29 @@ const Order = () => {
         setIsReviewShopModalOpen(true);
     };
 
+    const handleCancelOrder = () => {
+        setIsCancelModalOpen(true); 
+    };
+    const closeCancelModal = () => {
+        setIsCancelModalOpen(false); 
+    };
+    const handleRefundOrder = () => {
+        setIsRefundModalOpen(true); 
+    };
+    const hideRefundButton = status === 'Order is being prepared'
+        || status === 'Order has been picked up'
+        || status === 'Order is on the way'  
+        || status === 'Order has been delivered'  
+        || status === 'Order has been completed'
+        || status === 'Order is waiting for cancellation confirmation'
+        || status === 'Waiting for your confirmation';
+    const hideCancelButton = status === 'Order is being prepared'
+        || status === 'Order has been picked up'
+        || status === 'Order is on the way' 
+        || status === 'Order has been delivered' 
+        || status === 'Order has been completed'
+        || status === 'Order is waiting for cancellation confirmation'
+        || status === 'Waiting for your confirmation';
     return (
         <>
             <Navbar />
@@ -133,6 +172,22 @@ const Order = () => {
                     order={selectedOrder}
                     shop={selectedOrder?.shopData}
                     onClose={() => setIsReviewShopModalOpen(false)}
+                />
+            )}
+            {isCancelModalOpen && (
+                <CancelOrderModal
+                    isOpen={isCancelModalOpen}  
+                    closeModal={closeCancelModal}  
+                    shopData={shop} 
+                    orderData={activeOrder} 
+                />
+            )}
+            {isRefundModalOpen && (
+                <RefundOrderModal
+                    isOpen={isRefundModalOpen}  
+                    closeModal={() => setIsRefundModalOpen(false)}  
+                    shopData={shop}  
+                    orderData={activeOrder} 
                 />
             )}
                 <div className="o-title">
@@ -192,6 +247,20 @@ const Order = () => {
                                         </h4>
                                     </div>
                                 </div>
+                                {activeOrder && (
+                                    <div className="refund-cancel-order-container">
+                                        {activeOrder.paymentMethod === 'gcash' && !hideRefundButton && (
+                                            <button className="refund-order-btn" onClick={handleRefundOrder}>
+                                                Cancel and Refund
+                                            </button>
+                                        )}
+                                        {activeOrder.paymentMethod === 'cash' && !hideCancelButton && (
+                                            <button className="cancel-order-btn" onClick={handleCancelOrder}>
+                                                Cancel Order
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -249,7 +318,13 @@ const Order = () => {
                                         <h4>₱{order.totalPrice.toFixed(2)}</h4>
                                     </div>
                                     <div className="o-past-subtext">
-                                        <p>Delivered on {order.createdAt ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : ''}</p>
+                                        <p>
+                                            {order.status.startsWith('cancelled')
+                                                ? 'Order was cancelled'
+                                                : order.status === 'refunded'
+                                                ? 'Order was refunded'
+                                                : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
+                                        </p>
                                         <p>Order #{order.id}</p>
                                         <p>{order.paymentMethod === 'cash' ? 'Cash On Delivery' : 'GCASH'}</p> 
                                     </div>

@@ -33,6 +33,7 @@ import AdminCashoutList from './components/AdminCashoutList';
 import DasherReimburse from './components/DasherReimburse';
 import AdminReimburseList from './components/AdminReimburseList';
 import DasherTopup from './components/DasherTopup';
+import ShopIncomingOrder from './components/ShopIncomingOrder';
 
 
 function App() {
@@ -72,6 +73,8 @@ function App() {
           <Route path="/dasher-reimburse" element={<DasherRoute Component={DasherReimburse}/>} />
           <Route path="/admin-reimburse" element={<AdminRoute Component={AdminReimburseList} />} />
           <Route path="/dasher-topup" element={<DasherRoute Component={DasherTopup}/>} />
+
+          <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
 
           
           

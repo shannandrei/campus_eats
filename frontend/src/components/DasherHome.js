@@ -5,10 +5,12 @@ import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import DasherCompletedModal from "./DasherCompletedModal";
+import DasherCancelOrderModal from "./DasherCancelOrderModal";
+import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
 
 const DasherHome = () => {
     const { currentUser } = useAuth();
-    const [isActive, setIsActive] = useState(false);
+    // const [isActive, setIsActive] = useState(false);
     const [activeOrder, setActiveOrder] = useState(null);
     const [shop, setShop] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -16,6 +18,8 @@ const DasherHome = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
     const [currentStatus, setCurrentStatus] = useState("");
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [dasherCancelModalOpen, setDasherCancelModalOpen] = useState(false);
     const [buttonClicked, setButtonClicked] = useState({
         toShop: false,
         preparing: false,
@@ -83,9 +87,32 @@ const DasherHome = () => {
         fetchShopData();
     }, [activeOrder]);
 
-    const toggleButton = () => {
-        setIsActive(!isActive);
-    };
+    // const toggleButton = () => {
+    //     setIsActive(!isActive);
+    // };
+    useEffect(() => {
+        let intervalId;
+        if (activeOrder && activeOrder.status === "active_toShop" && activeOrder.paymentMethod === "cash") {
+            intervalId = setInterval(async () => {
+                try {
+                    const response = await axios.get(`/orders/${activeOrder.id}`);
+                    const updatedOrder = response.data;
+                    console.log('updatedOrder:', updatedOrder);
+                    // Check if the status changed to active_waiting_for_cancel_confirmation
+                    if (updatedOrder.status === "active_waiting_for_cancel_confirmation") {
+                        setCancelModalOpen(true);  // Open the Cancel Order Modal
+                    }
+                } catch (error) {
+                    console.error('Error checking order status:', error);
+                }
+            }, 5000); // Check every 5 seconds
+        }
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [activeOrder]);
 
     const updateOrderStatus = async (newStatus) => {
         try {
@@ -100,6 +127,8 @@ const DasherHome = () => {
             console.error('Error updating order status:', error);
         }
     };
+
+    
 
     const handleStatusChange = (newStatus) => {
         if (newStatus === "completed") {
@@ -122,6 +151,11 @@ const DasherHome = () => {
         }
     };
 
+    const showCancelModal = () => {
+        console.log('showCancelModal');
+        setDasherCancelModalOpen(true);
+        console.log('dasherCancelModalOpen:', dasherCancelModalOpen);
+    };
     
     return (
         <>
@@ -202,6 +236,13 @@ const DasherHome = () => {
                                         </button>
                                     </div>
                                 </div>
+                                <div className="refund-cancel-order-container">
+                                    {currentStatus === "toShop" && (
+                                        <button className="cancel-order-btn" style={{width: '200px', textAlign: 'center'}} onClick={showCancelModal}>
+                                            Cancel Order
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -231,9 +272,15 @@ const DasherHome = () => {
                                 </div>
                                 <div className="j-past-subtext">
                                     <div className="j-past-subtext-right">
-                                    <p>Delivered on {order.createdAt ? order.createdAt : ''}</p>
+                                    <p>
+                                        {order.status.startsWith('cancelled')
+                                            ? 'Order was cancelled'
+                                            : order.status === 'refunded'
+                                            ? 'Order was refunded'
+                                            : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
+                                    </p>
                                         <p>Order #{order.id}</p>
-                                        <p>{order.paymentMethod}</p>
+                                        <p>Paid {order.paymentMethod}</p>
                                     </div>
                                 </div>
                             </div>
@@ -245,6 +292,22 @@ const DasherHome = () => {
             {isModalOpen && (
                 <DasherCompletedModal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false) } shopData={shop} orderData={activeOrder}/>
             )}
+            {/* CancelOrderModal */}
+            {cancelModalOpen && (
+                <DasherCancelOrderModal 
+                    isOpen={cancelModalOpen} 
+                    closeModal={() => setCancelModalOpen(false)} 
+                    shopData={shop} 
+                    orderData={activeOrder} 
+                />
+            )}
+            {dasherCancelModalOpen && (
+                    <DasherCancelByDasherModal 
+                    isOpen={dasherCancelModalOpen} 
+                    closeModal={() => setDasherCancelModalOpen(false)} 
+                    shopData={shop} 
+                    orderData={activeOrder}  />
+                )}
         </>
     );
 };

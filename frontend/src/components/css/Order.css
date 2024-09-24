@@ -445,3 +445,33 @@ body{
     }
   }
 
+  .refund-cancel-order-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .refund-order-btn, .cancel-order-btn {
+    font-weight: 700;
+    font-family: Helvetica, "sans-serif";
+    transition: all .2s;
+    padding: 10px 30px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  .refund-order-btn, .cancel-order-btn {
+    background: #cc514f;
+    color: #fff;
+  }
+  
+  .refund-order-btn, .cancel-order-btn:hover {
+    background: #A83332;
+  }
+  
+  .refund-order-btn,  .cancel-order-btn:active {
+    transform: scale(0.95);
+  }

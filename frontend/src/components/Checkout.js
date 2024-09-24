@@ -147,6 +147,7 @@ const Checkout = () => {
             } catch (error) {
                 console.error("Error creating GCash payment:", error);
                 setLoading(false);
+                alert(error.response.data.error);
                 return;
             }
         }

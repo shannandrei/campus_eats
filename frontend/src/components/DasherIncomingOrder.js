@@ -72,14 +72,31 @@ const DasherIncomingOrder = () => {
 
   const handleSubmit = async (orderId) => {
     try {
+      // Fetch the order details to check paymentMethod
+      const orderResponse = await axiosConfig.get(`/orders/${orderId}`);
+      const { paymentMethod } = orderResponse.data;
+  
+      // Assign dasher to the order
       const response = await axiosConfig.post('/orders/assign-dasher', { orderId, dasherId: currentUser.id });
+  
       if (response.data.success) {
-        alert('Dasher assigned successfully');
-        await axiosConfig.post('/orders/update-order-status', { orderId, status: 'active_toShop' });
+        // Decide the status based on paymentMethod
+        let newStatus = 'active_toShop';
+        if (paymentMethod === 'gcash') {
+          newStatus = 'active_waiting_for_shop';
+        }
+  
+        // Update the order status
+        await axiosConfig.post('/orders/update-order-status', { orderId, status: newStatus });
+  
+        // Update the local state
         setOrders(prevOrders => prevOrders.map(order => (
-          order.id === orderId ? { ...order, dasherId: currentUser.id, status: 'active_toShop' } : order
+          order.id === orderId ? { ...order, dasherId: currentUser.id, status: newStatus } : order
         )));
-        navigate('/dasher-orders')
+  
+        // Navigate to dasher orders page
+        navigate('/dasher-orders');
+        alert('Dasher assigned successfully');
       } else {
         alert(response.data.message);
       }
@@ -88,6 +105,7 @@ const DasherIncomingOrder = () => {
       alert('An error occurred while assigning the dasher. Please try again.');
     }
   };
+  
 
   const toggleButton = async () => {
     try {
@@ -132,7 +150,7 @@ const DasherIncomingOrder = () => {
                     <h3>{`${order.firstname} ${order.lastname}`}</h3>
                     <p>{`Order #${order.id}`}</p>
                     <p>{order.paymentMethod === 'gcash' ? 'Online Payment' : 'Cash on Delivery'}</p>
-                    <p>Change for: ₱{order.changeFor ? order.changeFor : ''}</p>
+                    <p>{order.changeFor ? `Change for: ₱${order.changeFor}` : ''}</p>
                   </div>
                   <div className="do-buttons">
                     <button className="do-acceptorder" onClick={() => handleSubmit(order.id)}>Accept Order</button>

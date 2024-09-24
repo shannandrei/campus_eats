@@ -67,7 +67,7 @@ public class OrderService {
         }
 
         OrderEntity order = orderOptional.get();
-        System.out.println("ordeer: "+ order);
+        System.out.println("order: "+ order);
         order.setStatus(status);
         order.setDasherId(order.getDasherId());
         orderRepository.save(order);
@@ -120,7 +120,7 @@ public class OrderService {
     }
 
     public List<OrderEntity> getNoShowOrdersForDasher(String dasherId) {
-        System.out.println("dasherid:"+dasherId );
+        System.out.println("dasherId:"+dasherId );
         return orderRepository.findByDasherIdAndStatus(dasherId, "no-show");
     }
 
@@ -128,4 +128,20 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public ResponseEntity<?> removeDasherFromOrder(String orderId) {
+        Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Order not found", "success", false));
+        }
+        OrderEntity order = orderOptional.get();
+        // Set dasherId to null
+        order.setDasherId(null);
+        // Optionally, update the order status if necessary
+        // For example, set the status back to 'active_waiting_for_dasher' if needed
+        if (order.getStatus().startsWith("active")) {
+            order.setStatus("active_waiting_for_dasher");
+        }
+        orderRepository.save(order);
+        return ResponseEntity.ok(Map.of("message", "Dasher removed successfully", "success", true));
+    }
 }
