@@ -265,33 +265,41 @@ const Navbar = () => {
                 </div>
             )}
 
-            {currentUser && userAccountType === 'shop' && (
-                <div className="nav-side">
-                    <div className="image-wrapper">
-                        <Link to="/" style={{ textDecoration: 'none' }}>
-                            <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
-                        </Link>
-                    </div>
-                    <div className='nav'>
-                        <ul>
-                            <li className={`nb-icon ${location.pathname === '/shop-add-item' ? 'active' : ''}`}>
-                                <Link to="/shop-add-item">
-                                    <div className="svg-container">
-                                        <img src={'/Assets/add-item.svg'} alt="add item" className={`nb-image ${location.pathname === '/shop-add-item' ? 'active' : ''}`} />
-                                    </div>
-                                </Link>
-                            </li>
-                            <li className={`nb-icon ${location.pathname === '/shop-manage-item' ? 'active' : ''}`}>
-                                <Link to="/shop-manage-item">
-                                    <div className="svg-container">
-                                        <img src={'/Assets/manage-items.svg'} alt="Orders" className={`nb-image ${location.pathname === '/shop-manage-item' ? 'active' : ''}`} />
-                                    </div>
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
+{currentUser && userAccountType === 'shop' && (
+    <div className="nav-side">
+        <div className="image-wrapper">
+            <Link to="/" style={{ textDecoration: 'none' }}>
+                <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+            </Link>
+        </div>
+        <div className='nav'>
+            <ul>
+                <li className={`nb-icon ${location.pathname === '/shop-dashboard' ? 'active' : ''}`}>
+                    <Link to="/shop-dashboard">
+                        <div className="svg-container">
+                            <img src={'/Assets/dashboard.svg'} alt="Dashboard" className={`nb-image ${location.pathname === '/shop-dashboard' ? 'active' : ''}`} />
+                        </div>
+                    </Link>
+                </li>
+                <li className={`nb-icon ${location.pathname === '/shop-add-item' ? 'active' : ''}`}>
+                    <Link to="/shop-add-item">
+                        <div className="svg-container">
+                            <img src={'/Assets/add-item.svg'} alt="add item" className={`nb-image ${location.pathname === '/shop-add-item' ? 'active' : ''}`} />
+                        </div>
+                    </Link>
+                </li>
+                <li className={`nb-icon ${location.pathname === '/shop-manage-item' ? 'active' : ''}`}>
+                    <Link to="/shop-manage-item">
+                        <div className="svg-container">
+                            <img src={'/Assets/manage-items.svg'} alt="Orders" className={`nb-image ${location.pathname === '/shop-manage-item' ? 'active' : ''}`} />
+                        </div>
+                    </Link>
+                </li>
+            </ul>
+        </div>
+    </div>
+)}
+
 
             {showModal && <CartModal showModal={showModal} onClose={closeShowModal} />}
         </div>

@@ -27,6 +27,7 @@ import DasherRoute from './components/DasherRoute';
 import DasherIncomingOrder from './components/DasherIncomingOrder';
 import DasherHome from './components/DasherHome';
 import ShopUpdate from './components/ShopUpdate';
+import ShopIncomingOrder from './components/ShopIncomingOrder';
 import DasherUpdate from './components/DasherUpdate';
 import DasherCashout from './components/DasherCashout';
 import AdminCashoutList from './components/AdminCashoutList';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/shop-manage-item" element={<ShopRoute Component={ShopManage} />} />
           <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate}/>} />
           <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
+          <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
           <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
 
           <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
