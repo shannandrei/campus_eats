@@ -1,12 +1,10 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./css/Order.css";
 import { useAuth } from "../utils/AuthContext";
-// import { useNavigate } from "react-router-dom";
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faHeart, faClock, faStar } from '@fortawesome/free-regular-svg-icons';
 import Navbar from "./Navbar";
 import axios from "../utils/axiosConfig";
+import CancelOrderModal from "./CancelOrderModal";
+import RefundOrderModal from "./RefundOrderModal";
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -15,21 +13,20 @@ const Order = () => {
     const [shop, setShop] = useState(null);
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState(null);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
     const fetchOrders = async () => {
-        
         try {
             const ordersResponse = await axios.get(`/orders/user/${currentUser.id}`);
-            
             if (ordersResponse.status !== 200) {
                 throw new Error("Failed to fetch orders");
             }
-            
+    
             const ordersData = ordersResponse.data;
             const activeOrder = ordersData.activeOrders.length > 0 ? ordersData.activeOrders[0] : null;
-            console.log("Orders:", ordersResponse.data);
             setActiveOrder(activeOrder);
-
+    
             if (ordersData.activeOrders.length > 0) {
                 switch (activeOrder.status) {
                     case 'active_waiting_for_admin':
@@ -54,28 +51,33 @@ const Order = () => {
                     case 'active_toShop':
                         setStatus('Dasher is on the way to the shop');
                         break;
+                    case 'cancelled': 
+                        setStatus('Order has been cancelled');
+                        break;
+                    case 'refunded': 
+                        setStatus('Order has been refunded');
+                        break;
                     default:
                         setStatus('Unknown status');
                 }
             }
-
+    
             const ordersShopData = await Promise.all(
                 ordersData.orders.map(async (order) => {
                     const ordersShopDataResponse = await axios.get(`/shops/${order.shopId}`);
-                    console.log(order.shopId)
                     const ordersShop = ordersShopDataResponse.data;
-                    return { ...order, shopData: ordersShop }; 
+                    return { ...order, shopData: ordersShop };
                 })
             );
-
+    
             setOrders(ordersShopData);
-            
         } catch (error) {
             console.error("Error fetching orders:", error);
         } finally {
             setLoading(false);
         }
     };
+    
 
     const fetchShopData = async (id) => {
         try {
@@ -110,6 +112,30 @@ const Order = () => {
         return () => clearInterval(intervalId); // Clear interval on unmount
     }, []);
 
+    const handleCancelOrder = () => {
+        setIsCancelModalOpen(true); 
+    };
+
+    const closeCancelModal = () => {
+        setIsCancelModalOpen(false); 
+    };
+
+    const handleRefundOrder = () => {
+        setIsRefundModalOpen(true); 
+    };
+
+    const hideRefundButton = status === 'Order is being prepared'
+        || status === 'Order has been picked up'
+        || status === 'Order is on the way'  
+        || status === 'Order has been delivered'  
+        || status === 'Order has been completed';
+
+    const hideCancelButton = status === 'Order is being prepared'
+        || status === 'Order has been picked up'
+        || status === 'Order is on the way' 
+        || status === 'Order has been delivered' 
+        || status === 'Order has been completed';
+
     return (
         <>
             <Navbar />
@@ -135,7 +161,6 @@ const Order = () => {
                                             <h3>{shop ? shop.name : ''}</h3>
                                             <p>{shop ? shop.address : ''}</p>
                                         <div className="o-order-subtext">
-                                            
                                             <p>Delivery Location</p> 
                                             <h4>{activeOrder ? activeOrder.deliverTo : ''}</h4>
                                             <p>Order number</p> 
@@ -169,11 +194,24 @@ const Order = () => {
                                     </div>
                                     <div className="o-order-summary-total">
                                         <h4>Total</h4>
-                                        <h4>
-                                        ₱{activeOrder.totalPrice && shop ? (activeOrder.totalPrice + shop.deliveryFee).toFixed(2) : ''}
-                                        </h4>
+                                        <h4>₱{activeOrder.totalPrice && shop ? (activeOrder.totalPrice + shop.deliveryFee).toFixed(2) : ''}</h4>
                                     </div>
                                 </div>
+                                {activeOrder && (
+                                    <div className="refund-cancel-order-container">
+                                        {activeOrder.paymentMethod === 'gcash' && !hideRefundButton && (
+                                            <button className="refund-order-btn" onClick={handleRefundOrder}>
+                                                Refund
+                                            </button>
+                                        )}
+
+                                        {activeOrder.paymentMethod === 'cash' && !hideCancelButton && (
+                                            <button className="cancel-order-btn" onClick={handleCancelOrder}>
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -227,16 +265,41 @@ const Order = () => {
                                         <h4>₱{order.totalPrice.toFixed(2)}</h4>
                                     </div>
                                     <div className="o-past-subtext">
-                                    <p>Delivered on {order.createdAt ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : ''}</p>
+                                        <p>
+                                            {order.status === 'cancelled'
+                                                ? 'Order was cancelled'
+                                                : order.status === 'refunded'
+                                                ? 'Order was refunded'
+                                                : `Delivered on ${order.createdAt}`}
+                                        </p>
                                         <p>Order #{order.id}</p>
-                                        <p>{order.paymentMethod ==='cash' ? 'Cash On Delivery' : 'GCASH'}</p> 
+                                        <p>{order.paymentMethod === 'cash' ? 'Cash On Delivery' : 'GCASH'}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+
             </div>
+
+            {isCancelModalOpen && (
+                <CancelOrderModal
+                    isOpen={isCancelModalOpen}  
+                    closeModal={closeCancelModal}  
+                    shopData={shop} 
+                    orderData={activeOrder} 
+                />
+            )}
+            {isRefundModalOpen && (
+                <RefundOrderModal
+                    isOpen={isRefundModalOpen}  
+                    closeModal={() => setIsRefundModalOpen(false)}  
+                    shopData={shop}  
+                    orderData={activeOrder} 
+                />
+            )}
+
         </>
     );
 };
