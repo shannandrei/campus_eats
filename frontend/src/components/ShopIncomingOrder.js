@@ -6,6 +6,7 @@ import Navbar from "./Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import DeclineOrderModal from './AdminDeclineOrderModal';
+
 const ShopIncomingOrder = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);  // For Approving Orders
@@ -65,23 +66,26 @@ const ShopIncomingOrder = () => {
     fetchPastOrders();
     fetchOngoingOrders();
   }, []);
+
   const toggleAccordion = (orderId) => {
     setIsAccordionOpen((prevState) => ({
       ...prevState,
       [orderId]: !prevState[orderId]
     }));
   };
+
   const handleDeclineClick = (orderId) => {
     setSelectedOrder(orderId);
     setIsDeclineModalOpen(true);
   };
+
   const closeModal = () => {
     setIsDeclineModalOpen(false);
     setSelectedOrder(null);
   };
+
   const confirmDecline = async () => {
     try {
-      
       console.log('Declining order:', selectedOrder);
       await axios.post('/orders/update-order-status', { orderId: selectedOrder, status: 'cancelled_by_shop' });
       setOrders(prevOrders => {
@@ -99,6 +103,7 @@ const ShopIncomingOrder = () => {
       console.error('Error updating order status:', error);
     }
   };
+
   const handleSubmit = async (orderId) => {
     try {
       await axios.post('/orders/update-order-status', { orderId, status: 'active_shop_confirmed' });
@@ -117,6 +122,7 @@ const ShopIncomingOrder = () => {
       console.error('Error updating order status:', error);
     }
   };
+
   return (
     <>
       <Navbar />
@@ -169,9 +175,7 @@ const ShopIncomingOrder = () => {
                       </div>
                       <div className="o-order-summary-total">
                         <h4>Total</h4>
-                        <h4>
-                          ₱{order.totalPrice && order.shopData ? (order.totalPrice + order.shopData.deliveryFee).toFixed(2) : ''}
-                        </h4>
+                        <h4>₱{order.totalPrice && order.shopData ? (order.totalPrice + order.shopData.deliveryFee).toFixed(2) : ''}</h4>
                       </div>
                     </div>
                   </div>
@@ -180,6 +184,7 @@ const ShopIncomingOrder = () => {
             </div>
           </div>
         ))}
+
         {/* Ongoing Orders Section */}
         <div className="ao-progress-modal">
           <h3 className="ao-modal-title">Ongoing Orders</h3>
@@ -187,8 +192,8 @@ const ShopIncomingOrder = () => {
           <div className="ao-modal-body">
           {ongoingOrders.length === 0 && <div>No ongoing orders...</div>}
             <div className="ao-items">
-              {ongoingOrders.map((order, index) => (
-                <div key={index} className="ao-item">
+              {ongoingOrders.map((order) => (
+                <div key={order.id} className="ao-item">
                   <div className="ao-item-left">
                     <div className="ao-item-title">
                       <h4>{order.firstname} {order.lastname}</h4>
@@ -196,14 +201,47 @@ const ShopIncomingOrder = () => {
                       <p>{order.paymentMethod === 'gcash' ? 'Online Payment' : 'Cash on Delivery'}</p>
                     </div>
                   </div>
-                  <div className="cm-item-right">
-                    {/* Additional content for right side if needed */}
+                  <div className="ao-item-right">
+                    <button className="ao-toggle-content" onClick={() => toggleAccordion(order.id)}>
+                      <FontAwesomeIcon icon={faAngleDown} rotation={isAccordionOpen[order.id] ? 180 : 0} />
+                    </button>
                   </div>
+                  {isAccordionOpen[order.id] && (
+                    <div className="ao-accordion">
+                      <div className="o-order-summary">
+                        <h3>Order Summary</h3>
+                        {order.items.map((item, index) => (
+                          <div className="o-order-summary-item" key={index}>
+                            <div className="o-order-summary-item-header">
+                              <p>{item.quantity}x</p>
+                              <p>{item.name}</p>
+                            </div>
+                            <p>₱{item.price}</p>
+                          </div>
+                        ))}
+                        <div className="o-order-summary-total-container">
+                          <div className="o-order-summary-subtotal">
+                            <h4>Subtotal</h4>
+                            <h4>₱{order.totalPrice.toFixed(2)}</h4>
+                          </div>
+                          <div className="o-order-summary-subtotal">
+                            <h4>Delivery Fee</h4>
+                            <h4>₱{order.shopData ? order.shopData.deliveryFee.toFixed(2) : ''}</h4>
+                          </div>
+                          <div className="o-order-summary-total">
+                            <h4>Total</h4>
+                            <h4>₱{order.totalPrice && order.shopData ? (order.totalPrice + order.shopData.deliveryFee).toFixed(2) : ''}</h4>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         </div>
+
         <div className="ao-title">
           <h2>Past Orders</h2>
         </div>
@@ -233,4 +271,5 @@ const ShopIncomingOrder = () => {
     </>
   );
 }
+
 export default ShopIncomingOrder;
