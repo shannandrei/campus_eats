@@ -83,4 +83,30 @@ public class PaymentController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/process-refund")
+    public ResponseEntity<?> processRefund(@RequestBody Map<String, Object> payload) {
+        try {
+            String paymentId = (String) payload.get("paymentId");
+            float amount = Float.parseFloat(payload.get("amount").toString()); // Amount in PHP
+            String reason = (String) payload.get("reason");
+            String notes = (String) payload.get("notes");
+
+            System.out.println("paymentId: "+paymentId);
+
+            System.out.println("amount: "+amount);
+            System.out.println("reason: "+reason);
+            System.out.println("notes: "+notes);
+            // Call the service to process the refund
+            return paymentService.processRefund(paymentId, amount, reason, notes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/get-payment-by-reference/{referenceNumber}")
+    public ResponseEntity<?> getPaymentByReference(@PathVariable String referenceNumber) {
+        return paymentService.getPaymentByReference(referenceNumber);
+    }
 }

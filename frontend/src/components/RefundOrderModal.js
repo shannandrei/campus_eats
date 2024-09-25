@@ -1,46 +1,74 @@
 import React from "react";
 import "./css/AdminAcceptDasherModal.css";
 import axios from "../utils/axiosConfig";
-const RefundOrderModal = ({ isOpen, closeModal, shopData, orderData }) => {
+
+const RefundOrderModal = ({ isOpen, closeModal, orderData }) => {
     if (!isOpen) return null;
     const confirmRefund = async () => {
         try {
-            const updateResponse = await axios.post('/orders/update-order-status', {
-                orderId: orderData.id, 
-                status: 'refunded' 
-            });
-            if (updateResponse.status === 200) {
-                // Proceed with the refund request to PayMongo
-                const refundResponse = await axios.post('https://api.paymongo.com/refunds', {
-                    data: {
-                        attributes: {
-                            amount: orderData.totalPrice * 100, // Convert to cents
-                            currency: 'PHP',
-                            payment_id: orderData.paymentId,
-                            reason: 'requested_by_customer',
+            // Extract the reference number from the orderData
+            
+            const referenceNumber = orderData?.id;
+
+            if (!referenceNumber) {
+                alert("No reference number found for this order.");
+                return;
+            }
+
+            // First, retrieve the payment details using the reference number
+            const paymentResponse = await axios.get(`/payments/get-payment-by-reference/${referenceNumber}`);
+            const paymentId = paymentResponse.data.payment_id;
+            console.log('paymentResponse:', paymentResponse.data.payment_id);
+            // If payment ID is found, proceed to initiate the refund
+            if (paymentId) {
+                const refundPayload = {
+                    paymentId: paymentId,
+                    amount: orderData.totalPrice + orderData.deliveryFee, // Amount to refund (in PHP)
+                    reason: "requested_by_customer", // This can be adjusted based on your use case
+                    notes: "Refund initiated by admin."
+                };
+
+                const refundResponse = await axios.post("/payments/process-refund", refundPayload);
+                console.log('refundResponse:', refundResponse);
+                alert("Refund successful!");
+                if(refundResponse.status === 200){
+                    if(orderData.dasherId !== null){
+                        const updateResponse = await axios.post('/orders/update-order-status', {
+                            orderId: orderData.id,
+                            status: "active_waiting_for_cancel_confirmation"
+                        });
+                        if (updateResponse.status === 200) {
+                            closeModal();
+                        }
+                    } else {
+                        const updateResponse2 = await axios.post('/orders/update-order-status', {
+                            orderId: orderData.id,
+                            status: "cancelled_by_customer"
+                        });
+                        if (updateResponse2.status === 200) {
+                            window.location.reload();
                         }
                     }
-                }, {
-                    headers: {
-                        Authorization: `Basic ${btoa('sk_test_7HgaHqAY8NFKDhEGgj1MDq35')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (refundResponse.status === 200) {
-                    window.location.reload(); 
-                } else {
-                    console.error('Error processing refund:', refundResponse);
+
+                       
                 }
+
+                // Close the modal after successful refund
+                closeModal();
+            } else {
+                alert("Payment ID not found.");
             }
         } catch (error) {
-            console.error('Error updating order status or processing refund:', error);
+            console.error("Error processing refund:", error);
+            alert("Failed to process refund. Please try again.");
         }
     };
+
     return (
         <div className="aadm-modal-overlay">
             <div className="aadm-modal-content">
                 <button className="aadm-close" onClick={closeModal}>X</button>
-                <h2></h2>
+                <h2>Refund Order</h2>
                 <div className="aadm-input-container">
                     <h4>Are you sure you want to refund this order?</h4>
                 </div>
@@ -52,4 +80,5 @@ const RefundOrderModal = ({ isOpen, closeModal, shopData, orderData }) => {
         </div>
     );
 };
+
 export default RefundOrderModal;

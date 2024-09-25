@@ -64,6 +64,15 @@ const Order = () => {
                     case 'cancelled_by_dasher': 
                         setStatus('Order has been cancelled');
                         break;
+                    case 'cancelled_by_shop': 
+                        setStatus('Order has been cancelled');
+                        break;
+                    case 'active_shop_confirmed': 
+                        setStatus('Order is being prepared');
+                        break;
+                    case 'active_waiting_for_shop': 
+                        setStatus('Dasher is on the way to the shop');
+                        break;
                     case 'refunded': 
                         setStatus('Order has been refunded');
                         break;
@@ -185,8 +194,7 @@ const Order = () => {
             {isRefundModalOpen && (
                 <RefundOrderModal
                     isOpen={isRefundModalOpen}  
-                    closeModal={() => setIsRefundModalOpen(false)}  
-                    shopData={shop}  
+                    closeModal={() => setIsRefundModalOpen(false)}
                     orderData={activeOrder} 
                 />
             )}

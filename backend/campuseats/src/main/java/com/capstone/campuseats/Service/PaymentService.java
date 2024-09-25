@@ -181,13 +181,14 @@ public class PaymentService {
             JsonNode responseBody = objectMapper.readTree(response.body());
             String checkoutUrl = responseBody.at("/data/attributes/checkout_url").asText();
             String id = responseBody.at("/data/id").asText();
+            String referenceNumber = responseBody.at("/data/attributes/reference_number").asText();
             System.out.println("checkoutURL: " +checkoutUrl);
             if (response.statusCode() != 200) {
                 String errorDetail = responseBody.at("/errors/0/detail").asText();
                 throw new RuntimeException(errorDetail);
             }
 
-            return ResponseEntity.ok(Map.of("checkout_url", checkoutUrl, "id", id));
+            return ResponseEntity.ok(Map.of("checkout_url", checkoutUrl, "id", id,"reference_number",referenceNumber));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -242,4 +243,98 @@ public class PaymentService {
         }
     }
 
+    public ResponseEntity<?> processRefund(String paymentId, float amount, String reason, String notes) {
+        try {
+            // PayMongo requires the amount to be in cents
+            int amountInCents = (int) (amount * 100);
+            System.out.println("paymentId: "+paymentId);
+
+            System.out.println("amount: "+amount);
+            System.out.println("reason: "+reason);
+            System.out.println("notes: "+notes);
+            // Build the request body for PayMongo Refund API
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode rootNode = objectMapper.createObjectNode();
+            ObjectNode dataNode = rootNode.putObject("data");
+            ObjectNode attributesNode = dataNode.putObject("attributes");
+
+            attributesNode.put("amount", amountInCents);
+            attributesNode.put("payment_id", paymentId);
+            attributesNode.put("reason", reason);
+            attributesNode.put("notes", notes);
+
+            // Encode the secret key for authorization
+            String auth = Base64.getEncoder().encodeToString((paymongoSecret + ":").getBytes());
+
+            // Prepare the HTTP request to PayMongo
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.paymongo.com/v1/refunds"))
+                    .header("accept", "application/json")
+                    .header("content-type", "application/json")
+                    .header("authorization", "Basic " + auth)
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(rootNode)))
+                    .build();
+
+            // Send the request
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Check if the response is successful
+            if (response.statusCode() == 200) {
+                JsonNode responseBody = objectMapper.readTree(response.body());
+                String refundId = responseBody.at("/data/id").asText();
+                return ResponseEntity.ok(Map.of("refundId", refundId, "message", "Refund processed successfully"));
+            } else {
+                JsonNode errorResponse = objectMapper.readTree(response.body());
+                String errorDetail = errorResponse.at("/errors/0/detail").asText();
+                return ResponseEntity.status(response.statusCode()).body(Map.of("error", errorDetail));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public ResponseEntity<?> getPaymentByReference(String referenceNumber) {
+        try {
+            // Prepare the PayMongo API request
+            System.out.println("refnum: "+referenceNumber);
+            String auth = Base64.getEncoder().encodeToString((paymongoSecret + ":").getBytes());
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.paymongo.com/v1/links?reference_number=" + referenceNumber))
+                    .header("accept", "application/json")
+                    .header("authorization", "Basic " + auth)
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Parse the response
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode responseBody = objectMapper.readTree(response.body());
+
+            System.out.println("response: "+responseBody);
+            // Check if the API returned data successfully
+            if (response.statusCode() != 200) {
+                String errorDetail = responseBody.at("/errors/0/detail").asText();
+                return ResponseEntity.status(response.statusCode()).body(Map.of("error", errorDetail));
+            }
+
+            // Extract the payment ID
+            JsonNode paymentsData = responseBody.at("/data/0/attributes/payments");
+            if (paymentsData.isArray() && paymentsData.size() > 0) {
+                String paymentId = paymentsData.get(0).at("/data/id").asText();
+                return ResponseEntity.ok(Map.of("payment_id", paymentId));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No payment found for the provided reference number"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

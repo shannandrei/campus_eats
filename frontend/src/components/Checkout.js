@@ -24,7 +24,6 @@ const Checkout = () => {
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [loading, setLoading] = useState(false);
     const [waitingForPayment, setWaitingForPayment] = useState(false);
-    const [paymentLinkId, setPaymentLinkId] = useState("");
     let pollInterval;
 
     useEffect(() => {
@@ -82,7 +81,7 @@ const Checkout = () => {
         setLoading(false);
     }, [cart]);
 
-    const pollPaymentStatus = async (linkId) => {
+    const pollPaymentStatus = async (linkId, refNum) => {
         const options = {
             method: 'GET',
             url: `https://api.paymongo.com/v1/links/${linkId}`,
@@ -98,7 +97,7 @@ const Checkout = () => {
             console.log("Payment status:", paymentStatus);
             if (paymentStatus === 'paid') {
                 setWaitingForPayment(false);
-                handleOrderSubmission();
+                handleOrderSubmission(refNum);
             }
         } catch (error) {
             console.error("Error checking payment status:", error);
@@ -129,18 +128,18 @@ const Checkout = () => {
                 console.log("delivery fee:", shop.deliveryFee);
                 const response = await axios.post("/payments/create-gcash-payment", {
                     amount: (cart.totalPrice + shop.deliveryFee), // PayMongo expects the amount in cents
-                    description: `to ${shop.shopName} payment by ${firstName} ${lastName}`,
+                    description: `to ${shop.name} payment by ${firstName} ${lastName}`,
                     orderId: currentUser.id,
                 });
 
                 const data = response.data;
+                console.log("GCash payment data:", data);
                 window.open(data.checkout_url, "_blank");
-                setPaymentLinkId(data.id);
                 setWaitingForPayment(true);
                 setLoading(false);
 
                 pollInterval = setInterval(() => {
-                    pollPaymentStatus(data.id);
+                    pollPaymentStatus(data.id, data.reference_number);
                 }, 10000);
 
                 return () => clearInterval(pollInterval);
@@ -156,7 +155,8 @@ const Checkout = () => {
     if (!cart || !shop) {
         return <div>Fetching...</div>; // Show a loading state while fetching data
     }
-    const handleOrderSubmission = async () => {
+    const handleOrderSubmission = async (refNum) => {
+        console.log("Submitting order... refnum : ", refNum);
         const order = {
             uid: currentUser.id,
             shopId: cart.shopId,
@@ -169,6 +169,7 @@ const Checkout = () => {
             deliveryFee: shop.deliveryFee,
             items: cart.items,
             totalPrice: cart.totalPrice,
+            refNum,
         };
     
         if (paymentMethod === "cash" && changeFor) {

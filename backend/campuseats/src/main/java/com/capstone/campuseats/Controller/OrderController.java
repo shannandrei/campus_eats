@@ -64,9 +64,10 @@ public class OrderController {
         System.out.println("place order received: " + payload);
         try {
             String uid = (String) payload.get("uid");
-
+            System.out.println("id to be set: "+(String) payload.get("refNum"));
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
+                    .id((String) payload.get("refNum"))
                     .status("active_waiting_for_admin")
                     .createdAt(LocalDateTime.now())
                     .dasherId(null)
@@ -86,7 +87,7 @@ public class OrderController {
                 order.setChangeFor(Float.parseFloat(payload.get("changeFor").toString()));
             }
 
-            System.out.println("items: " + order.getItems());
+            System.out.println("order: " + order.getId());
 
             OrderEntity placedOrder = orderService.placeOrder(order);
 

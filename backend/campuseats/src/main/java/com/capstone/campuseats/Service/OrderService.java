@@ -52,9 +52,7 @@ public class OrderService {
             order.setStatus("active_waiting_for_dasher");
         }
 
-        // Generate a unique ID and set creation timestamp
         order.setCreatedAt(LocalDateTime.now());
-        order.setId(UUID.randomUUID().toString());
 
         return orderRepository.save(order);
     }
