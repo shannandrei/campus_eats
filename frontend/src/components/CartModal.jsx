@@ -6,6 +6,7 @@ import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import { useOrderContext } from "../context/OrderContext";
+import { confirmAlert } from 'react-confirm-alert'; 
 import axios from '../utils/axiosConfig';
 
 const CartModal = ({ showModal, onClose }) => {
@@ -80,16 +81,19 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     const handleItemRemove = (item) => {
-        if (window.confirm(`Are you sure you want to remove ${item.name} from your cart?`)) {
-            updateCartItem(item.itemId, 'remove');
-        }
-        // setCartData(prevCartData => {
-        //     return {
-        //         ...prevCartData,
-        //         items: prevCartData.items.filter(cartItem => cartItem.id !== item.id)
-        //     };
-        // });
-        console.log('Removing item:', item.id);
+        confirmAlert({
+            title: "Confirm to Remove",
+            message: `Are you sure you want to remove ${item.name} from your cart?`,
+            buttons: [
+              {
+                label: 'Yes',
+                onClick: () => updateCartItem(item.itemId, 'remove')
+              },
+              {
+                label: 'No',
+              }
+            ]
+        })
     };
 
     const handleShopRemove = async () => {

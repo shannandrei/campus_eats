@@ -37,6 +37,8 @@ import ShopIncomingOrder from './components/ShopIncomingOrder';
 import MainLayout from './components/Layouts/MainLayout';
 import { OrderProvider } from './context/OrderContext';
 
+import 'react-confirm-alert/src/react-confirm-alert.css';
+
 function App() {
   return (
       <Router>
