@@ -254,7 +254,7 @@ const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
 
   return (
     <>
-      <Navbar />
+      
 
       <div className="p-body">
         <div className="p-content-current">

@@ -64,7 +64,7 @@ const ShopManage = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="o-body">
                 <div className="s-container">
                     <div className="s-title-container">

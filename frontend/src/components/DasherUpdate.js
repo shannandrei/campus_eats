@@ -152,7 +152,7 @@ const DasherUpdate = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">

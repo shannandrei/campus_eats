@@ -60,7 +60,7 @@ const AdminShopList = () => {
 
     return (
         <>
-            <Navbar />
+            
 
             <div className="adl-body">
                 <ImageModal 

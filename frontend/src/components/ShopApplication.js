@@ -172,7 +172,7 @@
 
     return (
       <>
-        <Navbar />
+        
         <div className="sa-body">
           <div className="sa-content-current">
             <div className="sa-card-current">

@@ -214,7 +214,7 @@ const DasherHome = () => {
     
     return (
         <>
-            <Navbar />
+            
             <div className="j-body">
                 <div className="j-title">
                     <h2>Active Order</h2>

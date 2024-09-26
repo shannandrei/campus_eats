@@ -131,7 +131,7 @@ const DasherIncomingOrder = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="do-body">
         <div className="j-card-large">
           <div className="do-title">

@@ -111,7 +111,7 @@ const AdminIncomingOrder = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="ao-body">
         <div className="ao-title">
           <h2>Incoming Orders</h2>

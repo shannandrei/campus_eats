@@ -204,7 +204,7 @@ const Checkout = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="co-body">
                 <div className="co-content-current">
                     <div className="co-card-current co-card-large">

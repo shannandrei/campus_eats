@@ -77,7 +77,7 @@ const Home = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="h-body">
                 <div className="h-title">
                     <h2>{getGreeting()}, {currentUser?.username}!</h2>

@@ -15,7 +15,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="main-content">
         <div className="summary-containers">
           <div className="summary-container">

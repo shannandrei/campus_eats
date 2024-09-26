@@ -165,7 +165,7 @@ const Order = () => {
         || status === 'Waiting for your confirmation';
     return (
         <>
-            <Navbar />
+            
             <div className="o-body">
             {isReviewModalOpen && (
                 <ReviewModal 

@@ -11,7 +11,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   return (
     <div className='landing-page'>
-        <Navbar />
+        
       <div className="image-container">     
         <img src={'/Assets/clouds.svg'} alt="Cloud" className="cloud-image" />
         <img src={'/Assets/big-cloud.svg'} alt="Big Cloud" className="big-cloud-image" />

@@ -125,7 +125,7 @@ const ShopIncomingOrder = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="ao-body">
         <div className="ao-title">
           <h2>Approving Orders</h2>

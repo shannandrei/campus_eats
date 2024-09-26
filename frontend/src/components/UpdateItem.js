@@ -166,7 +166,7 @@ const UpdateItem = () => {
       
     return (
         <>
-            <Navbar />
+            
 
             <div className="ui-body">
                 <div className="ui-content-current">

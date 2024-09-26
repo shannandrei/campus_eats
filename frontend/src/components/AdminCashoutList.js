@@ -118,7 +118,7 @@ const AdminCashoutList = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="adl-body">
                 <ImageModal 
                     isOpen={isModalOpen} 

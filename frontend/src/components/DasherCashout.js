@@ -126,7 +126,7 @@ const DasherCashout = () => {
 
   return (
     <>
-      <Navbar />
+      
 
       <div className="p-body">
         <div className="p-content-current">

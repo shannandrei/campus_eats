@@ -169,7 +169,7 @@ const AddItem = () => {
 
   return (
     <>
-      <Navbar />
+      
 
       <div className="ai-body">
         <div className="ai-content-current">

@@ -95,7 +95,7 @@ const AdminDasherList = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="adl-body">
                 <div className="adl-title">
                     <h2>Pending Dashers</h2>

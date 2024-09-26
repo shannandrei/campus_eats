@@ -107,7 +107,7 @@ const Navbar = () => {
                             </div>
 
                             {/* Cart Item Count */}
-                            {userAccountType === 'regular' && <CartItemCount showModal={showModal} setShowModal={setShowModal}/>}
+                            <CartItemCount showModal={showModal} setShowModal={setShowModal} disabled={userAccountType === "regular"}/>
                         </>
                     ) : (
                         <div className="navbar-buttons">

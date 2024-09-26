@@ -56,7 +56,7 @@ const AdminOrderHistory = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="aoh-body">
                 <div className="aoh-title">
                     <h2>Active Orders</h2>
