@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./css/Home.css";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 
 const Home = () => {
     const { currentUser } = useAuth();
@@ -77,7 +77,7 @@ const Home = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="h-body">
                 <div className="h-title">
                     <h2>{getGreeting()}, {currentUser?.username}!</h2>

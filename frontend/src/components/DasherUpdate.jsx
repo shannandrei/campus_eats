@@ -1,38 +1,31 @@
 import React, { useEffect, useState } from "react";
 import "./css/ShopApplication.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpload, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "./Navbar";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
-import axios from "../utils/axiosConfig";
+import axiosConfig from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
 
-const DasherCashout = () => {
+const DasherUpdate = () => {
   const { currentUser } = useAuth();
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const [availableStartTime, setAvailableStartTime] = useState("");
+  const [availableEndTime, setAvailableEndTime] = useState("");
   const [GCASHName, setGCASHName] = useState("");
   const [GCASHNumber, setGCASHNumber] = useState("");
-  const [wallet, setWallet] = useState(0);
-  const [cashoutAmount, setCashoutAmount] = useState(0);
+  const [days, setDays] = useState({
+    MON: false,
+    TUE: false,
+    WED: false,
+    THU: false,
+    FRI: false,
+    SAT: false,
+    SUN: false,
+  });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchDasherData = async () => {
-      try {
-        const response = await axios.get(`/dashers/${currentUser.id}`);
-        const data = response.data;
-        setGCASHName(data.gcashName);
-        setGCASHNumber(data.gcashNumber);
-        setWallet(data.wallet);
-      } catch (error) {
-        console.error("Error fetching dasher data:", error);
-      }
-    };
-
-    fetchDasherData();
-  }, [currentUser]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -67,82 +60,111 @@ const DasherCashout = () => {
     }
   };
 
+  const handleCategoryChange = (day) => {
+    setDays({
+      ...days,
+      [day]: !days[day],
+    });
+  };
+
+  useEffect(() => {
+    const fetchDasherData = async () => {
+      try {
+        const response = await axiosConfig.get(`/dashers/${currentUser.id}`);
+        const data = response.data;
+        setAvailableStartTime(data.availableStartTime);
+        setAvailableEndTime(data.availableEndTime);
+        setGCASHName(data.gcashName);
+        setGCASHNumber(data.gcashNumber);
+        setDays((prevDays) => {
+          const updatedDays = { ...prevDays };
+          response.data.daysAvailable.forEach(day => {
+              updatedDays[day] = true;
+          });
+          return updatedDays;
+        });
+        setUploadedImage(data.schoolId);
+      } catch (error) {
+        console.error("Error fetching dasher data:", error);
+      }
+    };
+
+    fetchDasherData();
+  }, [currentUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-  
-    if (!uploadedImage) {
-      alert("Please upload a GCASH QR image.");
+    const hasCategorySelected = Object.values(days).some(selected => selected);
+
+    if (!hasCategorySelected) {
+      alert("Please select at least one day.");
       return;
     }
-  
-    if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
+
+    if (!uploadedImage) {
+      alert("Please upload a School ID image.");
+      return;
+    }
+
+    if (!GCASHNumber.startsWith('9')) {
       alert("Please provide a valid GCASH Number.");
       return;
     }
-    if(cashoutAmount < 100 ) {
-      alert("Minimum cashout amount is ₱100.");
+
+    if (availableStartTime >= availableEndTime) {
+      alert("Available end time must be later than start time.");
       return;
     }
-  
-    
-  
-    const cashout = {
+
+    const formData = new FormData();
+    const dasher = {
+      availableStartTime,
+      availableEndTime,
       gcashName: GCASHName,
       gcashNumber: GCASHNumber,
-      amount: cashoutAmount,
+      daysAvailable: Object.keys(days).filter(day => days[day])
     };
-  
-    const formData = new FormData();
-    formData.append("cashout", new Blob([JSON.stringify(cashout)], { type: "application/json" }));
-    formData.append("image", imageFile);
-    formData.append("userId", new Blob([currentUser.id], { type: "text/plain" }));
-  
+
+    formData.append("dasher", JSON.stringify(dasher));
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+    formData.append("userId", currentUser.id);
+    console.log("formData", imageFile);
+
     try {
-      const response = await axios.post("/cashouts/create", formData, {
+      const response = await axiosConfig.put(`/dashers/update/${currentUser.id}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
-      console.log("response: ", response);
-  
-      if (response.status === 200 || response.status === 201) {
-        alert("Cashout request submitted successfully.");
-        navigate("/profile");
-      } else {
-        alert("Failed to submit dasher application.");
-      }
+      navigate("/profile");
     } catch (error) {
-      if (error.response && error.response.data) {
-        alert(error.response.data);
+      if (error.response && error.response.data.error === 'Dasher not found') {
+        alert('Dasher not found.');
+        return;
       } else {
-        console.error("Error submitting form:", error);
-        alert("Error submitting form");
+        console.error("Error updating dasher:", error);
+        alert("Error updating dasher.");
       }
     }
   };
-  
 
   return (
     <>
-      <Navbar />
-
+      
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">
             <div className="p-container">
               <div className="p-content">
                 <div className="p-text">
-                  <h3>Withdraw Wallet</h3>
-                  <h4>
-                    It may take up to 3-5 business days for the amount to be reflected in your GCASH account.
-                  </h4>
+                  <h3>Dasher Application</h3>
+                  <h4>Partner with CampusEats to help drive growth and take your business to the next level.</h4>
                 </div>
               </div>
               <div className="p-info">
                 <form onSubmit={handleSubmit}>
-
                   <div className="p-two">
                     <div className="p-field-two">
                       <div className="p-label-two">
@@ -173,15 +195,38 @@ const DasherCashout = () => {
                     </div>
                   </div>
                   <div className="p-two">
+                    <div className="p-field-two">
+                      <div className="p-label-two">
+                        <h3>Start of Available Time</h3>
+                        <input
+                          type="time"
+                          className="shop-open"
+                          value={availableStartTime}
+                          onChange={(e) => setAvailableStartTime(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="p-field-two">
+                      <div className="p-label-two">
+                        <h3>End of Available Time</h3>
+                        <input
+                          type="time"
+                          className="shop-close"
+                          value={availableEndTime}
+                          onChange={(e) => setAvailableEndTime(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-two">
                     <div className="sa-upload">
                       <div className="sa-label-upload">
-                        <h3>GCASH Personal QR Code</h3>
+                        <h3>School ID</h3>
                       </div>
                       <div
-                        className={`sa-upload-container ${
-                          dragOver ? "drag-over" : ""
-                        }`}
-                        // style={{height: "400px", width: "250px"}}
+                        className={`sa-upload-container ${dragOver ? "drag-over" : ""}`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
@@ -213,8 +258,7 @@ const DasherCashout = () => {
                                   className="sa-upload-icon"
                                 />
                                 <p>
-                                  Drag and Drop or click here <br /> to upload
-                                  image
+                                  Drag and Drop or click here <br /> to upload image
                                 </p>
                               </>
                             )}
@@ -222,23 +266,20 @@ const DasherCashout = () => {
                         </label>
                       </div>
                     </div>
-
                     <div className="sa-shop-categories">
-                    <div className="p-label-two">
-                        <h3>Cashout Amount (Wallet: ₱{wallet})</h3>
-                        <div className="gcash-input-container">
-                          <input
-                            type="number"
-                            className="gcash-num"
-                            value={cashoutAmount}
-                            onChange={(e) => setCashoutAmount(e.target.value)}
-                            max={wallet}
-                            required
-                          />
-                        </div>
+                      <h3>Days Available</h3>
+                      <div className="sa-category-checkboxes">
+                        {Object.keys(days).map((day, index) => (
+                          <div
+                            key={index}
+                            className={`sa-category-item ${days[day] ? "selected" : ""}`}
+                            onClick={() => handleCategoryChange(day)}
+                          >
+                            {day}
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    
                   </div>
                   <div className="p-buttons">
                     <button
@@ -262,4 +303,4 @@ const DasherCashout = () => {
   );
 };
 
-export default DasherCashout;
+export default DasherUpdate;

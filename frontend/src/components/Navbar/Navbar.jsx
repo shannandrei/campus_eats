@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './css/Navbar.css'; 
+import '../css/Navbar.css'; 
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faAngleDown, faUser, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../utils/AuthContext';
-import CartModal from './CartModal';
-import api from '../utils/axiosConfig';
+import { useAuth } from '../../utils/AuthContext';
+import CartModal from '../CartModal';
+import CartItemCount from './CartItemCount';
+import api from '../../utils/axiosConfig';
 
 const Navbar = () => {
     const { currentUser, logout } = useAuth();
@@ -16,7 +17,6 @@ const Navbar = () => {
     const [dropdownActive, setDropdownActive] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [userAccountType, setUserAccountType] = useState('');
-    const [cartData, setCartData] = useState(null);
 
     useEffect(() => {
         if (currentUser) {
@@ -32,23 +32,6 @@ const Navbar = () => {
             fetchUserAccountType();
         }
         
-    }, [currentUser]);
-    
-
-    useEffect(() => {
-        if (currentUser) {
-            const fetchCartData = async () => {
-                try {
-                    const response = await api.get(`/carts/cart?uid=${currentUser.id}`);
-                    // Directly access response.data with axios
-                    const data = response.data;
-                    setCartData(data);
-                } catch (error) {
-                    console.error('Error fetching cart data:', error);
-                }
-            };
-            fetchCartData();
-        }
     }, [currentUser]);
 
     const closeShowModal = () => {
@@ -123,16 +106,8 @@ const Navbar = () => {
                                 </ul>
                             </div>
 
-                            {userAccountType === 'regular' && (
-                                <div className='nb-cart' onClick={() => setShowModal(!showModal)}>
-                                    <div className='nb-cart-icon'>
-                                        <img src={'/Assets/cart.png'} alt="Cart" className="nb-image-cart" />
-                                    </div>
-                                    <div className='nb-cart-count'>
-                                        <span>{cartData ? cartData.items.length : 0}</span>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Cart Item Count */}
+                            <CartItemCount showModal={showModal} setShowModal={setShowModal} disabled={userAccountType === "regular"}/>
                         </>
                     ) : (
                         <div className="navbar-buttons">

@@ -1,7 +1,7 @@
 import "./css/UpdateItem.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import axiosConfig from "../utils/axiosConfig"; // Updated import
@@ -166,7 +166,7 @@ const UpdateItem = () => {
       
     return (
         <>
-            <Navbar />
+            
 
             <div className="ui-body">
                 <div className="ui-content-current">

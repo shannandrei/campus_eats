@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import "./css/AdminDasherLists.css";
 import axios from "../utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
@@ -95,7 +95,7 @@ const AdminDasherList = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="adl-body">
                 <div className="adl-title">
                     <h2>Pending Dashers</h2>

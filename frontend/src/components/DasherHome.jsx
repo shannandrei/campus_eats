@@ -3,7 +3,7 @@ import axios from '../utils/axiosConfig'; // Import axiosConfig
 import "./css/DasherHome.css";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import DasherCompletedModal from "./DasherCompletedModal";
 import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
@@ -214,7 +214,7 @@ const DasherHome = () => {
     
     return (
         <>
-            <Navbar />
+            
             <div className="j-body">
                 <div className="j-title">
                     <h2>Active Order</h2>

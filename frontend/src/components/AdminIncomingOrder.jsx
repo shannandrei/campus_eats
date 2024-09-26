@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosConfig";
 import "./css/AdminOrders.css";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import DeclineOrderModal from './AdminDeclineOrderModal';
@@ -111,7 +111,7 @@ const AdminIncomingOrder = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="ao-body">
         <div className="ao-title">
           <h2>Incoming Orders</h2>

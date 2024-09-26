@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { useAuth } from "../utils/AuthContext";
 import "./css/AdminStats.css";
 
@@ -15,7 +15,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="main-content">
         <div className="summary-containers">
           <div className="summary-container">

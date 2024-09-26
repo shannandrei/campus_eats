@@ -17,7 +17,7 @@
   top: 70px;
   height: calc(100% - 70px);
   width: 350px;
-  z-index: 1000;
+  z-index: 50;
   padding: 20px;
   display: flex;
   flex-direction: column;

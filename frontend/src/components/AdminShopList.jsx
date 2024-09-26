@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import "./css/AdminDasherLists.css";
 import AdminAcceptDasherModal from "./AdminAcceptDasherModal";
 import axios from "../utils/axiosConfig"; // Use axios from axiosConfig.js
@@ -60,7 +60,7 @@ const AdminShopList = () => {
 
     return (
         <>
-            <Navbar />
+            
 
             <div className="adl-body">
                 <ImageModal 

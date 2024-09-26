@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./css/ShopApplication.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
@@ -254,7 +254,7 @@ const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
 
   return (
     <>
-      <Navbar />
+      
 
       <div className="p-body">
         <div className="p-content-current">

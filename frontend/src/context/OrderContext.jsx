@@ -5,17 +5,20 @@ import { useAuth } from "../utils/AuthContext";
 
 const OrderContext = createContext();
 
-export function useOrderContext() {
-  return useContext(OrderContext);
-}
-
 const fetchCartData = async (currentUser) => {
-
-
   try {
     const { data } = await api.get(`/carts/cart?uid=${currentUser.id}`);
     // Directly access response.data with axios
-    return data;
+
+    if(!Array.isArray(data)) {
+      return [data];
+    }
+
+    if(data.length > 0 ) {
+      return data
+    }
+
+    return [];
   } catch (error) {
     console.error("Error fetching cart data:", error);
   }
@@ -23,13 +26,31 @@ const fetchCartData = async (currentUser) => {
 
 export function OrderProvider({ children }) {
   const { currentUser } = useAuth();
-  const [cartData, setCartData] = useState(null);
+  const [cartData, setCartData] = useState([]);
+  const [cartQuantity, setCartQuantity] = useState(0);
+
+  const fetchData = async () => {
+    const data = await fetchCartData(currentUser);
+
+    if(!data) {
+      setCartData([]);
+      setCartQuantity(0);
+
+      return
+    }
+
+    setCartData(data);
+    setCartQuantity(data.length)
+  }
 
   useEffect(() => {
-    (async () => {
-        const data = await fetchCartData(currentUser);
-        setCartData(data);
-    })();
+    if (!currentUser) {
+      return;
+    }        
+
+    fetchData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const addToCart = async ({ item, userQuantity, totalPrice }) => {
@@ -54,7 +75,15 @@ export function OrderProvider({ children }) {
         }
 
         const data = await fetchCartData(currentUser);
-        setCartData(data);
+
+        if(!data) {
+          setCartData([]);
+          setCartQuantity(0);
+        } else {
+          setCartData(data);
+          setCartQuantity(data.length)
+        }
+        
 
       } catch (error) {
         console.error("Error adding item to cart:", error);
@@ -67,7 +96,10 @@ export function OrderProvider({ children }) {
     <OrderContext.Provider
       value={{
         cartData,
+        cartQuantity,
         addToCart,
+        setCartData,
+        fetchData
       }}
     >
       {children}
@@ -75,5 +107,6 @@ export function OrderProvider({ children }) {
   );
 }
 
-export { OrderContext };
-
+export function useOrderContext() {
+  return useContext(OrderContext);
+}

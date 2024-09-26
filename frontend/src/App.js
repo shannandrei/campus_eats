@@ -34,7 +34,10 @@ import DasherReimburse from './components/DasherReimburse';
 import AdminReimburseList from './components/AdminReimburseList';
 import DasherTopup from './components/DasherTopup';
 import ShopIncomingOrder from './components/ShopIncomingOrder';
+import MainLayout from './components/Layouts/MainLayout';
 import { OrderProvider } from './context/OrderContext';
+
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 function App() {
   return (
@@ -42,39 +45,41 @@ function App() {
         <AuthProvider>
           <OrderProvider>
             <Routes>
-              <Route path="/forgot-password" element={<PublicRoute Component={ForgotPassword} />} />
-              <Route path="/reset-password/" element={<PublicRoute Component={ResetPassword} />} />
-              <Route path="/login" element={<PublicRoute Component={LoginSignUp} />} />
-              <Route path="/signup" element={<PublicRoute Component={LoginSignUp} />} />
-              <Route path="/" element={<PublicRoute Component={LandingPage} />} />
-              <Route path="/home" element={<PrivateRoute Component={Home}/>} />
-              <Route path="/profile" element={<PrivateRoute Component={UserProfile} />} />
+              <Route element={<MainLayout/>}>
+                <Route path="/forgot-password" element={<PublicRoute Component={ForgotPassword} />} />
+                <Route path="/reset-password/" element={<PublicRoute Component={ResetPassword} />} />
+                <Route path="/login" element={<PublicRoute Component={LoginSignUp} />} />
+                <Route path="/signup" element={<PublicRoute Component={LoginSignUp} />} />
+                <Route path="/" element={<PublicRoute Component={LandingPage} />} />
+                <Route path="/home" element={<PrivateRoute Component={Home}/>} />
+                <Route path="/profile" element={<PrivateRoute Component={UserProfile} />} />
 
-              <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
-              <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
-              <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
-              <Route path="/admin-shops" element={<AdminShopList />} />
+                <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
+                <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
+                <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
+                <Route path="/admin-shops" element={<AdminShopList />} />
 
-              <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} />
-              <Route path="/shop/:shopId" element={<PrivateRoute Component={Shop} />} />
-              <Route path="/orders" element={<PrivateRoute Component={Order} />} />
-              <Route path="/dasher-application" element={<PrivateRoute Component={DasherApplication} />} />
-              <Route path="/shop-application" element={<PrivateRoute Component={ShopApplication} />} />
-              <Route path="/dasher-orders" element={<DasherRoute Component={DasherHome} />} />
-              <Route path="/dasher-incoming-order" element={<DasherRoute Component={DasherIncomingOrder} />} />
-              <Route path="/shop-add-item" element={<ShopRoute Component={AddItem} />} />
-              <Route path="/shop-manage-item" element={<ShopRoute Component={ShopManage} />} />
-              <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate}/>} />
-              <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
-              <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
+                <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} />
+                <Route path="/shop/:shopId" element={<PrivateRoute Component={Shop} />} />
+                <Route path="/orders" element={<PrivateRoute Component={Order} />} />
+                <Route path="/dasher-application" element={<PrivateRoute Component={DasherApplication} />} />
+                <Route path="/shop-application" element={<PrivateRoute Component={ShopApplication} />} />
+                <Route path="/dasher-orders" element={<DasherRoute Component={DasherHome} />} />
+                <Route path="/dasher-incoming-order" element={<DasherRoute Component={DasherIncomingOrder} />} />
+                <Route path="/shop-add-item" element={<ShopRoute Component={AddItem} />} />
+                <Route path="/shop-manage-item" element={<ShopRoute Component={ShopManage} />} />
+                <Route path="/dasher-update" element={<DasherRoute Component={DasherUpdate}/>} />
+                <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
+                <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
 
-              <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
-              <Route path="/admin-cashouts" element={<AdminRoute Component={AdminCashoutList} />} />
-              <Route path="/dasher-reimburse" element={<DasherRoute Component={DasherReimburse}/>} />
-              <Route path="/admin-reimburse" element={<AdminRoute Component={AdminReimburseList} />} />
-              <Route path="/dasher-topup" element={<DasherRoute Component={DasherTopup}/>} />
+                <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
+                <Route path="/admin-cashouts" element={<AdminRoute Component={AdminCashoutList} />} />
+                <Route path="/dasher-reimburse" element={<DasherRoute Component={DasherReimburse}/>} />
+                <Route path="/admin-reimburse" element={<AdminRoute Component={AdminReimburseList} />} />
+                <Route path="/dasher-topup" element={<DasherRoute Component={DasherTopup}/>} />
 
-              <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
+                <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
+              </Route>
             </Routes>
           </OrderProvider>
         </AuthProvider>
