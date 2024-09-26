@@ -1,34 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./css/CartModal.css";
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import { useOrderContext } from "../context/OrderContext";
 import axios from '../utils/axiosConfig';
 
 const CartModal = ({ showModal, onClose }) => {
     const { currentUser } = useAuth();
     const [cartData, setCartData] = useState(null);
     const [shopData, setShopData] = useState(null);
+    const { cartData: contextCartData, fetchData } = useOrderContext();
     const navigate = useNavigate();
+    
+    const fetchCartData = useCallback(async () => {
+        try {
+            const response = await axios.get(`/carts/cart`, {
+                params: { uid: currentUser.id }
+            });
+            setCartData(response.data);
+        } catch (error) {
+            console.error('Error fetching cart data:', error);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
-        const fetchCartData = async () => {
-            try {
-                const response = await axios.get(`/carts/cart`, {
-                    params: { uid: currentUser.id }
-                });
-                setCartData(response.data);
-            } catch (error) {
-                console.error('Error fetching cart data:', error);
-            }
-        };
-
         if (showModal && currentUser) {
             fetchCartData();
         }
-    }, [showModal, currentUser]);
+    }, [showModal, currentUser, fetchCartData, contextCartData]);
 
     useEffect(() => {
         const fetchShopData = async () => {
@@ -55,6 +58,8 @@ const CartModal = ({ showModal, onClose }) => {
             });
             console.log(response.data);
             setCartData(response.data.cartData);
+            fetchData();
+            fetchCartData();
             
         } catch (error) {
             if (error.response && error.response.status === 400) {
@@ -96,6 +101,8 @@ const CartModal = ({ showModal, onClose }) => {
 
                 alert(response.data.message);
                 setCartData(null);
+                fetchData();
+                fetchCartData();
             } catch (error) {
                 console.error('Error removing cart:', error);
             }

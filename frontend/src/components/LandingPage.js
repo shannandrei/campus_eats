@@ -1,6 +1,6 @@
 import React from 'react';
 import './css/LandingPage.css';
-import Navbar from './Navbar';
+import Navbar from './Navbar/Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';

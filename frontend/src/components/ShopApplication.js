@@ -2,7 +2,7 @@
   import "./css/ShopApplication.css";
   import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
   import { faUpload, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-  import Navbar from "./Navbar";
+  import Navbar from "./Navbar/Navbar";
   import { useNavigate } from "react-router-dom";
   import axios from "../utils/axiosConfig";
   import { useAuth } from "../utils/AuthContext";

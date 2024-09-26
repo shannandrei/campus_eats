@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import "./css/AddToCartModal.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { useOrderContext } from "../context/OrderContext";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig"; // Import the pre-configured axios instance
 
 const AddToCartModal = ({ showModal, onClose, item }) => {
     const { currentUser } = useAuth();
+    const { addToCart } = useOrderContext();
     const [userQuantity, setUserQuantity] = useState(0);
     const [itemQty, setItemQty] = useState(item ? item.quantity : 0);
     const [totalPrice, setTotalPrice] = useState(item ? item.price : 0);
@@ -65,37 +67,6 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
         }
     };
 
-    const addToCart = async () => {
-        if(userQuantity > 0) {
-        try {
-            
-            const response = await axios.post('/carts/add-to-cart', {
-                item: {
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    userQuantity: userQuantity,
-                },
-                totalPrice: totalPrice,
-                uid: currentUser.id,
-                shopId: item.shopId
-            });
-            console.log('Response:', response);
-
-            if (response.status !== 200) {
-                throw new Error(response.data.error || 'Failed to add item to cart');
-            }
-
-            onClose();
-            // window.location.reload();
-        } catch (error) {
-            console.error('Error adding item to cart:', error);
-            alert(error.message);
-        }
-        }
-    };
-
     return (
         <div className={`shop-modal-overlay ${showModal ? 'show' : ''}`} onClick={onClose}>
             <div className="shop-modal" onClick={e => e.stopPropagation()}>
@@ -128,7 +99,14 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                                     <FontAwesomeIcon icon={faPlus} />
                                 </button>
                             </div>
-                            <button className="add-to-cart-button" onClick={addToCart}>Add to Cart</button>
+                            <button className="add-to-cart-button" onClick={async () => {
+                                await void addToCart({
+                                    item,
+                                    userQuantity,
+                                    totalPrice,
+                                });
+                                onClose();
+                            }}>Add to Cart</button>
                         </div>
                     </>
                 )}

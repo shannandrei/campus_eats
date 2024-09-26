@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./css/ShopApplication.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axiosConfig from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";

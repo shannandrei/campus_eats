@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosConfig from "../utils/axiosConfig"; // Update this import to use your configured axios instance
 import "./css/DasherOrders.css";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import DeclineOrderModal from './AdminDeclineOrderModal';

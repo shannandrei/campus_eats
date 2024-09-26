@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosConfig"; // Updated import statement
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import "./css/AdminOrderHistory.css"; // Import CSS file
 
 const AdminOrderHistory = () => {

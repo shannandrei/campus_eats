@@ -3,7 +3,7 @@ import axios from '../utils/axiosConfig';  // Import your axiosConfig
 import "./css/Checkout.css";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 

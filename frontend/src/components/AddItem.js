@@ -1,7 +1,7 @@
 import "./css/AddItem.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTimes, faPlus, faMinus, faUpload } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "../utils/axiosConfig";

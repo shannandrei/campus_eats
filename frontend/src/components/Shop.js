@@ -4,7 +4,7 @@ import { useAuth } from "../utils/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import AddToCartModal from "./AddToCartModal";
 import axios from "../utils/axiosConfig";
 
@@ -81,7 +81,6 @@ const Shop = () => {
 
     return (
         <>
-            <Navbar />
             <div className="o-body">
                 <div className="s-container">
                     <div className="s-title-container">

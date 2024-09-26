@@ -4,7 +4,7 @@ import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTimes } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import axios from "../utils/axiosConfig"; // Import axios config
 
 const UserProfile = () => {

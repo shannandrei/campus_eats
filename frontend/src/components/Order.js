@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "./css/Order.css";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import axios from "../utils/axiosConfig";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal

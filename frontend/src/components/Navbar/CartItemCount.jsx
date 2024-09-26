@@ -1,7 +1,12 @@
+import { useEffect } from "react";
 import { useOrderContext } from "../../context/OrderContext";
 
 const CartItemCount = ({ showModal, setShowModal }) => {
-  const { cartData } = useOrderContext();
+  const { cartQuantity } = useOrderContext();
+
+  useEffect(() => {
+    console.log(cartQuantity)
+  }, [cartQuantity])
 
   return (
     <div className="nb-cart" onClick={() => setShowModal(!showModal)}>
@@ -9,7 +14,7 @@ const CartItemCount = ({ showModal, setShowModal }) => {
         <img src={"/Assets/cart.png"} alt="Cart" className="nb-image-cart" />
       </div>
       <div className="nb-cart-count">
-        <span>{cartData ? cartData.items.length : 0}</span>
+        <span>{cartQuantity}</span>
       </div>
     </div>
   );
