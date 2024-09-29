@@ -1,18 +1,17 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import "./css/Order.css";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
 import axios from "../utils/axiosConfig";
+import CancelOrderModal from "./CancelOrderModal";
+import "./css/Order.css";
+import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
-import CancelOrderModal from "./CancelOrderModal";
-import RefundOrderModal from "./RefundOrderModal";
 
 const Order = () => {
     const { currentUser } = useAuth();
     const [activeOrder, setActiveOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [shop, setShop] = useState(null);
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState(null);
@@ -126,13 +125,29 @@ const Order = () => {
         setLoading(false);
     }, [activeOrder]);
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            fetchOrders();
-        }, 10000); // Fetch every 10 seconds
+      const handleCancelOrderConfirmed = async () => {
+        setIsLoading(true); 
+        try {
+            let newStatus = '';
+            if (activeOrder.dasherId !== null) {
+                newStatus = 'active_waiting_for_cancel_confirmation';
+            } else {
+                newStatus = 'cancelled_by_customer';
+            }
+            const updateResponse = await axios.post('/orders/update-order-status', {
+                orderId: activeOrder.id,
+                status: newStatus
+            });
 
-        return () => clearInterval(intervalId); // Clear interval on unmount
-    }, []);
+            if (updateResponse.status === 200) {
+                fetchOrders(); 
+            }
+        } catch (error) {
+            console.error('Error updating order status:', error);
+        } finally {
+            setIsLoading(false); 
+        }
+    };
 
     // Function to open the ReviewShopModal
     const handleOpenReviewShopModal = (order) => {
@@ -189,6 +204,7 @@ const Order = () => {
                     closeModal={closeCancelModal}  
                     shopData={shop} 
                     orderData={activeOrder} 
+                    onCancelConfirmed={handleCancelOrderConfirmed}
                 />
             )}
             {isRefundModalOpen && (
@@ -264,7 +280,7 @@ const Order = () => {
                                         )}
                                         {activeOrder.paymentMethod === 'cash' && !hideCancelButton && (
                                             <button className="cancel-order-btn" onClick={handleCancelOrder}>
-                                                Cancel Order
+                                                {isLoading ? 'Cancelling...' : 'Cancel Order'}
                                             </button>
                                         )}
                                     </div>

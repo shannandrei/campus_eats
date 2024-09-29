@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import "./css/Home.css";
-import { useAuth } from "../utils/AuthContext";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
+
+import "./css/Home.css";
 
 const Home = () => {
     const { currentUser } = useAuth();
@@ -19,20 +20,14 @@ const Home = () => {
 
     const fetchShops = async () => {
         try {
-            const response = await fetch('/api/shops/active');
-            if (!response.ok) {
-                throw new Error('Failed to fetch shops');
-            }
-            const data = await response.json();
-
+            const response = await axios.get(`/shops/active`);
+            const data = await response.data
+            console.log("Fetched shops data:", data); // Log the shops data
             // Fetch ratings for each shop and calculate the average
             const shopsWithRatings = await Promise.all(
                 data.map(async (shop) => {
-                    const ratingResponse = await fetch(`/api/ratings/shop/${shop.id}`); // Assuming this is the API endpoint to get ratings for a shop
-                    if (!ratingResponse.ok) {
-                        throw new Error(`Failed to fetch ratings for shop ${shop.id}`);
-                    }
-                    const ratings = await ratingResponse.json();
+                    const ratingResponse = await axios.get(`/ratings/shop/${shop.id}`); // Assuming this is the API endpoint to get ratings for a shop
+                    const ratings = await ratingResponse.data
                     const averageRating = calculateAverageRating(ratings);
                     return { ...shop, averageRating };
                 })
