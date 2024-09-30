@@ -1,5 +1,7 @@
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Modal from '@mui/material/Modal';
+import Tooltip from '@mui/material/Tooltip';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
@@ -16,9 +18,10 @@ const DasherCashout = () => {
   const [GCASHNumber, setGCASHNumber] = useState("");
   const [wallet, setWallet] = useState(0);
   const [cashoutAmount, setCashoutAmount] = useState(0);
-  const [cashout, setCashout] = useState([]);
+  const [cashout, setCashout] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -26,6 +29,7 @@ const DasherCashout = () => {
     setSelectedImage(imageSrc);
     setImageModalOpen(true);
   };
+
   const closeModal = () => {
     setImageModalOpen(false); // Close the modal
     setSelectedImage(""); // Reset selected image
@@ -43,14 +47,12 @@ const fetchDasherData = async () => {
       }
     };
 
-  const fetchCashoutData = async () => {
+ const fetchCashoutData = async () => {
     try {
         const response = await axios.get(`/cashouts/${currentUser.id}`);
-        const data = response.data;
-        console.log("Cashout data:", data); 
-        setCashout(Array.isArray(data) ? data : [data]); // Ensure data is an array
+            setCashout(response.data); // Ens
     } catch (error) {
-        console.error("Error fetching cashout data:", error); 
+        console.error("Error fetching cashout data:", error);
     }
 };
 
@@ -59,7 +61,7 @@ const fetchDasherData = async () => {
     fetchCashoutData();
   }, [currentUser]);
 
- 
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
@@ -135,7 +137,8 @@ const fetchDasherData = async () => {
   
       if (response.status === 200 || response.status === 201) {
         alert("Cashout request submitted successfully.");
-        navigate("/profile");
+        closeIt();
+        fetchCashoutData();
       } else {
         alert("Failed to submit dasher application.");
       }
@@ -189,8 +192,20 @@ const fetchDasherData = async () => {
     return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
 };
 
+ const openModal = () => setIsModalOpen(true);
+    const closeIt = () => setIsModalOpen(false);
 
-const withdrawModal = () => {<div className="adl-body">
+const WithdrawModal = ({isOpen, onClose}) => {
+if(!isOpen) return null
+return(
+  <Modal
+  open={isOpen}
+  onClose={closeIt}
+  aria-labelledby="modal-modal-title"
+  aria-describedby="modal-modal-description"
+  keepMounted
+>
+<div className="adl-body">
     <div className="p-content-current">
       <div className="p-card-current">
         <div className="p-container">
@@ -305,7 +320,7 @@ const withdrawModal = () => {<div className="adl-body">
               <div className="p-buttons">
                 <button
                   type="button"
-                  onClick={() => navigate("/profile")}
+                  onClick={() => setIsModalOpen(false)} 
                   className="p-logout-button"
                 >
                   Cancel
@@ -321,14 +336,12 @@ const withdrawModal = () => {<div className="adl-body">
       </div>
     </div>
   </div>
-
+  </Modal>
+)
 }
 
   return (
     <>
-      
-      {cashout && (
-        <>
             <div className="adl-body">
                 <div className="adl-title">
                     <h2>You have a pending cashout request</h2>
@@ -343,34 +356,48 @@ const withdrawModal = () => {<div className="adl-body">
                 </div>
 
                 <div className="adl-container">
-                    {cashout.map((item) => (
-                        <div key={item.id} className="adl-box">
-                            <div className="adl-box-content">
-                                <div>{formatDate(item.createdAt)}</div>
-                                <div>{item.gcashName}</div>
-                                <div>{item.gcashNumber}</div>
-                                <div>₱{item.amount.toFixed(2)}</div>
-                                <div>
-                                    <img 
-                                        src={item.gcashQr} 
-                                        alt="GCASH QR" 
-                                        className="adl-list-pic" 
-                                        onClick={() => handleImageClick(item.gcashQr)} // Click handler
-                                    />
-                                </div>
-                                <div className="adl-buttons">
-                                    <button className="adl-decline" onClick={() => handleDeleteClick(item.id)}>Delete</button>
-                                    <button className="adl-acceptorder" onClick={() => handleEditClick(item.id)}>Edit</button>
-                                </div>
-                            </div>
+                    {cashout && (
+                      <div key={cashout.id} className="adl-box">
+                        <div className="adl-box-content">
+                          <div>{formatDate(cashout.createdAt)}</div>
+                          <div>{cashout.gcashName}</div>
+                          <div>{cashout.gcashNumber}</div>
+                          <div>₱{cashout.amount.toFixed(2)}</div>
+                          <div>
+                            <img 
+                              src={cashout.gcashQr} 
+                              alt="GCASH QR" 
+                              className="adl-list-pic" 
+                              onClick={() => handleImageClick(cashout.gcashQr)} 
+                            />
+                          </div>
+                          <div className="adl-buttons">
+                            <button className="adl-decline" onClick={() => handleDeleteClick(cashout.id)}>Delete</button>
+                            <button className="adl-acceptorder" onClick={() => handleEditClick(cashout.id)}>Edit</button>
+                          </div>
                         </div>
-                    ))}
+                      </div>
+                    )}
                 </div>
+
+                <Tooltip title={cashout ? "You can only have one pending cashout request at a time." : ""}>
+                    <span>
+                      <button
+                        onClick={openModal}
+                        disabled={cashout !== null} // Disable if there is a cashout
+                        className="mt-2 rounded-md bg-red-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:shadow-none hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2"
+                        type="button"
+                      >
+                        Request Cashout
+                      </button>
+                    </span>
+                </Tooltip>
+
+                <WithdrawModal isOpen={isModalOpen} onClose={closeIt} />
             </div>
         </>
-    )}
+     
 
-    </>
   );
 };
 

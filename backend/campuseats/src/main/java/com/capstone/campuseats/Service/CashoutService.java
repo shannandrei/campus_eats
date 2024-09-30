@@ -1,22 +1,25 @@
 package com.capstone.campuseats.Service;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.capstone.campuseats.Entity.CashoutEntity;
-import com.capstone.campuseats.Entity.CashoutEntity;
-import com.capstone.campuseats.Repository.CashoutRepository;
-import com.capstone.campuseats.config.CustomException;
-import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.capstone.campuseats.Entity.CashoutEntity;
+import com.capstone.campuseats.Repository.CashoutRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class CashoutService {
@@ -43,10 +46,14 @@ public class CashoutService {
                 .buildClient();
     }
 
-    public List<CashoutEntity> getAllCashouts(){return cashoutRepository.findAll();}
+    public List<CashoutEntity> getAllCashouts() {
+        return cashoutRepository.findAll();
+    }
+
     public List<CashoutEntity> getPendingCashouts() {
         return cashoutRepository.findByStatus("pending");
     }
+
     public List<CashoutEntity> getNonPendingCashouts() {
         return cashoutRepository.findByStatusNot("pending");
     }
@@ -82,9 +89,10 @@ public class CashoutService {
         return null; // or throw CustomException if you prefer
     }
 
-
     public Optional<CashoutEntity> getCashoutById(String id) {
-        return cashoutRepository.findById(id);
+        Optional<CashoutEntity> cashout = cashoutRepository.findById(id);
+        System.out.println("Retrieved cashout: " + cashout);
+        return cashout;
     }
 
     public CashoutEntity createCashout(CashoutEntity cashout, MultipartFile image, String userId) throws IOException {
@@ -102,12 +110,20 @@ public class CashoutService {
 
         blobClient.upload(image.getInputStream(), image.getSize(), true);
 
-
         cashout.setId(userId);
         String qrURL = blobClient.getBlobUrl();
         cashout.setStatus("pending");
         cashout.setGcashQr(qrURL);
         cashout.setCreatedAt(LocalDateTime.now());
         return cashoutRepository.save(cashout);
+    }
+
+    public boolean deleteCashout(String cashoutId) {
+        Optional<CashoutEntity> cashoutOptional = cashoutRepository.findById(cashoutId);
+        if (cashoutOptional.isPresent()) {
+            cashoutRepository.deleteById(cashoutId);
+            return true;
+        }
+        return false;
     }
 }
