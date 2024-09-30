@@ -16,7 +16,20 @@ const DasherCashout = () => {
   const [GCASHNumber, setGCASHNumber] = useState("");
   const [wallet, setWallet] = useState(0);
   const [cashoutAmount, setCashoutAmount] = useState(0);
+  const [cashout, setCashout] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+
   const navigate = useNavigate();
+
+  const handleImageClick = (imageSrc) => {
+    setSelectedImage(imageSrc);
+    setImageModalOpen(true);
+  };
+  const closeModal = () => {
+    setImageModalOpen(false); // Close the modal
+    setSelectedImage(""); // Reset selected image
+};
 
   useEffect(() => {
     const fetchDasherData = async () => {
@@ -31,7 +44,18 @@ const DasherCashout = () => {
       }
     };
 
+    const fetchCashoutData = async () => {
+      try {
+        const response = await axios.get(`/cashouts/${currentUser.id}`);
+        setCashout(response.data);
+      } catch (error) {
+        console.error("Error fetching cashout data:", error);
+      }
+
+    };
+
     fetchDasherData();
+    fetchCashoutData();
   }, [currentUser]);
 
   const handleFileChange = (e) => {
@@ -122,13 +146,96 @@ const DasherCashout = () => {
       }
     }
   };
-  
+
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await axios.delete(`/cashouts/delete/${id}`);
+      console.log("Response:", response);
+
+      if (response.status !== 200) {
+        throw new Error(response.data.error || "Failed to delete cashout request");
+      }
+
+      setCashout(null);
+
+      alert("Cashout request deleted successfully.");
+      
+    } catch (error) {
+      console.error("Error deleting cashout request:", error);
+      alert(error.message);
+    }
+  };
+
+  const handleEditClick = async (id) => {
+    // Implement the edit functionality here
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    
+    // Extracting the components
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Get last 2 digits of the year
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    hours = hours % 12; // Convert to 12-hour format
+    hours = hours ? String(hours).padStart(2, '0') : '12'; // If hour is 0, set it to 12
+
+    return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
+};
 
   return (
     <>
       
+      {cashout && (
+      <>
+      <div className="adl-body">
+        <div className="adl-title">
+          <h2>You have a pending cashout request</h2>
+        </div>
+        <div className="adl-row-container">
+            <div className="adl-word">Timestamp</div>
+            <div className="adl-word">GCASH Name</div>
+            <div className="adl-word">GCASH Number</div>
+            <div className="adl-word">Amount</div>
+            <div className="adl-word">GCASH QR</div>
+            <div className="adl-word">Actions</div>
+        </div>
 
-      <div className="p-body">
+        <div className="adl-container">
+                  
+          <div key={cashout.id} className="adl-box">
+              <div className="adl-box-content">
+                  <div>{formatDate(cashout.createdAt)}</div>
+                  <div>{cashout.gcashName}</div>
+                  <div>{cashout.gcashNumber}</div>
+                  {/* <div>₱{cashout.amount.toFixed(2)}</div> */}
+                  
+                  <div>
+                  <img 
+                          src={cashout.gcashQr} 
+                          alt="GCASH QR" 
+                          className="adl-list-pic" 
+                          onClick={() => handleImageClick(cashout.gcashQr)} // Click handler
+                      />
+                  </div>
+                  <div className="adl-buttons">
+                      <button className="adl-decline" onClick={() => handleDeleteClick(cashout.id)}>Delete</button>
+                      <button className="adl-acceptorder" onClick={() => handleEditClick(cashout.id)}>Edit</button>
+                  </div>
+              </div>
+          </div>
+                  
+        </div>
+        </div>
+      </>
+      )}
+
+
+      <div className="adl-body">
         <div className="p-content-current">
           <div className="p-card-current">
             <div className="p-container">
@@ -255,6 +362,7 @@ const DasherCashout = () => {
                 </form>
               </div>
             </div>
+            
           </div>
         </div>
       </div>

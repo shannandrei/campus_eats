@@ -23,7 +23,7 @@ const Navbar = () => {
             const fetchUserAccountType = async () => {
                 try {
                     const response = await api.get(`/users/${currentUser.id}/accountType`);
-                    setUserAccountType(response.data); // Directly setting the response data since it's a plain string
+                    setUserAccountType(response.data); 
                 } catch (error) {
                     console.error('Error fetching user account type:', error);
                 }
