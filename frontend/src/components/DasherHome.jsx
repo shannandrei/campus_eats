@@ -7,6 +7,7 @@ import Navbar from "./Navbar/Navbar";
 import DasherCompletedModal from "./DasherCompletedModal";
 import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
+import DasherNoShowModal from "./DasherNoShowModal";
 
 const DasherHome = () => {
     const { currentUser } = useAuth();
@@ -20,13 +21,15 @@ const DasherHome = () => {
     const [currentStatus, setCurrentStatus] = useState("");
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [dasherCancelModalOpen, setDasherCancelModalOpen] = useState(false);
+    const [dasherNoShowModalOpen, setDasherNoShowModalOpen] = useState(false);
     const [buttonClicked, setButtonClicked] = useState({
         toShop: false,
         preparing: false,
         pickedUp: false,
         onTheWay: false,
         delivered: false,
-        completed: false
+        completed: false,
+        noShow: false
     });
     
 
@@ -105,6 +108,10 @@ const DasherHome = () => {
                     if (updatedOrder.status === "active_waiting_for_cancel_confirmation") {
                         setCancelModalOpen(true);  // Open the Cancel Order Modal
                     }
+                    if (updatedOrder.status === "active_waiting_for_no_show_confirmation") {
+                        console.log("hellooo");
+                        setDasherNoShowModalOpen(true);  // Open the Cancel Order Modal
+                    }
                 } catch (error) {
                     console.error('Error checking order status:', error);
                 }
@@ -136,9 +143,20 @@ const DasherHome = () => {
     const handleStatusChange = (newStatus) => {
         if (newStatus === "completed") {
             setIsModalOpen(true);
-        } else {
+        } else if (newStatus === "noShow") {
+            if (!buttonClicked.noShow) {
+                setCurrentStatus(newStatus);
+                setButtonClicked(prevState => ({
+                    ...prevState,
+                    [newStatus]: true
+                }));
+                updateOrderStatus(newStatus);
+            } else {
+                alert("Order is already marked as 'No Show'.");
+            }
+            } else {
             // Check conditions for status changes
-            console.log('currentStatus:', currentStatus);
+                console.log('currentStatus:', currentStatus);
                 console.log('activeOrder status:', activeOrder.status);
                 console.log('activeOrder paymentMethod:', activeOrder.paymentMethod);
             console.log('newStatus:', newStatus);
@@ -259,6 +277,8 @@ const DasherHome = () => {
                                             <h4>#{activeOrder ? activeOrder.id: ''}</h4>
                                             <p>Payment Method</p>
                                             <h4>{activeOrder ? activeOrder.paymentMethod: ''}</h4>
+                                            <p>Note: </p>
+                                            <h4>{activeOrder ? activeOrder.note: ''}</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -309,6 +329,9 @@ const DasherHome = () => {
                                         <button disabled={!buttonClicked.delivered || buttonClicked.completed || currentStatus !== "delivered"} className={`j-status-button completed ${currentStatus === "completed" ? "active" : ""}`} onClick={() => handleStatusChange("completed")}>
                                             Completed {currentStatus === "completed" && "✓"}
                                         </button>
+                                        <button disabled={!buttonClicked.delivered || buttonClicked.noShow || currentStatus !== "delivered"} className={`j-status-button completed ${currentStatus === "noShow" ? "active" : ""}`} onClick={() => handleStatusChange("noShow")}>
+                                            No Show {currentStatus === "noShow" && "✓"}
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="refund-cancel-order-container">
@@ -346,17 +369,19 @@ const DasherHome = () => {
                                     <h4>₱{order.totalPrice.toFixed(2)}</h4>
                                 </div>
                                 <div className="j-past-subtext">
-                                    <div className="j-past-subtext-right">
+                                <div className="j-past-subtext-right">
                                     <p>
-                                        {order.status.startsWith('cancelled')
-                                            ? 'Order was cancelled'
-                                            : order.status === 'refunded'
-                                            ? 'Order was refunded'
-                                            : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
+                                {order.status === 'active_noShow' 
+                                    ? 'Failed Delivery: Customer didn\'t show up' 
+                                    : order.status.startsWith('cancelled') 
+                                    ? 'Order was cancelled' 
+                                    : order.status === 'refunded' 
+                                    ? 'Order was refunded' 
+                                    : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
                                     </p>
-                                        <p>Order #{order.id}</p>
-                                        <p>Paid {order.paymentMethod}</p>
-                                    </div>
+                                    <p>Order #{order.id}</p>
+                                    <p>Paid {order.paymentMethod}</p>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -380,6 +405,13 @@ const DasherHome = () => {
                     <DasherCancelByDasherModal 
                     isOpen={dasherCancelModalOpen} 
                     closeModal={() => setDasherCancelModalOpen(false)} 
+                    shopData={shop} 
+                    orderData={activeOrder}  />
+                )}
+            {dasherNoShowModalOpen && (
+                    <DasherNoShowModal 
+                    isOpen={dasherNoShowModalOpen} 
+                    closeModal={() => setDasherNoShowModalOpen(false)} 
                     shopData={shop} 
                     orderData={activeOrder}  />
                 )}

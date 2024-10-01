@@ -6,6 +6,7 @@ import "./css/Order.css";
 import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
+import UserNoShowModal from './UserNoShowModal';
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -22,6 +23,7 @@ const Order = () => {
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
+    const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
 
     const fetchOrders = async () => {
         try {
@@ -91,6 +93,13 @@ const Order = () => {
                         break;
                     case 'active_waiting_for_cancel_confirmation': 
                         setStatus('Order is waiting for cancellation confirmation');
+                        break;
+                    case 'active_noShow': // case for No Show status
+                        setStatus('Customer did not show up for the delivery');
+                        handleNoShowModal(); // Open the No-Show Modal
+                        break;
+                    case 'active_waiting_for_no_show_confirmation': 
+                        setStatus('Order failed: Customer did not show up for delivery');
                         break;
                     default:
                         setStatus('Unknown status');
@@ -163,6 +172,35 @@ const Order = () => {
         }
     };
 
+    const handleNoShowConfirmed = async () => {
+        setIsLoading(true); 
+        try {
+            let newStatus = '';
+            if (activeOrder.dasherId !== null) {
+                newStatus = 'active_waiting_for_no_show_confirmation';
+            } else {
+                newStatus = 'active_noShow';
+            }
+            const updateResponse = await axios.post('/orders/update-order-status', {
+                orderId: activeOrder.id,
+                status: newStatus
+            });
+
+            if (updateResponse.status === 200) {
+                fetchOrders(); 
+            }
+        } catch (error) {
+            console.error('Error updating order status:', error);
+        } finally {
+            setIsLoading(false); 
+        }
+    };
+
+    
+    const handleNoShowModal = () => {
+        setIsNoShowModalOpen(true); // Open No-Show Modal
+    };
+
     // Function to open the ReviewShopModal
     const handleOpenReviewShopModal = (order) => {
         setSelectedOrder(order);
@@ -228,6 +266,15 @@ const Order = () => {
                     orderData={activeOrder} 
                 />
             )}
+            {isNoShowModalOpen && ( // Render the No-Show Modal
+                    <UserNoShowModal 
+                        isOpen={isNoShowModalOpen}
+                        closeModal={() => setIsNoShowModalOpen(false)} 
+                        shopData={shop} 
+                        orderData={activeOrder} 
+                        onNoShowConfirmed={handleNoShowConfirmed}
+                    />
+                )}
                 <div className="o-title">
                     <h2>Active Order</h2>
                 </div>
@@ -355,7 +402,7 @@ const Order = () => {
                 <div className="o-title">
                     <h2>Past Orders</h2>
                 </div>
-
+                {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
                 <div className="o-content-past">
                     {orders.map((order, index) => (
                         <div 
