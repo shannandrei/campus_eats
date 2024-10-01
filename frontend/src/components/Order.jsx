@@ -20,6 +20,8 @@ const Order = () => {
     const [selectedOrder, setSelectedOrder] = useState(null); // State for the selected order
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+    const [dasherName, setDasherName] = useState(''); // State for dasher name
+    const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
 
     const fetchOrders = async () => {
         try {
@@ -31,6 +33,18 @@ const Order = () => {
             const ordersData = ordersResponse.data;
             const activeOrder = ordersData.activeOrders.length > 0 ? ordersData.activeOrders[0] : null;
             setActiveOrder(activeOrder);
+
+            if (activeOrder) {
+                // Fetch dasher details if dasherId exists
+                if (activeOrder.dasherId) {
+                    const dasherResponse = await axios.get(`/dashers/${activeOrder.dasherId}`);
+                    if (dasherResponse.status === 200) {
+                        const dasherData = dasherResponse.data;
+                        setDasherName(dasherData.gcashName); // Set dasher name
+                        setDasherPhone(dasherData.gcashNumber); // Set dasher phone
+                    }
+                }
+            }
 
             if (ordersData.activeOrders.length > 0) {
                 switch (activeOrder.status) {
@@ -233,6 +247,26 @@ const Order = () => {
                                         <h3>{shop ? shop.name : ''}</h3>
                                         <p>{shop ? shop.address : ''}</p>
                                         <div className="o-order-subtext">
+                                        <p>Dasher Name:</p>
+                                        <h4>{dasherName ? dasherName : 'N/A'}</h4>
+                                        <p>Dasher Phone:</p>
+                                        <h4>
+                                            {dasherPhone ? (
+                                                <a 
+                                                    href={`tel:+63${dasherPhone}`} // Adding +63 to the telephone link
+                                                    style={{ 
+                                                        textDecoration: 'underline', 
+                                                        color: '#007BFF',
+                                                        padding: '2px 4px',
+                                                        borderRadius: '4px'
+                                                    }}
+                                                >
+                                                    {`+63 ${dasherPhone}`} {/* Displaying +63 with the phone number */}
+                                                </a>
+                                            ) : (
+                                                'N/A'
+                                            )}
+                                        </h4>
                                             <p>Delivery Location</p> 
                                             <h4>{activeOrder ? activeOrder.deliverTo : ''}</h4>
                                             <p>Order number</p> 

@@ -233,6 +233,26 @@ const DasherHome = () => {
                                         <h3>{shop ? shop.name: 'No Shop Found'}</h3>
                                         <p>{shop ? shop.address: 'No Shop Found'}</p>
                                         <div className="j-order-subtext">
+                                            <p>Customer Name:</p>
+                                             <h4>{activeOrder ? `${activeOrder.firstname} ${activeOrder.lastname ? activeOrder.lastname.charAt(0) + '.' : ''}` : 'N/A'}</h4>
+                                             <p>Customer Phone:</p>
+                                             <h4>
+                                                {activeOrder && activeOrder.mobileNum ? (
+                                                    <a 
+                                                        href={`tel:+63${activeOrder.mobileNum.slice(1)}`} // Remove the leading 0 and add +63
+                                                        style={{ 
+                                                            textDecoration: 'underline', 
+                                                            color: '#007BFF',
+                                                            padding: '2px 4px',
+                                                            borderRadius: '4px'
+                                                        }}
+                                                    >
+                                                        {`+63 ${activeOrder.mobileNum.slice(1)}`} {/* Display +63 and the number without the leading 0 */}
+                                                    </a>
+                                                ) : (
+                                                    'N/A'
+                                                )}
+                                            </h4>
                                             <p>Delivery Location</p>
                                             <h4>{activeOrder ? activeOrder.deliverTo: ''}</h4>
                                             <p>Order number</p>
