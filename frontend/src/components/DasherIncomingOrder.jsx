@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axiosConfig from "../utils/axiosConfig"; // Update this import to use your configured axios instance
+import axiosConfig from "../utils/axiosConfig"; 
 import "./css/DasherOrders.css";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import DeclineOrderModal from './AdminDeclineOrderModal';
 import { useNavigate } from "react-router-dom";
 
 const DasherIncomingOrder = () => {
@@ -13,7 +11,7 @@ const DasherIncomingOrder = () => {
   const [orders, setOrders] = useState([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isActive, setIsActive] = useState(false);
-  const[dasherData, setDasherData] = useState({});
+  const [dasherData, setDasherData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,36 +29,24 @@ const DasherIncomingOrder = () => {
       }
     };
 
-    if (isActive) {
-      fetchOrders();
-    }
-
     const fetchDasherData = async () => {
-      console.log(currentUser);
-      if(currentUser){
-      try {
-        const response = await axiosConfig.get(`/dashers/${currentUser.id}`);
-        const data = response.data;
-        console.log(data.status);
-        setDasherData(data);
-        if(data.status === 'active'){
-          if(data.wallet <= -150 ){
-            alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
-            setIsActive(false);
-          }else {
-            setIsActive(true);
-          }
-        } else if(data.status === 'offline'){
-          setIsActive(false);
+      if (currentUser) {
+        try {
+          const response = await axiosConfig.get(`/dashers/${currentUser.id}`);
+          const data = response.data;
+          setDasherData(data);
+          setIsActive(data.status === 'active' && data.wallet > -100);
+        } catch (error) {
+          console.error("Error fetching dasher data:", error);
         }
-        
-      } catch (error) {
-        console.error("Error fetching dasher data:", error);
       }
-    }
     };
 
     fetchDasherData();
+
+    if (isActive) {
+      fetchOrders();
+    }
   }, [isActive, currentUser]);
 
   const toggleAccordion = (orderId) => {
@@ -72,57 +58,64 @@ const DasherIncomingOrder = () => {
 
   const handleSubmit = async (orderId) => {
     try {
-      // Fetch the order details to check paymentMethod
-      const orderResponse = await axiosConfig.get(`/orders/${orderId}`);
-      const { paymentMethod } = orderResponse.data;
-  
-      // Assign dasher to the order
-      const response = await axiosConfig.post('/orders/assign-dasher', { orderId, dasherId: currentUser.id });
-  
-      if (response.data.success) {
-        // Decide the status based on paymentMethod
-        let newStatus = 'active_toShop';
-        if (paymentMethod === 'gcash') {
-          newStatus = 'active_waiting_for_shop';
+        const orderResponse = await axiosConfig.get(`/orders/${orderId}`);
+        const { paymentMethod } = orderResponse.data;
+
+        // Assign dasher to the order
+        const response = await axiosConfig.post('/orders/assign-dasher', { orderId, dasherId: currentUser.id });
+
+        if (response.data.success) {
+            let newStatus = 'active_toShop';
+            if (paymentMethod === 'gcash') {
+                newStatus = 'active_waiting_for_shop';
+            }
+
+            // Update the order status
+            await axiosConfig.post('/orders/update-order-status', { orderId, status: newStatus });
+
+            // Update the local state
+            setOrders(prevOrders => prevOrders.map(order => (
+                order.id === orderId ? { ...order, dasherId: currentUser.id, status: newStatus } : order
+            )));
+
+            // Update dasher's status to "Ongoing Order"
+            await updateDasherStatus('ongoing order');
+
+            // Navigate to dasher orders page
+            navigate('/dasher-orders');
+            alert('Dasher assigned successfully');
+        } else {
+            alert(response.data.message);
         }
-  
-        // Update the order status
-        await axiosConfig.post('/orders/update-order-status', { orderId, status: newStatus });
-  
-        // Update the local state
-        setOrders(prevOrders => prevOrders.map(order => (
-          order.id === orderId ? { ...order, dasherId: currentUser.id, status: newStatus } : order
-        )));
-  
-        // Navigate to dasher orders page
-        navigate('/dasher-orders');
-        alert('Dasher assigned successfully');
-      } else {
-        alert(response.data.message);
-      }
     } catch (error) {
-      console.error('Error assigning dasher:', error);
-      alert('An error occurred while assigning the dasher. Please try again.');
+        console.error('Error assigning dasher:', error);
+        alert('An error occurred while assigning the dasher. Please try again.');
     }
-  };
-  
+};
+
+
+  const updateDasherStatus = async (status) => {
+    try {
+        await axiosConfig.put(`/dashers/update/${currentUser.id}/status`, null, {
+            params: { status }
+        });
+    } catch (error) {
+        console.error('Error updating dasher status:', error);
+    }
+};
 
   const toggleButton = async () => {
     try {
       const newStatus = !isActive ? 'active' : 'offline';
       await axiosConfig.put(`/dashers/update/${currentUser.id}/status`, null, {
-        params: {
-          status: newStatus
-        }
+        params: { status: newStatus }
       });
       setIsActive(!isActive);
-      if(newStatus === 'offline'){
+      if (newStatus === 'offline') {
         setOrders([]);
-      } else {
-        if(dasherData.wallet <= -100){
-          alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
-          setIsActive(false);
-        }
+      } else if (dasherData.wallet <= -100) {
+        alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
+        setIsActive(false);
       }
     } catch (error) {
       console.error('Error updating dasher status:', error);
@@ -131,7 +124,6 @@ const DasherIncomingOrder = () => {
 
   return (
     <>
-      
       <div className="do-body">
         <div className="j-card-large">
           <div className="do-title">
@@ -144,7 +136,7 @@ const DasherIncomingOrder = () => {
               <div className="do-card-current do-card-large">
                 <div className="do-card-content" onClick={() => toggleAccordion(order.id)}>
                   <div className="do-order-img-holder">
-                    <img src={order.shopData? order.shopData.imageUrl:'/Assets/Panda.png'} alt="food" className="do-order-img" />
+                    <img src={order.shopData ? order.shopData.imageUrl : '/Assets/Panda.png'} alt="food" className="do-order-img" />
                   </div>
                   <div className="do-card-text">
                     <h3>{`${order.firstname} ${order.lastname}`}</h3>

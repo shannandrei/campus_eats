@@ -49,10 +49,8 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
         }
     };
 
-    // Function to handle the order completion process
     const proceedWithCompletion = async () => {
         try {
-            // Complete the order logic here
             const completedOrder = {
                 orderId: orderData.id,
                 dasherId: orderData.dasherId,
@@ -63,9 +61,13 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
                 totalPrice: orderData.totalPrice,
                 items: orderData.items
             };
-
+    
             const response = await axios.post('/payments/confirm-order-completion', completedOrder);
             if (response.status === 200) {
+                // Update dasher status back to "active"
+                await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
+                    params: { status: 'active' }
+                });
                 window.location.reload();
             }
         } catch (error) {
