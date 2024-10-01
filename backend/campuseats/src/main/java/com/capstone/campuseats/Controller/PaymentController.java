@@ -56,45 +56,6 @@ public class PaymentController {
         }
     }
 
-    @PostMapping("/confirm-no-show")
-    public ResponseEntity<?> confirmNoShow(@RequestBody Map<String, Object> payload) {
-        try {
-            String orderId = new String((String) payload.get("orderId"));
-            String dasherId = new String((String) payload.get("dasherId"));
-            String shopId = new String((String) payload.get("shopId"));
-            String userId = new String((String) payload.get("userId"));
-            String paymentMethod = (String) payload.get("paymentMethod");
-            float deliveryFee = Float.parseFloat(payload.get("deliveryFee").toString());
-            float totalPrice = Float.parseFloat(payload.get("totalPrice").toString());
-            List<Map<String, Object>> itemsPayload = (List<Map<String, Object>>) payload.get("items");
-
-            List<CartItem> items = itemsPayload.stream().map(itemMap ->
-                    CartItem.builder()
-                            .itemId(new String((String) itemMap.get("itemId")))
-                            .name((String) itemMap.get("name"))
-                            .unitPrice(Float.parseFloat(itemMap.get("unitPrice").toString()))
-                            .price(Float.parseFloat(itemMap.get("price").toString()))
-                            .quantity(Integer.parseInt(itemMap.get("quantity").toString()))
-                            .itemQuantity(Integer.parseInt(itemMap.get("itemQuantity").toString()))
-                            .build()
-            ).collect(Collectors.toList());
-
-            // Update order status to 'active_noShow'
-            orderService.updateOrderStatus(orderId, "active_noShow");
-
-            // Log the no-show in payment or order history if necessary
-            // For example: paymentService.logNoShow(orderId, dasherId);
-
-            // Return a success response
-            return ResponseEntity.ok(Map.of("message", "Order marked as no-show successfully"));
-        } catch (CustomException e) {
-            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Internal Server Error"));
-        }
-    }
-
-
     @PostMapping("/create-gcash-payment")
     public ResponseEntity<?> createGcashPayment(@RequestBody Map<String, Object> payload) {
         try {
