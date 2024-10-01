@@ -100,4 +100,24 @@ public class CashoutController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCashout(
+            @PathVariable String id,
+            @RequestPart("cashout") String cashoutStr,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart("userId") String userId) throws IOException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+
+            CashoutEntity cashout = mapper.readValue(cashoutStr, CashoutEntity.class);
+            System.out.println("Parsed CashoutEntity: " + cashout);
+
+            CashoutEntity updatedCashout = cashoutService.updateCashout(id, cashout, image, userId);
+            return new ResponseEntity<>(updatedCashout, HttpStatus.OK);
+        } catch (CustomException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

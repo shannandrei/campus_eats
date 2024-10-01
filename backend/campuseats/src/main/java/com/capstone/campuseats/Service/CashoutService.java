@@ -18,6 +18,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.capstone.campuseats.Entity.CashoutEntity;
 import com.capstone.campuseats.Repository.CashoutRepository;
+import com.capstone.campuseats.config.CustomException;
 
 import jakarta.annotation.PostConstruct;
 
@@ -126,4 +127,42 @@ public class CashoutService {
         }
         return false;
     }
+
+    // Update cashout
+    public CashoutEntity updateCashout(String id, CashoutEntity cashout, MultipartFile image, String userId)
+            throws IOException {
+
+        // Find the existing cashout entity by ID
+        CashoutEntity existingCashout = cashoutRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Cashout not found with ID: " + id));
+
+        // If an image is provided, update the image
+        if (image != null && !image.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            String formattedTimestamp = LocalDateTime.now().format(formatter);
+            String sanitizedCashoutName = "cashout/" + formattedTimestamp + "_" + userId;
+
+            BlobClient blobClient = blobServiceClient
+                    .getBlobContainerClient(containerName)
+                    .getBlobClient(sanitizedCashoutName);
+
+            // Upload new image
+            blobClient.upload(image.getInputStream(), image.getSize(), true);
+
+            // Update QR URL with the new image's URL
+            String qrURL = blobClient.getBlobUrl();
+            existingCashout.setGcashQr(qrURL); // Set the new image URL
+        } else {
+            // No new image provided, keep the existing image URL
+            System.out.println("No new image provided. Retaining the existing image.");
+        }
+
+        // Update other fields (e.g., status, userId) if needed
+        existingCashout.setStatus(cashout.getStatus());
+        existingCashout.setAmount(cashout.getAmount()); // Example of other field updates
+
+        // Save and return the updated cashout entity
+        return cashoutRepository.save(existingCashout);
+    }
+
 }
