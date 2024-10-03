@@ -327,4 +327,30 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
         }
     }
+
+    @PutMapping("/no-show") //wa pa gi-use
+    public ResponseEntity<?> markOrderAsNoShow(@RequestBody Map<String, Object> payload) {
+        try {
+            String orderIdStr = (String) payload.get("orderId");
+
+            if (orderIdStr == null || orderIdStr.isEmpty()) {
+                return new ResponseEntity<>(Map.of("error", "Order ID is required"), HttpStatus.BAD_REQUEST);
+            }
+
+            // Step 1: Update the order status to "active_noShow"
+            orderService.updateOrderStatus(orderIdStr, "active_noShow");
+
+            // Step 2: Update dasher status to "active"
+            String dasherIdStr = (String) payload.get("dasherId");
+            if (dasherIdStr != null && !dasherIdStr.isEmpty()) {
+                dasherService.updateDasherStatus(dasherIdStr, "active");
+            }
+
+            return new ResponseEntity<>(Map.of("message", "Order marked as no-show and dasher status updated"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
