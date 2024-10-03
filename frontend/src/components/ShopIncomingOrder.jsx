@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosConfig";
-import "./css/ShopOrders.css"; // Updated CSS file
-import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
 import DeclineOrderModal from './AdminDeclineOrderModal';
+import "./css/ShopOrders.css"; // Updated CSS file
 
 const ShopIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -40,8 +39,10 @@ const ShopIncomingOrder = () => {
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
-        setPastOrders(pastOrdersWithShopData);
-        console.log('Past Orders:', pastOrdersWithShopData);
+
+        const filteredPastOrders = pastOrdersWithShopData.filter(order => order.shopId === currentUser.id);
+
+        setPastOrders(filteredPastOrders);
       } catch (error) {
         console.error('Error fetching past orders:', error);
       }
@@ -55,7 +56,9 @@ const ShopIncomingOrder = () => {
           const shopData = shopDataResponse.data;
           return { ...order, shopData };
         }));
-        setOngoingOrders(ongoingOrdersWithShopData);
+
+        const filteredOngoingOrders = ongoingOrdersWithShopData.filter(order => order.shopId === currentUser.id);
+        setOngoingOrders(filteredOngoingOrders);
         console.log('Ongoing Orders:', ongoingOrdersWithShopData);
       } catch (error) {
         console.error('Error fetching ongoing orders:', error);
