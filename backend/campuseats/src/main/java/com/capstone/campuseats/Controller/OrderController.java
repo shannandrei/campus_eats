@@ -1,21 +1,25 @@
 package com.capstone.campuseats.Controller;
 
-import com.capstone.campuseats.Entity.CartItem;
-import com.capstone.campuseats.Entity.DasherEntity;
-import com.capstone.campuseats.Entity.OrderEntity;
-import com.capstone.campuseats.Entity.UserEntity;
-import com.capstone.campuseats.Service.OrderService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.capstone.campuseats.Entity.CartItem;
+import com.capstone.campuseats.Entity.OrderEntity;
+import com.capstone.campuseats.Service.OrderService;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -24,7 +28,6 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
-
 
     @GetMapping
     public ResponseEntity<List<OrderEntity>> getAllOrders() {
@@ -54,17 +57,17 @@ public class OrderController {
             return ResponseEntity.ok(activeOrders);
         } catch (Exception e) {
             System.err.println("Error fetching orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
-
 
     @PostMapping("/place-order")
     public ResponseEntity<?> placeOrder(@RequestBody Map<String, Object> payload) {
         System.out.println("place order received: " + payload);
         try {
             String uid = (String) payload.get("uid");
-            System.out.println("id to be set: "+(String) payload.get("refNum"));
+            System.out.println("id to be set: " + (String) payload.get("refNum"));
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
                     .id((String) payload.get("refNum"))
@@ -91,15 +94,14 @@ public class OrderController {
 
             OrderEntity placedOrder = orderService.placeOrder(order);
 
-            return new ResponseEntity<>(Map.of("message", "Order placed successfully", "data", placedOrder), HttpStatus.OK);
+            return new ResponseEntity<>(Map.of("message", "Order placed successfully", "data", placedOrder),
+                    HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     @PostMapping("/update-order-status")
     public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> payload) {
@@ -108,7 +110,8 @@ public class OrderController {
             String status = (String) payload.get("status");
 
             if (orderIdStr == null || orderIdStr.isEmpty() || status == null || status.isEmpty()) {
-                return new ResponseEntity<>(Map.of("error", "Order ID and status are required"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(Map.of("error", "Order ID and status are required"),
+                        HttpStatus.BAD_REQUEST);
             }
 
             String orderId = new String(orderIdStr);
@@ -147,7 +150,8 @@ public class OrderController {
             List<OrderEntity> orders = orderService.getOrdersByUserId(new String(uid));
 
             if (orders.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found for this user"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "No orders found for this user"));
             }
 
             List<OrderEntity> activeOrders = orders.stream()
@@ -160,13 +164,13 @@ public class OrderController {
 
             Map<String, Object> response = Map.of(
                     "orders", nonActiveOrders,
-                    "activeOrders", activeOrders
-            );
+                    "activeOrders", activeOrders);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Error fetching orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -176,13 +180,15 @@ public class OrderController {
             List<OrderEntity> activeOrders = orderService.getActiveOrdersForDasher(uid);
 
             if (activeOrders.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No active orders found for this dasher"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "No active orders found for this dasher"));
             }
 
             return ResponseEntity.ok(activeOrders);
         } catch (Exception e) {
             System.err.println("Error fetching active orders for dasher: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -192,7 +198,8 @@ public class OrderController {
             List<OrderEntity> orders = orderService.getOrdersByDasherId(uid);
 
             if (orders.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No orders found for this user"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "No orders found for this user"));
             }
 
             List<OrderEntity> activeOrders = orders.stream()
@@ -205,13 +212,13 @@ public class OrderController {
 
             Map<String, Object> response = Map.of(
                     "orders", nonActiveOrders,
-                    "activeOrders", activeOrders
-            );
+                    "activeOrders", activeOrders);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Error fetching orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -221,15 +228,18 @@ public class OrderController {
             List<OrderEntity> noShowOrders = orderService.getNoShowOrdersForDasher(uid);
 
             if (noShowOrders.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No 'no-show' orders found for this dasher"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "No 'no-show' orders found for this dasher"));
             }
 
             return ResponseEntity.ok(noShowOrders);
         } catch (Exception e) {
             System.err.println("Error fetching 'no-show' orders for dasher: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
+
     @GetMapping("/incoming-orders/dasher")
     public ResponseEntity<?> getIncomingOrdersForDasher() {
         try {
@@ -242,7 +252,8 @@ public class OrderController {
             return ResponseEntity.ok(activeOrders);
         } catch (Exception e) {
             System.err.println("Error fetching orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -266,7 +277,8 @@ public class OrderController {
             return ResponseEntity.ok(Map.of("completedOrders", completedOrders, "activeOrders", activeOrders));
         } catch (Exception e) {
             System.err.println("Error fetching completed orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -294,7 +306,8 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             System.err.println("Error fetching active waiting for shop orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -309,7 +322,8 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             System.err.println("Error fetching past orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
 
@@ -324,33 +338,9 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             System.err.println("Error fetching ongoing orders: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal Server Error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal Server Error"));
         }
     }
-
-    @PutMapping("/no-show") //wa pa gi-use
-    public ResponseEntity<?> markOrderAsNoShow(@RequestBody Map<String, Object> payload) {
-        try {
-            String orderIdStr = (String) payload.get("orderId");
-
-            if (orderIdStr == null || orderIdStr.isEmpty()) {
-                return new ResponseEntity<>(Map.of("error", "Order ID is required"), HttpStatus.BAD_REQUEST);
-            }
-
-            // Step 1: Update the order status to "active_noShow"
-            orderService.updateOrderStatus(orderIdStr, "active_noShow");
-
-            // Step 2: Update dasher status to "active"
-            String dasherIdStr = (String) payload.get("dasherId");
-            if (dasherIdStr != null && !dasherIdStr.isEmpty()) {
-                dasherService.updateDasherStatus(dasherIdStr, "active");
-            }
-
-            return new ResponseEntity<>(Map.of("message", "Order marked as no-show and dasher status updated"), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 
 }
