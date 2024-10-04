@@ -24,6 +24,8 @@ const Order = () => {
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
+        const [pollingInterval, setPollingInterval] = useState(null);
+
 
     const fetchOrders = async () => {
         try {
@@ -94,9 +96,9 @@ const Order = () => {
                     case 'active_waiting_for_cancel_confirmation': 
                         setStatus('Order is waiting for cancellation confirmation');
                         break;
-                    case 'active_noShow': // case for No Show status
+                    case 'no_Show': 
                         setStatus('Customer did not show up for the delivery');
-                        handleNoShowModal(); // Open the No-Show Modal
+                        handleNoShowModal(); 
                         break;
                     case 'active_waiting_for_no_show_confirmation': 
                         setStatus('Order failed: Customer did not show up for delivery');
@@ -136,17 +138,49 @@ const Order = () => {
         }
     };
 
+   const startPolling = () => {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
+
+    if (activeOrder && activeOrder.shopId) {
+        const intervalId = setInterval(async () => {
+            await fetchOrders();
+            if (activeOrder && activeOrder.shopId) {
+                await fetchShopData(activeOrder.shopId);
+                const orderStatusResponse = await axios.get(`/orders/${activeOrder.id}`);
+                const orderStatus = orderStatusResponse.data.status;
+                console.log(orderStatus);
+                if (orderStatus === 'no_Show') {
+                    setIsNoShowModalOpen(true);
+                    clearInterval(intervalId); 
+                }
+            }
+        }, 4000);
+        setPollingInterval(intervalId);
+    }
+};
+
     useEffect(() => {
         fetchOrders();
     }, [currentUser]);
 
     useEffect(() => {
-        setLoading(true);
+        setIsLoading(true);
         if (activeOrder && activeOrder.shopId) {
             fetchShopData(activeOrder.shopId);
         }
-        setLoading(false);
+        setIsLoading(false);
     }, [activeOrder]);
+
+    useEffect(() => {
+        startPolling();
+        return () => {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        };
+    }, [currentUser, activeOrder]);
 
       const handleCancelOrderConfirmed = async () => {
         setIsLoading(true); 
@@ -172,29 +206,7 @@ const Order = () => {
         }
     };
 
-    const handleNoShowConfirmed = async () => {
-        setIsLoading(true); 
-        try {
-            let newStatus = '';
-            if (activeOrder.dasherId !== null) {
-                newStatus = 'active_waiting_for_no_show_confirmation';
-            } else {
-                newStatus = 'active_noShow';
-            }
-            const updateResponse = await axios.post('/orders/update-order-status', {
-                orderId: activeOrder.id,
-                status: newStatus
-            });
-
-            if (updateResponse.status === 200) {
-                fetchOrders(); 
-            }
-        } catch (error) {
-            console.error('Error updating order status:', error);
-        } finally {
-            setIsLoading(false); 
-        }
-    };
+  
 
     
     const handleNoShowModal = () => {
@@ -270,9 +282,6 @@ const Order = () => {
                     <UserNoShowModal 
                         isOpen={isNoShowModalOpen}
                         closeModal={() => setIsNoShowModalOpen(false)} 
-                        shopData={shop} 
-                        orderData={activeOrder} 
-                        onNoShowConfirmed={handleNoShowConfirmed}
                     />
                 )}
                 <div className="o-title">
@@ -432,6 +441,8 @@ const Order = () => {
                                                 ? 'Order was cancelled by dasher'
                                                 : order.status === 'refunded'
                                                 ? 'Order was refunded'
+                                                : order.status === 'active_noShow'
+                                                ? 'Customer did not show up for delivery'
                                                 : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
                                         </p>
                                         <p>Order #{order.id}</p>

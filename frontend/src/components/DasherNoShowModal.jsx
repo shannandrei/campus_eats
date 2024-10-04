@@ -1,6 +1,6 @@
 import React from "react";
-import "./css/AdminAcceptDasherModal.css";
 import axios from "../utils/axiosConfig";
+import "./css/AdminAcceptDasherModal.css";
 
 const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
     if (!isOpen) return null;
@@ -10,16 +10,20 @@ const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
             // Update order status to "active_noShow"
             const updateResponse = await axios.post('/orders/update-order-status', {
                 orderId: orderData.id,
-                status: "active_noShow"
+                status: "no_Show"
             });
 
             if (updateResponse.status === 200) {
                 // Proceed with confirming order completion and updating dasher status
-                await proceedWithCompletion();
+                await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
+                    params: { status: 'active' }
+                });
+                window.location.reload();
+
             }
         } catch (error) {
             console.error('Error updating order status:', error);
-        }
+        }   
     };
 
     const proceedWithCompletion = async () => {
@@ -38,9 +42,7 @@ const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
             const response = await axios.post('/payments/confirm-order-completion', completedOrder);
             if (response.status === 200) {
                 // Update dasher status back to "active"
-                await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
-                    params: { status: 'active' }
-                });
+                
                 window.location.reload();
             }
         } catch (error) {
@@ -58,6 +60,8 @@ const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
                 </div>
                 <div className="aadm-modal-buttons">
                     <button className="aadm-confirm" onClick={confirm}>Confirm</button>
+                    <button  className="aadm-cancel" onClick={closeModal}>Cancel</button>
+
                 </div>
             </div>
         </div>

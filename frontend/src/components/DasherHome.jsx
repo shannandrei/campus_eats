@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import axiosConfig
 import "./css/DasherHome.css";
-import { useAuth } from "../utils/AuthContext";
-import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar/Navbar";
-import DasherCompletedModal from "./DasherCompletedModal";
-import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
-import DasherNoShowModal from "./DasherNoShowModal";
+import DasherCancelOrderModal from "./DasherCancelOrderModal";
+import DasherCompletedModal from "./DasherCompletedModal";
 
 const DasherHome = () => {
     const { currentUser } = useAuth();
@@ -143,18 +141,7 @@ const DasherHome = () => {
     const handleStatusChange = (newStatus) => {
         if (newStatus === "completed") {
             setIsModalOpen(true);
-        } else if (newStatus === "noShow") {
-            if (!buttonClicked.noShow) {
-                setCurrentStatus(newStatus);
-                setButtonClicked(prevState => ({
-                    ...prevState,
-                    [newStatus]: true
-                }));
-                updateOrderStatus(newStatus);
-            } else {
-                alert("Order is already marked as 'No Show'.");
-            }
-            } else {
+        } else {
             // Check conditions for status changes
                 console.log('currentStatus:', currentStatus);
                 console.log('activeOrder status:', activeOrder.status);
@@ -229,6 +216,10 @@ const DasherHome = () => {
     const showCancelModal = () => {
         setDasherCancelModalOpen(true);
     };
+
+    const handleNoShowClick = () => {
+        setIsModalOpen(false);
+    }
     
     return (
         <>
@@ -329,9 +320,7 @@ const DasherHome = () => {
                                         <button disabled={!buttonClicked.delivered || buttonClicked.completed || currentStatus !== "delivered"} className={`j-status-button completed ${currentStatus === "completed" ? "active" : ""}`} onClick={() => handleStatusChange("completed")}>
                                             Completed {currentStatus === "completed" && "✓"}
                                         </button>
-                                        <button disabled={!buttonClicked.delivered || buttonClicked.noShow || currentStatus !== "delivered"} className={`j-status-button completed ${currentStatus === "noShow" ? "active" : ""}`} onClick={() => handleStatusChange("noShow")}>
-                                            No Show {currentStatus === "noShow" && "✓"}
-                                        </button>
+
                                     </div>
                                 </div>
                                 <div className="refund-cancel-order-container">
@@ -371,8 +360,8 @@ const DasherHome = () => {
                                 <div className="j-past-subtext">
                                 <div className="j-past-subtext-right">
                                     <p>
-                                {order.status === 'active_noShow' 
-                                    ? 'Failed Delivery: Customer didn\'t show up' 
+                                {order.status === 'no_Show' 
+                                    ? 'Failed Delivery: Customer did not show up' 
                                     : order.status.startsWith('cancelled') 
                                     ? 'Order was cancelled' 
                                     : order.status === 'refunded' 
@@ -390,7 +379,7 @@ const DasherHome = () => {
                 </div>
             </div>
             {isModalOpen && (
-                <DasherCompletedModal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false) } shopData={shop} orderData={activeOrder}/>
+                <DasherCompletedModal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false) } shopData={shop} orderData={activeOrder} onNoShow={handleNoShowClick}/>
             )}
             {/* CancelOrderModal */}
             {cancelModalOpen && (
@@ -405,13 +394,6 @@ const DasherHome = () => {
                     <DasherCancelByDasherModal 
                     isOpen={dasherCancelModalOpen} 
                     closeModal={() => setDasherCancelModalOpen(false)} 
-                    shopData={shop} 
-                    orderData={activeOrder}  />
-                )}
-            {dasherNoShowModalOpen && (
-                    <DasherNoShowModal 
-                    isOpen={dasherNoShowModalOpen} 
-                    closeModal={() => setDasherNoShowModalOpen(false)} 
                     shopData={shop} 
                     orderData={activeOrder}  />
                 )}

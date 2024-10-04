@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from "react";
-import "./css/AdminAcceptDasherModal.css";
+import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosConfig";
+import "./css/AdminAcceptDasherModal.css";
+import DasherNoShowModal from "./DasherNoShowModal";
+
 
 const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
     const [checkingConfirmation, setCheckingConfirmation] = useState(false);
     const [pollingInterval, setPollingInterval] = useState(null);
+    const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false); 
+
 
     useEffect(() => {
         if (pollingInterval) {
@@ -68,12 +72,18 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
                     params: { status: 'active' }
                 });
+                closeModal()
                 window.location.reload();
             }
         } catch (error) {
             console.error('Error completing the order:', error);
         }
     };
+
+    const handleNoShowClick = () => {
+        setIsNoShowModalOpen(true);
+    };
+
 
     // Cleanup polling interval on component unmount
     
@@ -94,8 +104,20 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
                     <button className="aadm-confirm" onClick={confirmAccept} disabled={checkingConfirmation}>
                         Confirm
                     </button>
+
+                    <div className="text-xs text-red-500 cursor-pointer underline hover:text-red-950 hover:no-underline" onClick={handleNoShowClick}>
+                    Customer did not show? Click Here
+                </div>
                 </div>
             </div>
+             {isNoShowModalOpen && (
+                <DasherNoShowModal
+                    isOpen={isNoShowModalOpen}
+                    closeModal={() => setIsNoShowModalOpen(false)}
+                    orderData={orderData}
+                    shopData={shopData}
+                />
+            )}
         </div>
     );
 };
