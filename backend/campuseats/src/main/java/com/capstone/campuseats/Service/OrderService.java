@@ -1,5 +1,6 @@
 package com.capstone.campuseats.Service;
 
+import com.capstone.campuseats.Controller.NotificationController;
 import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.OrderEntity;
 import com.capstone.campuseats.Repository.DasherRepository;
@@ -25,6 +26,9 @@ public class OrderService {
 
     @Autowired
     private DasherRepository dasherRepository;
+
+    @Autowired
+    private NotificationController notificationController;
 
 
     public Optional<OrderEntity> getOrderById(String id) {
@@ -70,6 +74,53 @@ public class OrderService {
         order.setStatus(status);
         order.setDasherId(order.getDasherId());
         orderRepository.save(order);
+
+        // Constructing the message based on order status
+        String notificationMessage;
+        switch (status) {
+            case "active_toShop":
+                notificationMessage = "Dasher is on the way to the shop.";
+                break;
+            case "cancelled_by_dasher":
+                notificationMessage = "Order has been cancelled by the Dasher.";
+                break;
+            case "cancelled_by_shop":
+                notificationMessage = "Order has been cancelled by the Shop.";
+                break;
+            case "active_shop_confirmed":
+            case "active_preparing":
+                notificationMessage = "Order is being prepared.";
+                break;
+            case "active_waiting_for_dasher":
+                notificationMessage = "Looking for a Dasher to be assigned.";
+                break;
+            case "no_show":
+                notificationMessage = "You did not show up for the delivery.";
+                break;
+            case "active_onTheWay":
+                notificationMessage = "Dasher is on the way to deliver your order.";
+                break;
+            case "active_delivered":
+                notificationMessage = "Order has been delivered.";
+                break;
+            case "active_pickedUp":
+                notificationMessage = "Order has been picked up.";
+                break;
+            case "active_waiting_for_confirmation":
+                notificationMessage = "Order is waiting for confirmation.";
+                break;
+            case "cancelled_by_customer":
+                notificationMessage = "Order has been cancelled.";
+                break;
+            case "active_waiting_for_cancel_confirmation."
+                notificationMessage = "Order is waiting for cancellation confirmation.";
+                break;
+            default:
+                notificationMessage = "Order status updated to " + status + ".";
+                break;
+        }
+        // Send notification when order status is updated
+        notificationController.sendNotification(notificationMessage);
     }
 
     public ResponseEntity<Map<String, Object>> assignDasher(String orderId, String dasherId) {
@@ -92,10 +143,17 @@ public class OrderService {
             return ResponseEntity.badRequest().body(Map.of("message", "Dasher has an ongoing order", "success", false));
         }
 
+        // Fetch dasher details
+        Optional<DasherEntity> dasherOptional = dasherRepository.findById(dasherId);
+        String dasherName = dasherOptional.map(DasherEntity::getGcashName).orElse("Unknown Dasher");
+
+
         order.setDasherId(dasherId);
         order.setStatus("active_toShop");
         orderRepository.save(order);
 
+        // Send notification when a dasher is assigned
+        notificationController.sendNotification("Your order has been assigned to " + dasherName + ".");
         return ResponseEntity.ok(Map.of("message", "Dasher assigned successfully", "success", true));
     }
 
