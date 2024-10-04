@@ -441,7 +441,7 @@ const Order = () => {
                                                 ? 'Order was cancelled by dasher'
                                                 : order.status === 'refunded'
                                                 ? 'Order was refunded'
-                                                : order.status === 'active_noShow'
+                                                : order.status === 'no_Show'
                                                 ? 'Customer did not show up for delivery'
                                                 : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
                                         </p>
