@@ -154,6 +154,7 @@ const Order = () => {
 
           case "Order has been delivered.":
           case "Order has been picked up.":
+          case "Order has been completed.":
             toast.success(event.data); // Show success toast for these messages
             break;
 

@@ -3,8 +3,11 @@ package com.capstone.campuseats.Service;
 import com.capstone.campuseats.Controller.NotificationController;
 import com.capstone.campuseats.Entity.DasherEntity;
 import com.capstone.campuseats.Entity.OrderEntity;
+import com.capstone.campuseats.Entity.UserEntity;
+import com.capstone.campuseats.Repository.UserRepository;
 import com.capstone.campuseats.Repository.DasherRepository;
 import com.capstone.campuseats.Repository.OrderRepository;
+import com.capstone.campuseats.Service.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,12 @@ public class OrderService {
 
     @Autowired
     private NotificationController notificationController;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     public Optional<OrderEntity> getOrderById(String id) {
@@ -112,8 +121,13 @@ public class OrderService {
             case "cancelled_by_customer":
                 notificationMessage = "Order has been cancelled.";
                 break;
-            case "active_waiting_for_cancel_confirmation."
+            case "active_waiting_for_cancel_confirmation.":
                 notificationMessage = "Order is waiting for cancellation confirmation.";
+                break;
+            case "completed":
+                notificationMessage = "Order has been completed.";
+                System.out.println("hello! order: " + order);
+                sendOrderReceipt(order);
                 break;
             default:
                 notificationMessage = "Order status updated to " + status + ".";
@@ -122,6 +136,19 @@ public class OrderService {
         // Send notification when order status is updated
         notificationController.sendNotification(notificationMessage);
     }
+
+    private void sendOrderReceipt(OrderEntity order) {
+    UserEntity user = userRepository.findById(order.getUid())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    String recipientEmail = user.getEmail();
+
+    if (recipientEmail != null && !recipientEmail.isEmpty()) {
+        emailService.sendOrderReceipt(order, recipientEmail);
+    } else {
+        System.out.println("Recipient email is not available for order ID: " + order.getId());
+    }
+}
 
     public ResponseEntity<Map<String, Object>> assignDasher(String orderId, String dasherId) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
