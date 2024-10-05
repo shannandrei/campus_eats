@@ -36,6 +36,7 @@ import DasherTopup from './components/DasherTopup';
 import ShopIncomingOrder from './components/ShopIncomingOrder';
 import MainLayout from './components/Layouts/MainLayout';
 import { OrderProvider } from './context/OrderContext';
+import { Toaster } from 'sonner';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -81,6 +82,7 @@ function App() {
                 <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
               </Route>
             </Routes>
+            <Toaster expand={true}/>
           </OrderProvider>
         </AuthProvider>
       </Router>

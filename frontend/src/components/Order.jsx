@@ -7,6 +7,7 @@ import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 import UserNoShowModal from './UserNoShowModal';
+import { toast } from 'sonner';
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -124,6 +125,59 @@ const Order = () => {
             setLoading(false);
         }
     };
+
+    // Setup SSE for notifications
+    useEffect(() => {
+        const eventSource = new EventSource('http://localhost:8080/api/notifications/stream'); // Update this URL based on your API
+    
+        eventSource.onmessage = (event) => {
+          console.log('Received:', event.data);
+    
+          // Conditional toast notifications based on event.data
+      if (event.data.includes("Your order has been assigned to")) {
+        toast.info(event.data); // Show info toast for "assigned to (name)"
+      } else {
+        switch (event.data) {
+          case "Dasher is on the way to the shop.":
+          case "Order is being prepared.":
+          case "Looking for a Dasher to be assigned.":
+          case "Dasher is on the way to deliver your order.":
+          case "Order has been cancelled.":
+            toast.info(event.data); // Show info toast for these messages
+            break;
+
+          case "You did not show up for the delivery.":
+          case "Order has been cancelled by the Dasher.":
+          case "Order has been cancelled by the Shop.":
+            toast.error(event.data); // Show error toast for these messages
+            break;
+
+          case "Order has been delivered.":
+          case "Order has been picked up.":
+          case "Order has been completed.":
+            toast.success(event.data); // Show success toast for these messages
+            break;
+
+          default:
+            toast(event.data); // Show a default toast for any other messages
+            break;
+        }
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error);
+      eventSource.close();
+    };
+
+    // Fetch orders when component mounts
+    fetchOrders();
+
+    // Cleanup SSE on component unmount
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
     const fetchShopData = async (id) => {
         try {
@@ -441,7 +495,7 @@ const Order = () => {
                                                 ? 'Order was cancelled by dasher'
                                                 : order.status === 'refunded'
                                                 ? 'Order was refunded'
-                                                : order.status === 'active_noShow'
+                                                : order.status === 'no_Show'
                                                 ? 'Customer did not show up for delivery'
                                                 : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
                                         </p>
