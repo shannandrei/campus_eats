@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axiosConfig from "../utils/axiosConfig"; 
-import "./css/DasherOrders.css";
-import { useAuth } from "../utils/AuthContext";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
+import axiosConfig from "../utils/axiosConfig";
+import "./css/DasherOrders.css";
 
 const DasherIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -65,6 +65,7 @@ const DasherIncomingOrder = () => {
         const response = await axiosConfig.post('/orders/assign-dasher', { orderId, dasherId: currentUser.id });
 
         if (response.data.success) {
+          // approving orders for cash is not shown of shop if this exists
             let newStatus = 'active_toShop';
             if (paymentMethod === 'gcash') {
                 newStatus = 'active_waiting_for_shop';
