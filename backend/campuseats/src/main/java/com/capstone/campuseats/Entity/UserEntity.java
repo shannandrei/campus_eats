@@ -1,11 +1,17 @@
 package com.capstone.campuseats.Entity;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Document(collection = "users")
 @Data
@@ -29,5 +35,11 @@ public class UserEntity {
     private String dob;
     private String courseYear;
     private String schoolIdNum;
+
+    @Builder.Default
+    private int offenses = 0;
+
+    @Builder.Default
+    private boolean isBanned = false;
 
 }
