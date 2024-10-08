@@ -467,7 +467,7 @@ const Order = () => {
                 <div className="o-title flex w-[73%] justify-between">
                     <h2>Past Orders</h2> 
                     {offenses ? (<div className="p-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-  <span className="font-medium">Warning!</span> {offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
+  <span className="font-medium">Warning!</span> x{offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
 </div>): <div></div>}
                 </div>
                 {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
