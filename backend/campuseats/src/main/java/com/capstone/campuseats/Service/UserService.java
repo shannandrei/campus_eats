@@ -57,6 +57,15 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public int getOffenses(String id) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get().getOffenses();
+        } else {
+            throw new CustomException("User not found.");
+        }
+    }
+
     public Optional<UserEntity> checkUserExistsByEmail(String email) {
         System.out.println("email: " + email);
         System.out.println("response: " + userRepository.findByEmailIgnoreCase(email));
