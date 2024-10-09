@@ -1,7 +1,6 @@
-import React from "react";
-import { useState, useEffect, useContext} from "react";
-import "./css/LoginSignUp.css";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import "./css/LoginSignUp.css";
 
 import { useAuth } from "../utils/AuthContext";
 
@@ -134,8 +133,6 @@ const LoginSignUp = () => {
         try {
             setLoading(true);
             await login(loginEmail, loginPwd);
-            console.log("Logged in successfully: ", currentUser); // This might log the previous state
-            navigate('/home');
         } catch (e) {
             console.log("Error:", e.response.data.error);
             setSuccess('');

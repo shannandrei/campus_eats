@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import '../css/Navbar.css'; 
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { faAngleDown, faArrowRight, faCircle, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle, faAngleDown, faUser, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utils/AuthContext';
-import CartModal from '../CartModal';
-import CartItemCount from './CartItemCount';
 import api from '../../utils/axiosConfig';
+import CartModal from '../CartModal';
+import '../css/Navbar.css';
+import CartItemCount from './CartItemCount';
 
 const Navbar = () => {
     const { currentUser, logout } = useAuth();
@@ -61,10 +61,26 @@ const Navbar = () => {
         };
     }, []);
 
+    const getPageLink = () => {
+        if(!currentUser) return '/login';
+        switch (currentUser.accountType) {
+        case 'admin':
+            return '/admin-incoming-order';
+        case 'shop':
+            return '/shop-dashboard';
+        case 'regular':
+            return '/home';
+        case 'dasher':
+            return '/dasher-orders';
+        default:
+            return '/home';
+    }
+    }
+
     return (
         <div>
             <div className="nav-top">
-                <Link to="/" style={{ textDecoration: 'none' }}>
+                <Link to={getPageLink()} style={{ textDecoration: 'none' }}>
                     <div className='nav-logo'>
                         <span className="campus">Campus</span>
                         <span className="eats">Eats</span>
@@ -122,7 +138,7 @@ const Navbar = () => {
             {currentUser && userAccountType === 'regular' && (
                 <div className="nav-side">
                     <div className="image-wrapper">
-                        <Link to="/" style={{ textDecoration: 'none' }}>
+                        <Link to="/home" style={{ textDecoration: 'none' }}>
                             <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                         </Link>
                     </div>
@@ -157,7 +173,7 @@ const Navbar = () => {
             {currentUser && userAccountType === 'admin' && (
                 <div className="nav-side">
                     <div className="image-wrapper">
-                        <Link to="/" style={{ textDecoration: 'none' }}>
+                        <Link to="/admin-incoming-order" style={{ textDecoration: 'none' }}>
                             <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                         </Link>
                     </div>
@@ -216,7 +232,7 @@ const Navbar = () => {
             {currentUser && userAccountType === 'dasher' && (
                 <div className="nav-side">
                     <div className="image-wrapper">
-                        <Link to="/" style={{ textDecoration: 'none' }}>
+                        <Link to="/dasher-orders" style={{ textDecoration: 'none' }}>
                             <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                         </Link>
                     </div>
@@ -243,8 +259,8 @@ const Navbar = () => {
 
             {currentUser && userAccountType === 'shop' && (
                 <div className="nav-side">
-                    <div className="image-wrapper">
-                        <Link to="/" style={{ textDecoration: 'none' }}>
+                    <div className="h-14 w-14">
+                        <Link to="/shop-dashboard" style={{ textDecoration: 'none' }}>
                             <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                         </Link>
                     </div>

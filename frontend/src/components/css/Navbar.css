@@ -170,8 +170,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 3rem; /* Adjust based on your requirement */
-    height: 3rem; /* Adjust based on your requirement */
+    width: 5rem; /* Adjust based on your requirement */
+    height: 5rem; /* Adjust based on your requirement */
     position: relative;
     padding: 3px;
     transition: transform 0.3s ease-in-out;
@@ -222,10 +222,11 @@ body {
 .nb-profile-dropdown{
     /* position: relative;
     width: fit-content; */
-    
 }
 .nb-image{
-    width: 6rem;
+    width: 150px;
+    height: auto;
+    
     
     
 }
@@ -283,6 +284,7 @@ body {
 
 .nb-profile-dropdown-list.active {
     max-height: 500px;
+    z-index: 99999;
 }
 
 .nb-profile-dropdown-list-item {

@@ -150,12 +150,11 @@ public class UserController {
                     .header("Location", "http://localhost:3000/verification-success")
                     .build();
         } else {
-             return ResponseEntity.status(HttpStatus.FOUND)
-                .header("Location", "http://localhost:3000/verification-failed")
-                .build();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:3000/verification-failed")
+                    .build();
         }
     }
-
 
     @PostMapping("/authenticate")
     public ResponseEntity<Map<String, Object>> authenticateUser(@RequestBody Map<String, String> credentials) {

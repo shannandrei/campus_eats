@@ -357,7 +357,7 @@ const Order = () => {
                         closeModal={() => setIsNoShowModalOpen(false)} 
                     />
                 )}
-                <div className="o-title">
+                <div className="o-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
                 {loading ? (
@@ -482,7 +482,7 @@ const Order = () => {
                     <p>No active orders found.</p>
                 )}
                 <div className="o-title flex w-[73%] justify-between">
-                    <h2>Past Orders</h2> 
+                    <h2 className="font-semibold">Past Orders</h2> 
                     {offenses > 0 ? (<div className="p-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
   <span className="font-medium">Warning!</span> x{offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
 </div>): <div></div>}

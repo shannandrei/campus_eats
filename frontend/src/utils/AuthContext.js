@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from './axiosConfig';
 
@@ -26,10 +26,20 @@ export function AuthProvider({ children }) {
             if (!response.data) {
                 throw new Error('Login failed');
             }
-
-            localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-            setCurrentUser(response.data.user);
+            const user = response.data.user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            setCurrentUser(user);
             console.log('Login successful', response.data);
+
+            if(user && user.accountType === 'regular'){
+                navigate('/home');
+            } else if(user && user.accountType === 'dasher'){
+                navigate('/dasher-orders');
+            } else if(user && user.accountType === 'shop'){
+                navigate('/shop-dashboard')
+            }else {
+                navigate('/admin-incoming-order');
+            }
         } catch (error) {
             console.error('Login failed', error);
             throw error;
@@ -86,3 +96,4 @@ export function AuthProvider({ children }) {
 }
 
 export { AuthContext };
+

@@ -127,7 +127,7 @@ const DasherIncomingOrder = () => {
     <>
       <div className="do-body">
         <div className="j-card-large">
-          <div className="do-title">
+          <div className="do-title font-semibold">
             <h2>Incoming Orders</h2>
           </div>
           {!isActive && <div className="do-no-orders">Turn on your active status to receive incoming orders...</div>}

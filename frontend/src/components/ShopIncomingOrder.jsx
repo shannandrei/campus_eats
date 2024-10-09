@@ -194,7 +194,7 @@ const ShopIncomingOrder = () => {
     <>
       
       <div className="ao-body">
-        <div className="ao-title">
+        <div className="ao-title font-semibold">
           <h2>Approving Orders</h2>
         </div>
         {orders.length === 0 && <div className="ao-no-orders">No approving orders...</div>}
@@ -254,9 +254,9 @@ const ShopIncomingOrder = () => {
 
         {/* Ongoing Orders Section */}
         <div className="ao-progress-modal">
-          <h3 className="ao-modal-title">Ongoing Orders</h3>
+          <h3 className="ao-modal-title font-semibold">Ongoing Orders</h3>
           
-          <div className="ao-modal-body">
+          <div className="ao-modal-body ">
           {ongoingOrders.length === 0 && <div>No ongoing orders...</div>}
             <div className="ao-items">
               {ongoingOrders.map((order) => (
@@ -309,7 +309,7 @@ const ShopIncomingOrder = () => {
           </div>
         </div>
 
-        <div className="ao-title">
+        <div className="ao-title font-semibold">
           <h2>Past Orders</h2>
         </div>
         {pastOrders.length === 0 && <div className="ao-no-orders">No past orders...</div>}

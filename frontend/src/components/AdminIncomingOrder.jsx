@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosConfig";
-import "./css/AdminOrders.css";
-import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
 import DeclineOrderModal from './AdminDeclineOrderModal';
+import "./css/AdminOrders.css";
 
 const AdminIncomingOrder = () => {
   const { currentUser } = useAuth();

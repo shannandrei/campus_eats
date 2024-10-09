@@ -230,7 +230,7 @@ const DasherHome = () => {
         <>
             
             <div className="j-body">
-                <div className="j-title">
+                <div className="j-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
                 {activeOrder ? (
@@ -343,7 +343,7 @@ const DasherHome = () => {
                     <div>No active order...</div> 
                 )}
                 
-                <div className="j-title">
+                <div className="j-title font-semibold">
                     <h2>Past Orders</h2>
                 </div>
                 {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}

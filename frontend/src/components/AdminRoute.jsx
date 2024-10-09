@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import LoginSignUp from "./LoginSignUp";
-import Home from "./Home";
 import axios from '../utils/axiosConfig';
 import DasherHome from "./DasherHome";
+import Home from "./Home";
+import LoginSignUp from "./LoginSignUp";
 import ShopManage from "./ShopManage";
 
 const AdminRoute = ({ Component }) => {
