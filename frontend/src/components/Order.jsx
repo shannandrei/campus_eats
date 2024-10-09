@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from 'sonner';
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import CancelOrderModal from "./CancelOrderModal";
@@ -7,7 +8,6 @@ import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 import UserNoShowModal from './UserNoShowModal';
-import { toast } from 'sonner';
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -26,6 +26,24 @@ const Order = () => {
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
         const [pollingInterval, setPollingInterval] = useState(null);
+    const [offenses, setOffenses] = useState(null);
+
+
+    const fetchOffenses = async () => {
+        try {
+        const response = await axios.get(`users/${currentUser.id}/offenses`);
+        if(response.status !== 200){
+            throw new Error("Failed to fetch offenses");
+        }
+
+        const data = response.data;
+
+        setOffenses(data);
+
+        }catch (error) {
+    }
+}
+
 
 
     const fetchOrders = async () => {
@@ -172,6 +190,7 @@ const Order = () => {
 
     // Fetch orders when component mounts
     fetchOrders();
+    fetchOffenses();
 
     // Cleanup SSE on component unmount
     return () => {
@@ -462,8 +481,11 @@ const Order = () => {
                 ) : (
                     <p>No active orders found.</p>
                 )}
-                <div className="o-title">
-                    <h2>Past Orders</h2>
+                <div className="o-title flex w-[73%] justify-between">
+                    <h2>Past Orders</h2> 
+                    {offenses > 0 ? (<div className="p-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+  <span className="font-medium">Warning!</span> x{offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
+</div>): <div></div>}
                 </div>
                 {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
                 <div className="o-content-past">

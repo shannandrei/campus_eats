@@ -1,25 +1,23 @@
 package com.capstone.campuseats.Service;
 
-import com.capstone.campuseats.Controller.NotificationController;
-import com.capstone.campuseats.Entity.DasherEntity;
-import com.capstone.campuseats.Entity.OrderEntity;
-import com.capstone.campuseats.Entity.UserEntity;
-import com.capstone.campuseats.Repository.UserRepository;
-import com.capstone.campuseats.Repository.DasherRepository;
-import com.capstone.campuseats.Repository.OrderRepository;
-import com.capstone.campuseats.Service.EmailService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.capstone.campuseats.Controller.NotificationController;
+import com.capstone.campuseats.Entity.DasherEntity;
+import com.capstone.campuseats.Entity.OrderEntity;
+import com.capstone.campuseats.Entity.UserEntity;
+import com.capstone.campuseats.Repository.DasherRepository;
+import com.capstone.campuseats.Repository.OrderRepository;
+import com.capstone.campuseats.Repository.UserRepository;
 
 @Service
 public class OrderService {
@@ -38,7 +36,6 @@ public class OrderService {
 
     @Autowired
     private UserRepository userRepository;
-
 
     public Optional<OrderEntity> getOrderById(String id) {
         return orderRepository.findById(id);
@@ -70,7 +67,6 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-
     public void updateOrderStatus(String orderId, String status) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
 
@@ -79,7 +75,7 @@ public class OrderService {
         }
 
         OrderEntity order = orderOptional.get();
-        System.out.println("order: "+ order);
+        System.out.println("order: " + order);
         order.setStatus(status);
         order.setDasherId(order.getDasherId());
         orderRepository.save(order);
@@ -120,6 +116,23 @@ public class OrderService {
                 break;
             case "cancelled_by_customer":
                 notificationMessage = "Order has been cancelled.";
+                Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
+                if (userOptional.isPresent()) {
+                    UserEntity user = userOptional.get();
+                    int currentOffenses = user.getOffenses();
+                    currentOffenses++;
+                    user.setOffenses(currentOffenses);
+
+                    if (currentOffenses == 1) {
+                        notificationMessage += " Warning: You have canceled 1 order.";
+                    } else if (currentOffenses == 2) {
+                        notificationMessage += " Warning: You have canceled 2 orders. One more cancellation will result in a ban.";
+                    } else if (currentOffenses >= 3) {
+                        notificationMessage += " You have been banned due to excessive cancellations.";
+                        user.setBanned(true); // Ban the user after 3 cancellations
+                    }
+                    userRepository.save(user);
+                }
                 break;
             case "active_waiting_for_cancel_confirmation.":
                 notificationMessage = "Order is waiting for cancellation confirmation.";
@@ -138,28 +151,29 @@ public class OrderService {
     }
 
     private void sendOrderReceipt(OrderEntity order) {
-    UserEntity user = userRepository.findById(order.getUid())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user = userRepository.findById(order.getUid())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    String recipientEmail = user.getEmail();
+        String recipientEmail = user.getEmail();
 
-    if (recipientEmail != null && !recipientEmail.isEmpty()) {
-        emailService.sendOrderReceipt(order, recipientEmail);
-    } else {
-        System.out.println("Recipient email is not available for order ID: " + order.getId());
+        if (recipientEmail != null && !recipientEmail.isEmpty()) {
+            emailService.sendOrderReceipt(order, recipientEmail);
+        } else {
+            System.out.println("Recipient email is not available for order ID: " + order.getId());
+        }
     }
-}
 
     public ResponseEntity<Map<String, Object>> assignDasher(String orderId, String dasherId) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Order not found", "success", false));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Order not found", "success", false));
         }
-        
 
         OrderEntity order = orderOptional.get();
         if (order.getDasherId() != null && !order.getDasherId().equals(dasherId)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Order is already assigned to another dasher", "success", false));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Order is already assigned to another dasher", "success", false));
         }
 
         List<OrderEntity> dasherOrders = orderRepository.findByDasherId(dasherId);
@@ -173,7 +187,6 @@ public class OrderService {
         // Fetch dasher details
         Optional<DasherEntity> dasherOptional = dasherRepository.findById(dasherId);
         String dasherName = dasherOptional.map(DasherEntity::getGcashName).orElse("Unknown Dasher");
-
 
         order.setDasherId(dasherId);
         order.setStatus("active_toShop");
@@ -205,7 +218,7 @@ public class OrderService {
     }
 
     public List<OrderEntity> getNoShowOrdersForDasher(String dasherId) {
-        System.out.println("dasherId:"+dasherId );
+        System.out.println("dasherId:" + dasherId);
         return orderRepository.findByDasherIdAndStatus(dasherId, "no-show");
     }
 
@@ -216,7 +229,8 @@ public class OrderService {
     public ResponseEntity<?> removeDasherFromOrder(String orderId) {
         Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Order not found", "success", false));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Order not found", "success", false));
         }
         OrderEntity order = orderOptional.get();
         // Set dasherId to null
@@ -240,8 +254,6 @@ public class OrderService {
                 .filter(order -> !order.getStatus().startsWith(status))
                 .collect(Collectors.toList());
     }
-
-
 
     public List<OrderEntity> getOngoingOrders() {
         return orderRepository.findByStatusStartingWith("active")

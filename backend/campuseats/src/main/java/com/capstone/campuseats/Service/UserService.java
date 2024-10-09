@@ -1,17 +1,21 @@
 package com.capstone.campuseats.Service;
 
-import com.capstone.campuseats.Entity.ConfirmationEntity;
-import com.capstone.campuseats.Entity.UserEntity;
-import com.capstone.campuseats.Repository.ConfirmationRepository;
-import com.capstone.campuseats.Repository.UserRepository;
-import com.capstone.campuseats.config.CustomException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.capstone.campuseats.Entity.ConfirmationEntity;
+import com.capstone.campuseats.Entity.UserEntity;
+import com.capstone.campuseats.Repository.ConfirmationRepository;
+import com.capstone.campuseats.Repository.UserRepository;
+import com.capstone.campuseats.config.CustomException;
 
 @Service
 public class UserService {
@@ -45,19 +49,28 @@ public class UserService {
         }
     }
 
-    public List<UserEntity> getAllUsers(){
+    public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
     public Optional<UserEntity> findUserById(String id) {
         return userRepository.findById(id);
     }
-    public Optional<UserEntity> checkUserExistsByEmail(String email) {
-        System.out.println("email: "+email);
-        System.out.println("response: "+userRepository.findByEmailIgnoreCase(email));
-        return userRepository.findByEmailIgnoreCase(email);
+
+    public int getOffenses(String id) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get().getOffenses();
+        } else {
+            throw new CustomException("User not found.");
+        }
     }
 
+    public Optional<UserEntity> checkUserExistsByEmail(String email) {
+        System.out.println("email: " + email);
+        System.out.println("response: " + userRepository.findByEmailIgnoreCase(email));
+        return userRepository.findByEmailIgnoreCase(email);
+    }
 
     public String getUserAccountType(String id) throws CustomException {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
@@ -91,7 +104,8 @@ public class UserService {
         Optional<ConfirmationEntity> confirmation = confirmationRepository.findById(user.getId());
         System.out.println("user = " + user.getId());
         System.out.println("confirmation = " + confirmation);
-        confirmation.ifPresent(confirmationEntity -> emailService.sendEmail(user.getUsername(), user.getEmail(), confirmationEntity.getToken()));
+        confirmation.ifPresent(confirmationEntity -> emailService.sendEmail(user.getUsername(), user.getEmail(),
+                confirmationEntity.getToken()));
     }
 
     public UserEntity signup(UserEntity user) throws CustomException {
@@ -123,7 +137,7 @@ public class UserService {
         confirmation.setId(savedUser.getId());
         confirmationRepository.save(confirmation);
 
-//        TODO send email to user with token
+        // TODO send email to user with token
         emailService.sendEmail(user.getUsername(), user.getEmail(), confirmation.getToken());
         return savedUser;
     }
@@ -136,11 +150,17 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
+
+            if (user.isBanned()) {
+                throw new CustomException(
+                        "Your account has been banned. Please contact the administrator for more information.");
+            }
             // Verify password
             if (passwordEncoder.matches(password, user.getPassword())) {
                 if (!user.isVerified()) {
                     resendVerificationLink(user);
-                    throw new CustomException("Your account is not verified. Please check your email for the verification link.");
+                    throw new CustomException(
+                            "Your account is not verified. Please check your email for the verification link.");
                 }
                 return user;
             } else {
@@ -172,9 +192,7 @@ public class UserService {
 
             existingUser.setDateCreated(existingUser.getDateCreated());
 
-
             existingUser.setAccountType(existingUser.getAccountType());
-
 
             existingUser.setVerified(existingUser.isVerified());
 
@@ -187,7 +205,7 @@ public class UserService {
             if (user.getSchoolIdNum() != null) {
                 existingUser.setSchoolIdNum(user.getSchoolIdNum());
             }
-            System.out.println("password new: "+user.getPassword());
+            System.out.println("password new: " + user.getPassword());
             if (user.getPassword() != null) {
                 String encodedPassword = passwordEncoder.encode(user.getPassword());
                 existingUser.setPassword(encodedPassword); // Ensure that the password is updated securely
@@ -199,7 +217,6 @@ public class UserService {
             throw new CustomException("User not found.");
         }
     }
-
 
     public boolean updateAccountType(String userId, String accountType) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);

@@ -4,6 +4,7 @@ import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import axiosConfig
 import "./css/DasherHome.css";
 import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
+import DasherCancelByShopModal from "./DasherCancelByShopModal";
 import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCompletedModal from "./DasherCompletedModal";
 
@@ -20,6 +21,7 @@ const DasherHome = () => {
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [dasherCancelModalOpen, setDasherCancelModalOpen] = useState(false);
     const [dasherNoShowModalOpen, setDasherNoShowModalOpen] = useState(false);
+    const [ShopCancelModalOpen, setShopCancelModalOpen] = useState(false);
     const [buttonClicked, setButtonClicked] = useState({
         toShop: false,
         preparing: false,
@@ -109,6 +111,9 @@ const DasherHome = () => {
                     if (updatedOrder.status === "active_waiting_for_no_show_confirmation") {
                         console.log("hellooo");
                         setDasherNoShowModalOpen(true);  // Open the Cancel Order Modal
+                    }
+                    if (updatedOrder.status === "active_waiting_for_shop_cancel_confirmation") {
+                        setShopCancelModalOpen(true);  // Open the Shop Cancel Order Modal
                     }
                 } catch (error) {
                     console.error('Error checking order status:', error);
@@ -390,6 +395,13 @@ const DasherHome = () => {
                     orderData={activeOrder} 
                 />
             )}
+            {ShopCancelModalOpen && (
+                    <DasherCancelByShopModal 
+                    isOpen={ShopCancelModalOpen} 
+                    closeModal={() => setShopCancelModalOpen(false)} 
+                    shopData={shop} 
+                    orderData={activeOrder}  />
+                )}
             {dasherCancelModalOpen && (
                     <DasherCancelByDasherModal 
                     isOpen={dasherCancelModalOpen} 

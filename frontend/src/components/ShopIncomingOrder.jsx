@@ -15,13 +15,16 @@ const ShopIncomingOrder = () => {
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
+
+  
+  // approving orders only for gcash
+   const fetchOrders = async () => {
       try {
         const response = await axios.get('/orders/active-waiting-for-shop'); // New endpoint for approving orders
         const ordersWithShopData = await Promise.all(response.data.map(async order => {
           const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
           const shopData = shopDataResponse.data;
+          console.log(shopData)
           return { ...order, shopData };
         }));
         setOrders(ordersWithShopData);
@@ -48,6 +51,7 @@ const ShopIncomingOrder = () => {
       }
     };
 
+    //ongoing orders = dashers taking the order and delvering
     const fetchOngoingOrders = async () => {
       try {
         const response = await axios.get('/orders/ongoing-orders'); // New endpoint for ongoing orders
@@ -65,6 +69,7 @@ const ShopIncomingOrder = () => {
       }
     };
 
+  useEffect(() => {
     fetchOrders();
     fetchPastOrders();
     fetchOngoingOrders();
@@ -77,8 +82,8 @@ const ShopIncomingOrder = () => {
     }));
   };
 
-  const handleDeclineClick = (orderId) => {
-    setSelectedOrder(orderId);
+  const handleDeclineClick = (order) => {
+    setSelectedOrder(order);
     setIsDeclineModalOpen(true);
   };
 
@@ -88,24 +93,83 @@ const ShopIncomingOrder = () => {
   };
 
   const confirmDecline = async () => {
-    try {
-      console.log('Declining order:', selectedOrder);
-      await axios.post('/orders/update-order-status', { orderId: selectedOrder, status: 'cancelled_by_shop' });
+  try {
+    console.log('Declining order:', selectedOrder);
+
+    let newStatus = '';
+    // this code is for cash payment
+    // if(selectedOrder.paymentMethod === 'cash'){
+    //         if (selectedOrder.dasherId !== null) {
+    //             newStatus = 'active_waiting_for_shop_cancel_confirmation';
+    //         } else {
+    //             newStatus = 'cancelled_by_shop';  
+    //         }
+    //         const updateResponse = await axios.post('/orders/update-order-status', {
+    //             orderId: selectedOrder.id,
+    //             status: newStatus
+    //         });
+
+    //           if (updateResponse.status === 200) {
+    //             console.log('Order cancelled successfully');
+    //             closeModal();
+    //           fetchOrders();
+    //         }
+    //       }else{
+    
+
+
+
+    //opens dasher cancel by shop on the dasher screen to alert that shop has cancelled the order
+    if(selectedOrder.dasherId !== null){
+      newStatus = 'active_waiting_for_shop_cancel_confirmation';
+    } else {
+      newStatus = 'cancelled_by_shop';
+    }
+  
+    await axios.post('/orders/update-order-status', { orderId: selectedOrder.id, status: newStatus });
+
+    const referenceNumber = selectedOrder.id
+
+    if (!referenceNumber) {
+      alert("No reference number found for this order.");
+      return;
+    }
+
+    // Retrieve the payment details using the reference number
+    const paymentResponse = await axios.get(`/payments/get-payment-by-reference/${referenceNumber}`);
+    const paymentId = paymentResponse.data.payment_id;
+    console.log('paymentResponse:', paymentResponse.data.payment_id);
+
+    // If payment ID is found, proceed to initiate the refund
+    if (paymentId) {
+      const refundPayload = {
+        paymentId: paymentId,
+        amount: selectedOrder.totalPrice + selectedOrder.deliveryFee, // Amount to refund (in PHP)
+        reason: "others", // This can be adjusted based on your use case
+        notes: "Refund initiated by admin."
+      };
+
+      const refundResponse = await axios.post("/payments/process-refund", refundPayload);
+      
+      console.log('refundResponse:', refundResponse);
+      alert("Refund successful!");
+      // Update the orders state
       setOrders(prevOrders => {
         return prevOrders.map(order => {
-          if (order.id === selectedOrder) {
+          if (order.id === selectedOrder.id) {
             return { ...order, status: 'cancelled_by_shop' };
           } else {
             return order;
           }
         });
       });
-      alert('Order status declined successfully');
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
+            window.location.reload();
+  }
+  } catch (error) {
+    console.error('Error declining order:', error);
+    alert("An error occurred while declining the order. Please try again.");
+  }
+};
 
   const handleSubmit = async (orderId) => {
     try {
@@ -147,7 +211,7 @@ const ShopIncomingOrder = () => {
                   <p>{order.paymentMethod === 'gcash' ? 'Online Payment' : 'Cash on Delivery'}</p>
                 </div>
                 <div className="ao-buttons">
-                  <button className="p-logout-button" onClick={() => handleDeclineClick(order.id)}>Decline</button>
+                  <button className="p-logout-button" onClick={() => handleDeclineClick(order)}>{order.paymentMethod === 'gcash' ? 'Decline and Refund' : 'Decline'}</button>
                   <button className="p-save-button" onClick={() => handleSubmit(order.id)}>Accept Order</button>
                 </div>
                 <div className="ao-toggle-content">
