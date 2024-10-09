@@ -15,7 +15,7 @@ public class EmailUtils {
     }
 
     private static String getVerificationUrl(String host, String token) {
-        return host + "/api/users/verify?token=" + token;
+        return host + "api/users/verify?token=" + token;
     }
 
      // New method for generating e-receipt email content

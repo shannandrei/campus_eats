@@ -111,9 +111,10 @@ const Navbar = () => {
                         </>
                     ) : (
                         <div className="navbar-buttons">
-                            <button onClick={() => navigate('/signup')} className="signup-button">Sign up</button>
-                            <button onClick={() => navigate('/login')} className="login-button">Login</button>
+                            <button onClick={() => { window.location.href = '/signup'; }} className="signup-button">Sign up</button>
+                            <button onClick={() => { window.location.href = '/login'; }} className="login-button">Login</button>
                         </div>
+
                     )}
                 </div>
             </div>

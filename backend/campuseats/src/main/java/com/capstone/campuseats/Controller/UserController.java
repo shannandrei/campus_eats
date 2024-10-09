@@ -145,13 +145,17 @@ public class UserController {
     public ResponseEntity<?> verifyToken(@RequestParam("token") String token) {
         Boolean verified = userService.verifyToken(token);
         if (verified) {
-            return ResponseEntity.ok(
-                    "Your email has been successfully verified! You can now close this tab and log in to your account.");
+            // Redirect to the frontend page upon successful verification
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:3000/verification-success")
+                    .build();
         } else {
-            // Handle verification failure
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Verification failed");
+             return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", "http://localhost:3000/verification-failed")
+                .build();
         }
     }
+
 
     @PostMapping("/authenticate")
     public ResponseEntity<Map<String, Object>> authenticateUser(@RequestBody Map<String, String> credentials) {
