@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import axios from '../utils/axiosConfig';  // Import your axiosConfig
-import "./css/Checkout.css";
-import { useAuth } from "../utils/AuthContext";
-import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "./Navbar/Navbar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
+import axios from '../utils/axiosConfig'; // Import your axiosConfig
+import "./css/Checkout.css";
 
 const Checkout = () => {
     const { currentUser } = useAuth();
@@ -155,6 +154,18 @@ const Checkout = () => {
     if (!cart || !shop) {
         return <div>Fetching...</div>; // Show a loading state while fetching data
     }
+    // will test soon
+    // const checkOfflineDashers = async () => {
+    //     try {
+    //         const response = await axios.get('/dashers');
+    //         const availableDashers = response.data.filter(dasher => dasher.status === 'offline' || dasher.status === 'declined');
+    //         console.log("Available dashers:", availableDashers);
+    //         return availableDashers;
+    //     } catch (error) {
+    //         console.error('Error fetching available dashers:', error);
+    //     }
+    // }
+
     const handleOrderSubmission = async (refNum) => {
         console.log("Submitting order... refnum : ", refNum);
         const order = {

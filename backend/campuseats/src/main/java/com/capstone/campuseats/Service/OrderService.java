@@ -54,7 +54,7 @@ public class OrderService {
 
         // Fetch active dashers
         List<DasherEntity> activeDashers = dasherRepository.findByStatus("active");
-
+        System.out.println("activeDashers: " + activeDashers);
         // Set the order status based on dasher availability
         if (activeDashers.isEmpty()) {
             order.setStatus("active_waiting_for_admin");
@@ -116,22 +116,24 @@ public class OrderService {
                 break;
             case "cancelled_by_customer":
                 notificationMessage = "Order has been cancelled.";
-                Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
-                if (userOptional.isPresent()) {
-                    UserEntity user = userOptional.get();
-                    int currentOffenses = user.getOffenses();
-                    currentOffenses++;
-                    user.setOffenses(currentOffenses);
+                if (order.getDasherId() != null) {
+                    Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
+                    if (userOptional.isPresent()) {
+                        UserEntity user = userOptional.get();
+                        int currentOffenses = user.getOffenses();
+                        currentOffenses++;
+                        user.setOffenses(currentOffenses);
 
-                    if (currentOffenses == 1) {
-                        notificationMessage += " Warning: You have canceled 1 order.";
-                    } else if (currentOffenses == 2) {
-                        notificationMessage += " Warning: You have canceled 2 orders. One more cancellation will result in a ban.";
-                    } else if (currentOffenses >= 3) {
-                        notificationMessage += " You have been banned due to excessive cancellations.";
-                        user.setBanned(true); // Ban the user after 3 cancellations
+                        if (currentOffenses == 1) {
+                            notificationMessage += " Warning: You have canceled 1 order.";
+                        } else if (currentOffenses == 2) {
+                            notificationMessage += " Warning: You have canceled 2 orders. One more cancellation will result in a ban.";
+                        } else if (currentOffenses >= 3) {
+                            notificationMessage += " You have been banned due to excessive cancellations.";
+                            user.setBanned(true); // Ban the user after 3 cancellations
+                        }
+                        userRepository.save(user);
                     }
-                    userRepository.save(user);
                 }
                 break;
             case "active_waiting_for_cancel_confirmation.":
@@ -211,7 +213,8 @@ public class OrderService {
     }
 
     public List<OrderEntity> getOrdersWaitingForDasher() {
-        return orderRepository.findByStatusStartingWith("active_waiting_for_dasher");
+        return orderRepository.findByStatusStartingWith("active_waiting_for_dasher"); // this was admin changed it to
+                                                                                      // dasher
     }
 
     public List<OrderEntity> getActiveOrdersForDasher(String uid) {

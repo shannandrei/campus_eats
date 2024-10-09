@@ -248,13 +248,16 @@ const checkDasherStatus = async () => {
 }
 
 useEffect(() => {
+    // check if there is an active order, before starting the interval
+    if(activeOrder){
     const dasherStatusInterval = setInterval(() => {
         checkDasherStatus();
-    }, 9000); // Check dasher status every 10 seconds
+    }, 3000); // Check dasher status every 10 seconds
 
     return () => {
         clearInterval(dasherStatusInterval);
     };
+}
 }, []);
 
 
