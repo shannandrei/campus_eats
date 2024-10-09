@@ -1,20 +1,26 @@
-import React, { useState, useEffect, useCallback } from "react";
-import "./css/CartModal.css";
-import { Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from "../utils/AuthContext";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useCallback, useEffect, useState } from "react";
+import { Button } from 'react-bootstrap';
+import { confirmAlert } from 'react-confirm-alert';
 import { useNavigate } from 'react-router-dom';
 import { useOrderContext } from "../context/OrderContext";
-import { confirmAlert } from 'react-confirm-alert'; 
+import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig';
+import "./css/CartModal.css";
 
 const CartModal = ({ showModal, onClose }) => {
     const { currentUser } = useAuth();
     const [cartData, setCartData] = useState(null);
     const [shopData, setShopData] = useState(null);
+
     const { cartData: contextCartData, fetchData } = useOrderContext();
     const navigate = useNavigate();
+
+    const handleProceed = () => {
+        handleProceedToCheckout();
+        onClose();
+    }
     
     const fetchCartData = useCallback(async () => {
         try {
@@ -193,7 +199,8 @@ const CartModal = ({ showModal, onClose }) => {
                     <button
                         disabled={!cartData || cartData.items.length === 0}
                         className="cm-proceed-button"
-                        onClick={handleProceedToCheckout}
+                        onClick={handleProceed}
+
                     >
                         Proceed to Checkout
                     </button>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "../utils/axiosConfig";
 const CancelOrderModal = ({ isOpen, closeModal, shopData, orderData, onCancelConfirmed }) => {
     const[isLoading, setIsLoading] = useState(false);
     if (!isOpen) return null;
@@ -8,25 +7,13 @@ const CancelOrderModal = ({ isOpen, closeModal, shopData, orderData, onCancelCon
     const confirmCancel = async () => {
         setIsLoading(true); 
         try {
-            let newStatus = '';
-            if (orderData.dasherId !== null) {
-                newStatus = 'active_waiting_for_cancel_confirmation';
-            } else {
-                newStatus = 'cancelled_by_customer';
-            }
-            const updateResponse = await axios.post('/orders/update-order-status', {
-                orderId: orderData.id,
-                status: newStatus
-            });
-
-            if (updateResponse.status === 200) {
-                onCancelConfirmed(); // Notify parent component
-                closeModal();
-            }
+           await onCancelConfirmed();
+            closeModal();
         } catch (error) {
             console.error('Error updating order status:', error);
         } finally {
-            setIsLoading(false); 
+            setIsLoading(false);
+
         }
     };
     

@@ -1,22 +1,26 @@
 package com.capstone.campuseats.Service;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.capstone.campuseats.Entity.DasherEntity;
-import com.capstone.campuseats.Repository.DasherRepository;
-import com.capstone.campuseats.config.CustomException;
-import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.capstone.campuseats.Entity.DasherEntity;
+import com.capstone.campuseats.Repository.DasherRepository;
+import com.capstone.campuseats.config.CustomException;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class DasherService {
@@ -68,7 +72,7 @@ public class DasherService {
         return dasherRepository.findById(id);
     }
 
-    public List<DasherEntity> getActiveDashers(){
+    public List<DasherEntity> getActiveDashers() {
         return dasherRepository.findByStatus("active");
     }
 
@@ -87,7 +91,7 @@ public class DasherService {
         Optional<DasherEntity> dasherOptional = dasherRepository.findById(dasherId);
         if (dasherOptional.isPresent()) {
             DasherEntity dasher = dasherOptional.get();
-            dasher.setWallet(dasher.getWallet()-amountPaid);
+            dasher.setWallet(dasher.getWallet() - amountPaid);
             dasherRepository.save(dasher);
             return true;
         }
@@ -131,7 +135,6 @@ public class DasherService {
 
         DasherEntity existingDasher = optionalDasher.get();
 
-
         if (image != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             String formattedTimestamp = LocalDateTime.now().format(formatter);
@@ -144,9 +147,9 @@ public class DasherService {
             blobClient.upload(image.getInputStream(), image.getSize(), true);
 
             String schoolId = blobClient.getBlobUrl();
-            System.out.println("schoolId URL: "+schoolId);
+            System.out.println("schoolId URL: " + schoolId);
             existingDasher.setSchoolId(schoolId);
-            System.out.println("schoolId URL after set: "+existingDasher.getSchoolId());
+            System.out.println("schoolId URL after set: " + existingDasher.getSchoolId());
         }
 
         existingDasher.setAvailableStartTime(dasher.getAvailableStartTime());
@@ -156,11 +159,9 @@ public class DasherService {
         existingDasher.setStatus(existingDasher.getStatus());
         existingDasher.setGcashNumber(dasher.getGcashNumber());
 
-        System.out.println("user: "+existingDasher);
-        System.out.println("test df: "+existingDasher.getGcashNumber());
+        System.out.println("user: " + existingDasher);
+        System.out.println("test df: " + existingDasher.getGcashNumber());
         return dasherRepository.save(existingDasher);
     }
 
-
 }
-

@@ -234,8 +234,33 @@ const Order = () => {
     }
 };
 
+const checkDasherStatus = async () => {
+    try{
+        const response = await axios.get('/dashers')
+        const dashers = response.data;
+        const inactive = dashers.every(dasher => dasher.status === 'offline' || dasher.status === 'declined');
+        if(inactive){
+        toast.warning('There are no active dashers. Please try again later.');
+        }
+    }catch(error){
+        console.error('Error checking dasher status:', error);
+    }
+}
+
+useEffect(() => {
+    const dasherStatusInterval = setInterval(() => {
+        checkDasherStatus();
+    }, 9000); // Check dasher status every 10 seconds
+
+    return () => {
+        clearInterval(dasherStatusInterval);
+    };
+}, []);
+
+
     useEffect(() => {
         fetchOrders();
+        fetchOffenses();
     }, [currentUser]);
 
     useEffect(() => {
@@ -270,8 +295,10 @@ const Order = () => {
             });
 
             if (updateResponse.status === 200) {
-                fetchOrders(); 
+                await fetchOffenses();
+                window.location.reload();
             }
+
         } catch (error) {
             console.error('Error updating order status:', error);
         } finally {

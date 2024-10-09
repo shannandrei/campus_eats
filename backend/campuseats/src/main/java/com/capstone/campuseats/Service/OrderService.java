@@ -136,6 +136,7 @@ public class OrderService {
                 break;
             case "active_waiting_for_cancel_confirmation.":
                 notificationMessage = "Order is waiting for cancellation confirmation.";
+
                 break;
             case "completed":
                 notificationMessage = "Order has been completed.";

@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "../utils/axiosConfig";
 import "./css/AdminAcceptDasherModal.css";
-import axios from "../utils/axiosConfig"; 
 //TODO: will also update dasher status to active
 const DasherCancelOrderModal = ({ isOpen, closeModal, shopData, orderData }) => {
+    const [isLoading, setIsLoading] = useState(false);
     if (!isOpen) return null;
     console.log('shopData:', shopData);
     console.log('orderData:', orderData);
     const confirmCancel = async () => {
+        setIsLoading(true);
         try {
             
             const updateResponse = await axios.post('/orders/update-order-status', {
@@ -19,6 +21,8 @@ const DasherCancelOrderModal = ({ isOpen, closeModal, shopData, orderData }) => 
             }
         } catch (error) {
             console.error('Error updating order status:', error);
+        }finally{         
+            setIsLoading(false);
         }
     };
     
@@ -31,7 +35,9 @@ const DasherCancelOrderModal = ({ isOpen, closeModal, shopData, orderData }) => 
                     <h4>Customer Requested to cancel order</h4>
                 </div>
                 <div className="aadm-modal-buttons">
-                    <button className="aadm-cancel" onClick={confirmCancel}>Confirm</button>                    
+                    <button className="aadm-cancel" onClick={confirmCancel}>
+                        {isLoading ? 'Confirming...' : 'Confirm'}
+                        </button>                    
                 </div>
             </div>
         </div>

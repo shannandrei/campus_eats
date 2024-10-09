@@ -1,44 +1,44 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
-import LoginSignUp from './components/LoginSignUp';
-import { AuthProvider } from './utils/AuthContext';
-import LandingPage from './components/LandingPage';
-import Home from './components/Home';
-import UserProfile from './components/UserProfile';
-import Shop from './components/Shop';
-import ShopApplication from './components/ShopApplication';
-import DasherApplication from './components/DasherApplication';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import AddItem from './components/AddItem';
 import AdminDasherList from './components/AdminDasherList';
 import AdminIncomingOrder from './components/AdminIncomingOrder';
 import AdminOrderHistory from './components/AdminOrderHistory';
+import AdminRoute from './components/AdminRoute';
+import Checkout from './components/Checkout';
+import DasherApplication from './components/DasherApplication';
+import ForgotPassword from './components/ForgotPassword';
+import Home from './components/Home';
+import LandingPage from './components/LandingPage';
+import LoginSignUp from './components/LoginSignUp';
 import Order from './components/Order';
 import PrivateRoute from './components/PrivateRoute';
-import AdminRoute from './components/AdminRoute';
 import PublicRoute from './components/PublicRoute';
-import AddItem from './components/AddItem';
-import ShopRoute from './components/ShopRoute';
-import Checkout from './components/Checkout';
+import ResetPassword from './components/ResetPassword';
+import Shop from './components/Shop';
+import ShopApplication from './components/ShopApplication';
 import ShopManage from './components/ShopManage';
+import ShopRoute from './components/ShopRoute';
 import UpdateItem from './components/UpdateItem';
+import UserProfile from './components/UserProfile';
+import { AuthProvider } from './utils/AuthContext';
 // import UpdateShop from './components/UpdateShop';
-import AdminShopList from './components/AdminShopList';
-import DasherRoute from './components/DasherRoute';
-import DasherIncomingOrder from './components/DasherIncomingOrder';
-import DasherHome from './components/DasherHome';
-import ShopUpdate from './components/ShopUpdate';
-import DasherUpdate from './components/DasherUpdate';
-import DasherCashout from './components/DasherCashout';
-import AdminCashoutList from './components/AdminCashoutList';
-import DasherReimburse from './components/DasherReimburse';
-import AdminReimburseList from './components/AdminReimburseList';
-import DasherTopup from './components/DasherTopup';
-import ShopIncomingOrder from './components/ShopIncomingOrder';
-import MainLayout from './components/Layouts/MainLayout';
-import { OrderProvider } from './context/OrderContext';
 import { Toaster } from 'sonner';
-import VerificationSuccess from './components/VerificationSuccess';
+import AdminCashoutList from './components/AdminCashoutList';
+import AdminReimburseList from './components/AdminReimburseList';
+import AdminShopList from './components/AdminShopList';
+import DasherCashout from './components/DasherCashout';
+import DasherHome from './components/DasherHome';
+import DasherIncomingOrder from './components/DasherIncomingOrder';
+import DasherReimburse from './components/DasherReimburse';
+import DasherRoute from './components/DasherRoute';
+import DasherTopup from './components/DasherTopup';
+import DasherUpdate from './components/DasherUpdate';
+import MainLayout from './components/Layouts/MainLayout';
+import ShopIncomingOrder from './components/ShopIncomingOrder';
+import ShopUpdate from './components/ShopUpdate';
 import VerificationFailed from './components/VerificationFailed';
+import VerificationSuccess from './components/VerificationSuccess';
+import { OrderProvider } from './context/OrderContext';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -86,7 +86,7 @@ function App() {
                 <Route path="/verification-failed" element={<VerificationFailed />} />
               </Route>
             </Routes>
-            <Toaster expand={true}/>
+            <Toaster expand={true} richColors/>
           </OrderProvider>
         </AuthProvider>
       </Router>

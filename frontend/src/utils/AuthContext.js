@@ -9,8 +9,10 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-    const [currentUser, setCurrentUser] = useState(null);
-    const navigate = useNavigate();
+ const [currentUser, setCurrentUser] = useState(() => {
+        const user = localStorage.getItem('currentUser');
+        return user ? JSON.parse(user) : null;
+    });    const navigate = useNavigate();
 
     useEffect(() => {
         const user = localStorage.getItem('currentUser');
