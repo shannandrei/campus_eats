@@ -103,9 +103,22 @@ const Checkout = () => {
         }
     };
 
+    const checkDasherStatus = async () => {
+        try{
+            const response = await axios.get('/dashers');
+            const availableDashers = response.data.filter(dasher => dasher.status === 'active');
+            console.log("Available dashers:", availableDashers);
+            return availableDashers.length > 0;
+        }catch(error){
+            console.error('Error fetching available dashers:', error);
+    }
+}
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        
 
         if (mobileNum.length !== 10 && mobileNum.startsWith('9')) {
             alert("Please enter a valid mobile number");
@@ -168,6 +181,15 @@ const Checkout = () => {
 
     const handleOrderSubmission = async (refNum) => {
         console.log("Submitting order... refnum : ", refNum);
+        const activeDashers = await checkDasherStatus();
+        if(!activeDashers){
+            setLoading(false);
+            const proceed = window.confirm('There are no active dashers available at the moment. Do you want to continue finding?');
+             if (!proceed) {
+            return;
+        }
+        setLoading(true);
+        }
         const order = {
             uid: currentUser.id,
             shopId: cart.shopId,
@@ -203,7 +225,7 @@ const Checkout = () => {
             } catch (error) {
                 console.error('Error removing cart:', error);
             }
-            navigate('/orders');
+            navigate(`/orders`)
         } catch (error) {
             console.log("Error placing order:", error);
         }
