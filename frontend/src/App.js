@@ -37,6 +37,8 @@ import ShopIncomingOrder from './components/ShopIncomingOrder';
 import MainLayout from './components/Layouts/MainLayout';
 import { OrderProvider } from './context/OrderContext';
 import { Toaster } from 'sonner';
+import VerificationSuccess from './components/VerificationSuccess';
+import VerificationFailed from './components/VerificationFailed';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -80,6 +82,8 @@ function App() {
                 <Route path="/dasher-topup" element={<DasherRoute Component={DasherTopup}/>} />
 
                 <Route path="/shop-dashboard" element={<ShopRoute Component={ShopIncomingOrder} />} />
+                <Route path="/verification-success" element={<VerificationSuccess />} />
+                <Route path="/verification-failed" element={<VerificationFailed />} />
               </Route>
             </Routes>
             <Toaster expand={true}/>
