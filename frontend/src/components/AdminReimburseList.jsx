@@ -125,7 +125,7 @@ const AdminReimburseList = () => {
                     imageSrc={selectedImage} 
                     onClose={closeModal} 
                 />
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Pending Reimburses</h2>
                 </div>
                 {pendingReimburses && pendingReimburses.length > 0 ? (
@@ -187,7 +187,7 @@ const AdminReimburseList = () => {
                     <div>No pending reimburses</div>
                 )}
 
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Reimburses</h2>
                 </div>
                 {currentReimburses && currentReimburses.length > 0 ? (

@@ -112,7 +112,7 @@ const AdminIncomingOrder = () => {
     <>
       
       <div className="ao-body">
-        <div className="ao-title">
+        <div className="ao-title font-semibold">
           <h2>Incoming Orders</h2>
         </div>
         {orders.length === 0 && <div className="ao-no-orders">No incoming orders...</div>}
@@ -173,7 +173,7 @@ const AdminIncomingOrder = () => {
         ))}
 
         <div className="ao-progress-modal">
-            <h3 className="ao-modal-title">Active Dashers</h3>
+            <h3 className="ao-modal-title font-semibold">Active Dashers</h3>
             
             <div className="ao-modal-body">
             {activeDashers.length === 0 && <div>No active dashers...</div>}

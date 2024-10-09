@@ -125,7 +125,7 @@ const AdminCashoutList = () => {
                     imageSrc={selectedImage} 
                     onClose={closeModal} 
                 />
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Pending Cashouts</h2>
                 </div>
                 {pendingCashouts && pendingCashouts.length > 0 ? (
@@ -172,7 +172,7 @@ const AdminCashoutList = () => {
                     <div>No pending cashouts</div>
                 )}
 
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Cashouts</h2>
                 </div>
                 {currentCashouts && currentCashouts.length > 0 ? (

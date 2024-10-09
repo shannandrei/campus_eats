@@ -68,7 +68,7 @@ const AdminShopList = () => {
                     imageSrc={selectedImage} 
                     onClose={closeModal} 
                 />
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Pending Shops</h2>
                 </div>
                 {pendingShops.length > 0 ? (
@@ -110,7 +110,7 @@ const AdminShopList = () => {
                     <div>No pending shops</div>
                 )}
 
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Shops</h2>
                 </div>
                 {currentShops.length > 0 ? (

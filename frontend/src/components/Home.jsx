@@ -75,7 +75,7 @@ const Home = () => {
             
             <div className="h-body">
                 <div className="h-title">
-                    <h2>{getGreeting()}, {currentUser?.username}!</h2>
+                    <h2 className="font-semibold" style={{ fontSize: '24px' }}>{getGreeting()}, {currentUser?.username}!</h2>
                     <p>Start Simplifying Your Campus Cravings!</p>
                 </div>
                 <div className="h-content">

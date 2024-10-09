@@ -97,7 +97,7 @@ const AdminDasherList = () => {
         <>
             
             <div className="adl-body">
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Pending Dashers</h2>
                 </div>
                 {pendingDashers && pendingDashers.length > 0 ? (
@@ -136,7 +136,7 @@ const AdminDasherList = () => {
                     <div>No pending dashers</div>
                 )}
 
-                <div className="adl-title">
+                <div className="adl-title font-semibold">
                     <h2>Dashers</h2>
                 </div>
                 {currentDashers && currentDashers.length > 0 ? (

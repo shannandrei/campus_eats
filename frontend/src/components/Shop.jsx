@@ -88,11 +88,11 @@ const Shop = () => {
                             <img src={shop.imageUrl} alt="store" className="s-photo-image" />
                         </div>
                         <div className="s-title">
-                            <h2>{shop.name}</h2>
-                            <p>{shop.address}</p>
+                            <h2 className="font-semibold" style={{ fontSize: '24px' }}>{shop.name}</h2>
+                            <p style={{ fontSize: '12px' }}>{shop.address}</p>
                             <div className="s-title-subtext">
                                 <h4>Description</h4>
-                                <span className="s-shopdesc-ni"><p>{shop.desc}</p></span>
+                                <p style={{ fontSize: '12px', fontWeight: 'normal' }}>{shop.desc}</p>
                                 <div className="s-shopcat"><h4>Category</h4></div>
                                 <div className="s-category">{renderCategories(shop.categories)}</div>
                             </div>
@@ -103,7 +103,7 @@ const Shop = () => {
                         </div>
                     </div>
                     <div className="s-items-container">
-                        <h2>Items</h2>
+                        <h2 className="font-semibold" style={{ fontSize: '24px' }}>Items</h2>
                         <div className="s-content">
                             {items.map(item => (
                                 <div key={item.id} className="s-card" onClick={() => openModalWithItem(item)}>
@@ -115,7 +115,7 @@ const Shop = () => {
                                             <p className="s-h3">{item.name}</p>
                                             <p className="s-p">{item.description}</p>
                                         </div>
-                                        <h3>₱{item.price.toFixed(2)}</h3>
+                                        <h3 className="font-semibold">₱{item.price.toFixed(2)}</h3>
                                         <div className="s-plus-icon">
                                             <FontAwesomeIcon icon={faPlus} />
                                         </div>

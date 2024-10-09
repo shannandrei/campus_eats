@@ -75,19 +75,19 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                 </button>
                 {item && (
                     <>
-                        <h1>{item.name}</h1>
+                        <h1 className="font-semibold">{item.name}</h1>
                         <div className="item-image">
                             <img src={item.imageUrl || '/Assets/Panda.png'} alt={item.name} className="item-image" />
                         </div>
                         <div className="info">
                             <div className="header">
-                                <h3>Description:</h3>
-                                <h3>Available: {itemQty}</h3>
+                                <h3 className="font-semibold">Description:</h3>
+                                <h3 className="font-semibold">Available: {itemQty}</h3>
                             </div>
                             <p>{item.description}</p>
                         </div>
                         <div className="price">
-                            <h2>₱{totalPrice.toFixed(2)}</h2>
+                            <h2 className="font-semibold">₱{totalPrice.toFixed(2)}</h2>
                         </div>
                         <div className="action-controls">
                             <div className="quantity-controls">

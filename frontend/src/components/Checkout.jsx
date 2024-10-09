@@ -209,7 +209,7 @@ const Checkout = () => {
                 <div className="co-content-current">
                     <div className="co-card-current co-card-large">
                         <div className="co-text">
-                            <h2>Contact Details</h2>
+                            <h2 className="font-semibold">Contact Details</h2>
                             <form onSubmit={handleSubmit} className="co-form">
                                 <div className="sa-two">
                                     <div className="sa-field-two">
@@ -301,7 +301,7 @@ const Checkout = () => {
                                     </div>
                                 </div>
                                 <div className="payment-method">
-                                    <h2>Payment Method</h2>
+                                    <h2 className="font-semibold">Payment Method</h2>
                                     {shop && shop.acceptGCASH === false? (
                                             <>
                                             <p>This shop doesn't accept online payment</p>
@@ -367,7 +367,7 @@ const Checkout = () => {
                     {cart ? (
                             <>
                             <div className="co-order-summary">
-                                <h3>Your order from</h3>
+                                <h3 className="font-semibold">Your order from</h3>
                                 <div className="co-order-text">
                                         <h4>{shop ? shop.shopName: ''}</h4>
                                         <p>{shop ? shop.shopAddress: ''}</p>
@@ -383,17 +383,17 @@ const Checkout = () => {
                                 ))}
                                 <div className="co-order-summary-total-container">
                                     <div className="co-order-summary-subtotal">
-                                        <h4>Subtotal</h4>
+                                        <h4 className="font-semibold">Subtotal</h4>
                                         <h4>₱{cart.totalPrice.toFixed(2)}</h4>
                                     </div>
                                     <div className="co-order-summary-subtotal">
-                                        <h4>Delivery Fee</h4>
+                                        <h4 className="font-semibold">Delivery Fee</h4>
                                         
                                         <h4>₱{shop.deliveryFee ? shop.deliveryFee.toFixed(2) : '0.00'}</h4>
                                     </div>
                                     <div className="co-order-summary-total">
-                                        <h4>Total</h4>
-                                        <h4>₱{(cart.totalPrice + (shop.deliveryFee ? shop.deliveryFee : 0)).toFixed(2)}</h4>
+                                        <h4 className="font-semibold">Total</h4>
+                                        <h4 className="font-semibold">₱{(cart.totalPrice + (shop.deliveryFee ? shop.deliveryFee : 0)).toFixed(2)}</h4>
                                     </div>
                                 </div>
                             </div>

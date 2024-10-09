@@ -58,7 +58,7 @@ const AdminOrderHistory = () => {
         <>
             
             <div className="aoh-body">
-                <div className="aoh-title">
+                <div className="aoh-title font-semibold">
                     <h2>Active Orders</h2>
                 </div>
                 {activeOrders && activeOrders.length > 0 ? (
@@ -91,7 +91,7 @@ const AdminOrderHistory = () => {
                     <div>No active orders</div>
                 )}
 
-                <div className="aoh-title">
+                <div className="aoh-title font-semibold">
                     <h2>Orders History</h2>
                 </div>
                 {completedOrders && completedOrders.length > 0 ? (

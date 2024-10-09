@@ -139,7 +139,9 @@ const Navbar = () => {
                 <div className="nav-side">
                     <div className="image-wrapper">
                         <Link to="/home" style={{ textDecoration: 'none' }}>
-                            <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            <div className="svg-container" style={{ width: '50px', height: '50px' }}>
+                                <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            </div>
                         </Link>
                     </div>
                     <div className='nav'>
@@ -172,9 +174,11 @@ const Navbar = () => {
 
             {currentUser && userAccountType === 'admin' && (
                 <div className="nav-side">
-                    <div className="image-wrapper">
+                    <div className="image-wrapper ">
                         <Link to="/admin-incoming-order" style={{ textDecoration: 'none' }}>
-                            <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            <div className="svg-container" style={{ width: '50px', height: '50px' }}>
+                                <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            </div>
                         </Link>
                     </div>
                     <div className='nav'>
@@ -211,7 +215,7 @@ const Navbar = () => {
 
                             <li className={`nb-icon ${location.pathname === '/admin-cashouts' ? 'active' : ''}`}>
                                 <Link to="/admin-cashouts">
-                                    <div className="svg-container">
+                                    <div className="svg-container" style={{ width: '50px', height: '50px' }}>
                                         <img src={'/Assets/cashout.svg'} alt="cashout" className={`nb-image ${location.pathname === '/admin-cashouts' ? 'active' : ''}`} />
                                     </div>
                                 </Link>
@@ -219,7 +223,7 @@ const Navbar = () => {
 
                             <li className={`nb-icon ${location.pathname === '/admin-reimburse' ? 'active' : ''}`}>
                                 <Link to="/admin-reimburse">
-                                    <div className="svg-container">
+                                    <div className="svg-container" style={{ width: '50px', height: '50px' }}>
                                         <img src={'/Assets/reimburses.svg'} alt="cashout" className={`nb-image ${location.pathname === '/admin-reimburse' ? 'active' : ''}`} />
                                     </div>
                                 </Link>
@@ -233,7 +237,9 @@ const Navbar = () => {
                 <div className="nav-side">
                     <div className="image-wrapper">
                         <Link to="/dasher-orders" style={{ textDecoration: 'none' }}>
-                            <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            <div className="svg-container" style={{ width: '50px', height: '50px' }}>
+                                <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            </div>
                         </Link>
                     </div>
                     <div className='nav'>
@@ -261,7 +267,9 @@ const Navbar = () => {
                 <div className="nav-side">
                     <div className="h-14 w-14">
                         <Link to="/shop-dashboard" style={{ textDecoration: 'none' }}>
-                            <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            <div className="svg-container" style={{ width: '50px', height: '50px' }}>
+                                <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                            </div>
                         </Link>
                     </div>
                     <div className='nav'>
