@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import "./css/AdminDasherLists.css";
-import axios from "../utils/axiosConfig";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
+import "./css/AdminDasherLists.css";
 
 const AdminDasherList = () => {
     const { currentUser } = useAuth();
@@ -28,7 +27,7 @@ const AdminDasherList = () => {
     const handleAcceptClick = async (dasherId) => {
         if (window.confirm("Are you sure you want to accept this dasher?")) {
             try {
-                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'active' } });
+                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'offline' } });
                 alert('Dasher status updated successfully');
                 window.location.reload();
             } catch (error) {
