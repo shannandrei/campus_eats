@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { toast } from 'sonner';
-import { useAuth } from "../utils/AuthContext";
+import { AuthContext, useAuth, } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import CancelOrderModal from "./CancelOrderModal";
 import "./css/Order.css";
@@ -25,24 +25,29 @@ const Order = () => {
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
-        const [pollingInterval, setPollingInterval] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(null);
     const [offenses, setOffenses] = useState(null);
+    const { logout } = useContext(AuthContext);
+
 
 
     const fetchOffenses = async () => {
+        setIsLoading(true);
         try {
         const response = await axios.get(`users/${currentUser.id}/offenses`);
-        if(response.status !== 200){
-            throw new Error("Failed to fetch offenses");
-        }
-
         const data = response.data;
-
         setOffenses(data);
 
         }catch (error) {
+    }finally {
+        setIsLoading(false);
     }
 }
+useEffect(() => {
+        if (offenses >= 3) {
+            logout(); 
+        }
+    }, [offenses]);
 
 
 
@@ -238,9 +243,10 @@ const checkDasherStatus = async () => {
     try{
         const response = await axios.get('/dashers')
         const dashers = response.data;
-        const inactive = dashers.filter(dasher => dasher.status === 'active');
-        if(inactive){
+        const active = dashers.filter(dasher => dasher.status === 'active' || dasher.status === 'ongoing order');
+        if(active.length === 0){
         toast.warning('There are no active dashers. Please try again later.');
+        console.log(active)
         }
     }catch(error){
         console.error('Error checking dasher status:', error);
@@ -283,12 +289,13 @@ useEffect(() => {
         };
     }, [currentUser, activeOrder]);
 
-      const handleCancelOrderConfirmed = async () => {
+ const handleCancelOrderConfirmed = async () => {
         setIsLoading(true); 
         try {
             let newStatus = '';
             if (activeOrder.dasherId !== null) {
                 newStatus = 'active_waiting_for_cancel_confirmation';
+                fetchOffenses();
             } else {
                 newStatus = 'cancelled_by_customer';
             }
@@ -298,16 +305,18 @@ useEffect(() => {
             });
 
             if (updateResponse.status === 200) {
+                console.log("NABUANG KOOO?")
                 await fetchOffenses();
-                window.location.reload();
             }
 
         } catch (error) {
             console.error('Error updating order status:', error);
         } finally {
+            window.location.reload();
             setIsLoading(false); 
         }
     };
+     
 
   
 
@@ -513,11 +522,11 @@ useEffect(() => {
                 )}
                 <div className="o-title flex w-[73%] justify-between">
                     <h2 className="font-semibold">Past Orders</h2> 
-                    {offenses > 0 ? (<div className="p-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                    {isLoading ? (<div>Loading offenses...</div>): offenses > 0 ? (<div className="p-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
   <span className="font-medium">Warning!</span> x{offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
 </div>): <div></div>}
                 </div>
-                {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
+                {loading ? <div>Loading Past Orders... </div> : orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
                 <div className="o-content-past">
                     {orders.map((order, index) => (
                         <div 

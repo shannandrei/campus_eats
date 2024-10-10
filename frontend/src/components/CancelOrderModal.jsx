@@ -25,6 +25,7 @@ const CancelOrderModal = ({ isOpen, closeModal, shopData, orderData, onCancelCon
                 <div className="aadm-input-container">
                     <h4>Are you sure you want to cancel this order?</h4>
                 </div>
+                    
                 <div className="aadm-modal-buttons">
                     <button className="aadm-cancel" onClick={confirmCancel} disabled={isLoading}>
                         {isLoading ? 'Cancelling...' : 'Yes, Cancel'}
@@ -33,7 +34,9 @@ const CancelOrderModal = ({ isOpen, closeModal, shopData, orderData, onCancelCon
                         No
                     </button>
                 </div>
+                {orderData.dasherId && (<div className="text-xs text-red-600 font-bold mt-2">Cancelling this order will count as an offense.</div>)}
             </div>
+            
         </div>
     );
 };

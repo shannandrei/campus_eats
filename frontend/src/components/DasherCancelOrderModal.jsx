@@ -17,6 +17,9 @@ const DasherCancelOrderModal = ({ isOpen, closeModal, shopData, orderData }) => 
             });
     
             if (updateResponse.status === 200) {
+                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
+                    params: { status: 'active' }
+                });
                 window.location.reload();
             }
         } catch (error) {
