@@ -71,7 +71,7 @@ public class OrderController {
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
                     .id((String) payload.get("refNum"))
-                    .status("active_waiting_for_admin")
+                    .status("active_waiting_for_dasher")
                     .createdAt(LocalDateTime.now())
                     .dasherId(null)
                     .shopId((String) payload.get("shopId"))

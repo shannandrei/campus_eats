@@ -55,13 +55,9 @@ public class OrderService {
         // Fetch active dashers
         List<DasherEntity> activeDashers = dasherRepository.findByStatus("active");
         System.out.println("activeDashers: " + activeDashers);
-        // Set the order status based on dasher availability
-        if (activeDashers.isEmpty()) {
-            order.setStatus("active_waiting_for_admin");
-        } else {
-            order.setStatus("active_waiting_for_dasher");
-        }
-
+        
+        // Set the order status to waiting for dasher
+        order.setStatus("active_waiting_for_dasher");
         order.setCreatedAt(LocalDateTime.now());
 
         return orderRepository.save(order);
@@ -86,6 +82,9 @@ public class OrderService {
             case "active_toShop":
                 notificationMessage = "Dasher is on the way to the shop.";
                 break;
+            case "active_waiting_for_shop":
+                notificationMessage = "Dasher is waiting for the shop to confirm the order.";
+                break;
             case "cancelled_by_dasher":
                 notificationMessage = "Order has been cancelled by the Dasher.";
                 break;
@@ -99,7 +98,7 @@ public class OrderService {
             case "active_waiting_for_dasher":
                 notificationMessage = "Looking for a Dasher to be assigned.";
                 break;
-            case "no_show":
+            case "no_Show":
                 notificationMessage = "You did not show up for the delivery.";
                 break;
             case "active_onTheWay":
@@ -116,27 +115,6 @@ public class OrderService {
                 break;
             case "cancelled_by_customer":
                 notificationMessage = "Order has been cancelled.";
-                // if (order.getDasherId() != null) {
-                // Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
-                // if (userOptional.isPresent()) {
-                // UserEntity user = userOptional.get();
-                // int currentOffenses = user.getOffenses();
-                // currentOffenses++;
-                // user.setOffenses(currentOffenses);
-
-                // if (currentOffenses == 1) {
-                // notificationMessage += " Warning: You have canceled 1 order.";
-                // } else if (currentOffenses == 2) {
-                // notificationMessage += " Warning: You have canceled 2 orders. One more
-                // cancellation will result in a ban.";
-                // } else if (currentOffenses >= 3) {
-                // notificationMessage += " You have been banned due to excessive
-                // cancellations.";
-                // user.setBanned(true); // Ban the user after 3 cancellations
-                // }
-                // userRepository.save(user);
-                // }
-                // }
                 break;
             case "active_waiting_for_cancel_confirmation.":
                 notificationMessage = "Order is waiting for cancellation confirmation.";
@@ -145,6 +123,9 @@ public class OrderService {
                 notificationMessage = "Order has been completed.";
                 System.out.println("hello! order: " + order);
                 sendOrderReceipt(order);
+                break;
+            case "active_waiting_for_shop_cancel_confirmation":
+                notificationMessage = "Your order is being cancelled by the shop. Please hold on for confirmation.";
                 break;
             default:
                 notificationMessage = "Order status updated to " + status + ".";
@@ -206,7 +187,7 @@ public class OrderService {
     }
 
     public List<OrderEntity> getActiveOrders() {
-        return orderRepository.findByStatusStartingWith("active_waiting_for_admin");
+        return orderRepository.findByStatusStartingWith("active_waiting_for_dasher");
     }
 
     public List<OrderEntity> getOrdersByDasherId(String dasherId) {
