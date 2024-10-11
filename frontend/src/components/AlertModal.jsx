@@ -5,7 +5,7 @@ const AlertModal = ({ isOpen, closeModal, title, message, onConfirm, showConfirm
 
     const getTitleColor = () => {
         if (title === 'Success') return 'text-green-600';
-        if (title === 'Warning') return 'text-red-600';
+        if (title === 'Error') return 'text-red-600';
         return 'text-black';
     };
 

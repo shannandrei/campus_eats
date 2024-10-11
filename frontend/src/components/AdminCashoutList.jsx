@@ -6,6 +6,7 @@ import axios from "../utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import ImageModal from "./ImageModal";
 import AdminAcceptCashoutModal from "./AdminAcceptCashoutModal";
+import AlertModal from "./AlertModal";
 
 const AdminCashoutList = () => {
     const { currentUser } = useAuth();
@@ -16,6 +17,22 @@ const AdminCashoutList = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [selectedCashoutId, setSelectedCashoutId] = useState(null);
     const navigate = useNavigate();
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+    const openModal = (title, message, confirmAction = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => confirmAction);
+        setIsAlertModalOpen(true);
+    };
+
+    const closeAlertModal = () => {
+        setIsAlertModalOpen(false);
+        setOnConfirmAction(null);
+    };
 
     const handleImageClick = (imageSrc) => {
         setSelectedImage(imageSrc); // Set the selected image
@@ -29,16 +46,23 @@ const AdminCashoutList = () => {
 
 
     const handleDeclineClick = async (cashoutId) => {
-        if (window.confirm("Are you sure you want to decline this cashout?")) {
-            try {
-                await axios.put(`/cashouts/update/${cashoutId}/status`, null, { params: { status: 'declined' } });
-                alert('Cashout status updated successfully');
-                setPendingCashouts((prev) => prev.filter(cashout => cashout.id !== cashoutId));
-            } catch (error) {
-                console.error('Error updating cashout status:', error);
-                alert('Error updating cashout status');
+        openModal(
+            'Confirm Decline',
+            'Are you sure you want to decline this cashout?',
+            async () => {
+                try {
+                    await axios.put(`/cashouts/update/${cashoutId}/status`, null, { params: { status: 'declined' } });
+                    openModal('Success', 'Cashout status updated successfully');
+                    setTimeout(() => {
+                        closeAlertModal();
+                        setPendingCashouts((prev) => prev.filter(cashout => cashout.id !== cashoutId));
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error updating cashout status:', error);
+                    openModal('Error', 'Error updating cashout status');
+                }
             }
-        }
+        );
     };
 
     const handleAcceptClick = async (cashoutId) => {
@@ -107,7 +131,14 @@ const AdminCashoutList = () => {
 
     return (
         <>
-            
+            <AlertModal 
+                isOpen={isAlertModalOpen} 
+                closeModal={closeAlertModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />
             <div className="adl-body">
                 <ImageModal 
                     isOpen={isModalOpen} 

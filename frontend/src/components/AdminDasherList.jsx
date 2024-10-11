@@ -3,53 +3,73 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import "./css/AdminDasherLists.css";
+import AlertModal from "./AlertModal";
 
 const AdminDasherList = () => {
     const { currentUser } = useAuth();
     const [pendingDashers, setPendingDashers] = useState([]);
     const [currentDashers, setCurrentDashers] = useState([]);
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [onConfirmAction, setOnConfirmAction] = useState(null);
 
+    const openModal = (title, message, confirmAction = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => confirmAction);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setOnConfirmAction(null);
+    };
 
     const handleDeclineClick = async (dasherId) => {
-        if (window.confirm("Are you sure you want to decline this dasher?")) {
-            try {
-                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'declined' } });
-                alert('Dasher status updated successfully');
-                window.location.reload();
-            } catch (error) {
-                console.error('Error updating dasher status:', error);
-                alert('Error updating dasher status');
+        openModal(
+            'Confirm Decline',
+            'Are you sure you want to decline this dasher?',
+            async () => {
+                try {
+                    await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'declined' } });
+                    openModal('Success', 'Dasher status updated successfully');
+                    setTimeout(() => {
+                        closeModal();
+                        window.location.reload();
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error updating dasher status:', error);
+                    openModal('Error', 'Error updating dasher status');
+                }
             }
-        }
+        );
     };
 
     const handleAcceptClick = async (dasherId) => {
-        if (window.confirm("Are you sure you want to accept this dasher?")) {
-            try {
-                await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'offline' } });
-                alert('Dasher status updated successfully');
-                window.location.reload();
-            } catch (error) {
-                console.error('Error updating dasher status:', error);
-                alert('Error updating dasher status');
+        openModal(
+            'Confirm Accept',
+            'Are you sure you want to accept this dasher?',
+            async () => {
+                try {
+                    await axios.put(`/dashers/update/${dasherId}/status`, null, { params: { status: 'offline' } });
+                    await axios.put(`/users/update/${dasherId}/accountType`, null, {
+                        params: {
+                            accountType: "dasher"
+                        }
+                    });
+                    openModal('Success', 'Dasher status and account type updated successfully');
+                    setTimeout(() => {
+                        closeModal();
+                        window.location.reload();
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error updating dasher status or account type:', error);
+                    openModal('Error', 'Error updating dasher status or account type');
+                }
             }
-
-            try {
-                console.log("dasherid: ", dasherId);
-                
-                
-                // window.location.reload();
-                const updateResponse = await axios.put(`/users/update/${dasherId}/accountType`, null, {
-                    params: {
-                      accountType: "dasher"
-                    }
-                  });
-                alert('Account type updated successfully');
-            } catch (error) {
-                console.error('Error updating account type:', error);
-            }
-        }
+        );
     };
 
     useEffect(() => {
@@ -94,7 +114,14 @@ const AdminDasherList = () => {
 
     return (
         <>
-            
+            <AlertModal 
+                isOpen={isModalOpen} 
+                closeModal={closeModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />
             <div className="adl-body">
                 <div className="adl-title font-semibold">
                     <h2>Pending Dashers</h2>

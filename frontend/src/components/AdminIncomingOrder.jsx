@@ -5,6 +5,7 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import DeclineOrderModal from './AdminDeclineOrderModal';
 import "./css/AdminOrders.css";
+import AlertModal from './AlertModal';
 
 const AdminIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -13,6 +14,22 @@ const AdminIncomingOrder = () => {
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [activeDashers, setActiveDashers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+  const openModal = (title, message, confirmAction = null) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setOnConfirmAction(() => confirmAction);
+    setIsModalOpen(true);
+  };
+
+  const closeAlertModal = () => {
+    setIsModalOpen(false);
+    setOnConfirmAction(null);
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -80,8 +97,11 @@ const AdminIncomingOrder = () => {
           }
         });
       });
-      alert('Order status declined successfully');
-      window.location.reload();
+      openModal('Success', 'Order status declined successfully');
+            setTimeout(() => {
+                closeAlertModal();
+                window.location.reload();
+            }, 3000);
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -101,8 +121,11 @@ const AdminIncomingOrder = () => {
           }
         });
       });
-      alert('Order status updated successfully');
-      window.location.reload();
+      openModal('Success', 'Order status updated successfully');
+            setTimeout(() => {
+                closeAlertModal();
+                window.location.reload();
+            }, 3000);
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -110,7 +133,14 @@ const AdminIncomingOrder = () => {
 
   return (
     <>
-      
+      <AlertModal 
+                isOpen={isModalOpen} 
+                closeModal={closeAlertModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />
       <div className="ao-body">
         <div className="ao-title font-semibold">
           <h2>Incoming Orders</h2>
