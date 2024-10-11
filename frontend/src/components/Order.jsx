@@ -8,6 +8,7 @@ import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 import UserNoShowModal from './UserNoShowModal';
+import ShopCancelModal from './UserShopCancelModal';
 
 const Order = () => {
     const { currentUser } = useAuth();
@@ -25,6 +26,7 @@ const Order = () => {
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
+    const [isShopCancelModalOpen, setIsShopCancelModalOpen] = useState(false);
     const [pollingInterval, setPollingInterval] = useState(null);
     const [offenses, setOffenses] = useState(null);
     const { logout } = useContext(AuthContext);
@@ -97,9 +99,9 @@ useEffect(() => {
 
             if (ordersData.activeOrders.length > 0) {
                 switch (activeOrder.status) {
-                    case 'active_waiting_for_admin':
+                    // case 'active_waiting_for_admin':
                     case 'active_waiting_for_dasher':
-                        setStatus('Order is being verified');
+                        setStatus('Searching for Dashers. Hang tight, this might take a little time!');
                         break;
                     case 'active_preparing':
                         setStatus('Order is being prepared');
@@ -143,7 +145,6 @@ useEffect(() => {
                         break;
                     case 'no_Show': 
                         setStatus('Customer did not show up for the delivery');
-                        handleNoShowModal(); 
                         break;
                     case 'active_waiting_for_no_show_confirmation': 
                         setStatus('Order failed: Customer did not show up for delivery');
@@ -254,6 +255,12 @@ useEffect(() => {
                     setIsNoShowModalOpen(true);
                     clearInterval(intervalId); 
                 }
+
+                // Check for cancelled status
+                if (orderStatus === 'cancelled_by_shop') {
+                    setIsShopCancelModalOpen(true);
+                    clearInterval(intervalId);
+                }
             }
         }, 4000);
         setPollingInterval(intervalId);
@@ -321,7 +328,6 @@ useEffect(() => {
             });
 
             if (updateResponse.status === 200) {
-                console.log("NABUANG KOOO?")
                 await postOffenses();
             }
 
@@ -332,13 +338,6 @@ useEffect(() => {
         }
     };
      
-
-  
-
-    
-    const handleNoShowModal = () => {
-        setIsNoShowModalOpen(true); // Open No-Show Modal
-    };
 
     // Function to open the ReviewShopModal
     const handleOpenReviewShopModal = (order) => {
@@ -409,6 +408,12 @@ useEffect(() => {
                     <UserNoShowModal 
                         isOpen={isNoShowModalOpen}
                         closeModal={() => setIsNoShowModalOpen(false)} 
+                    />
+                )}
+            {isShopCancelModalOpen && ( // Render the Shop Cancel Modal
+                    <ShopCancelModal 
+                        isOpen={isShopCancelModalOpen}
+                        closeModal={() => setIsShopCancelModalOpen(false)} 
                     />
                 )}
                 <div className="o-title font-semibold">
