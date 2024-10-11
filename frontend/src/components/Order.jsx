@@ -43,7 +43,28 @@ const Order = () => {
         setIsLoading(false);
     }
 }
+
+
+ const postOffenses = async () => {
+    if (activeOrder && activeOrder.dasherId !== null) {
+        try {
+            const response = await axios.post(`/users/${currentUser.id}/offenses`);
+            if (response.status !== 200) {
+                throw new Error("Failed to post offenses");
+            }
+            console.log(response.data);
+            setOffenses(response.data);
+        } catch (error) {
+            console.error("Error posting offenses:", error);
+        }
+    }
+};
+ 
+
+
 useEffect(() => {
+    console.log(offenses);
+    console.log(typeof offenses)
         if (offenses >= 3) {
             logout(); 
         }
@@ -182,7 +203,7 @@ useEffect(() => {
             break;
 
           default:
-            toast(event.data); // Show a default toast for any other messages
+            toast.error(event.data); // Show a default toast for any other messages
             break;
         }
       }
@@ -267,10 +288,6 @@ useEffect(() => {
 }, [activeOrder]);
 
 
-    useEffect(() => {
-        fetchOrders();
-        fetchOffenses();
-    }, [currentUser]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -295,7 +312,6 @@ useEffect(() => {
             let newStatus = '';
             if (activeOrder.dasherId !== null) {
                 newStatus = 'active_waiting_for_cancel_confirmation';
-                fetchOffenses();
             } else {
                 newStatus = 'cancelled_by_customer';
             }
@@ -306,13 +322,12 @@ useEffect(() => {
 
             if (updateResponse.status === 200) {
                 console.log("NABUANG KOOO?")
-                await fetchOffenses();
+                await postOffenses();
             }
 
         } catch (error) {
             console.error('Error updating order status:', error);
         } finally {
-            window.location.reload();
             setIsLoading(false); 
         }
     };
@@ -532,7 +547,10 @@ useEffect(() => {
                         <div 
                             className="o-card-past" 
                             key={index}
-                            onClick={() => handleOpenReviewShopModal(order)} // Make the order clickable
+                            onClick={() => {
+                                if(!order.status.includes('cancelled_') && !order.status.includes('no_') ? 'disabled' :'') {                                
+                                handleOpenReviewShopModal(order)}}
+                                } // Make the order clickable
                         >
                             <div className="o-past-img-holder">
                                 <img src={order.shopData.imageUrl ? order.shopData.imageUrl : '/Assets/Panda.png'} alt="food" className="o-past-img"/>
