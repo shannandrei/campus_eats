@@ -419,9 +419,15 @@ useEffect(() => {
                 <div className="o-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
-                {loading ? (
-                    <p>Loading...</p>
-                ) : activeOrder ? (
+                {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : activeOrder ? (
                 <div className="o-content-current">
                     <div className="o-card-current o-card-large">
                         <div className="o-text">
@@ -546,7 +552,15 @@ useEffect(() => {
   <span className="font-medium">Warning!</span> x{offenses} {offenses > 1 ? "offenses": "offense"} recorded. 3 cancellations will lead to account ban.
 </div>): <div></div>}
                 </div>
-                {loading ? <div>Loading Past Orders... </div> : orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
+                {loading ? (<div className="flex justify-center items-center h-[60vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
                 <div className="o-content-past">
                     {orders.map((order, index) => (
                         <div 

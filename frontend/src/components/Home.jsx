@@ -9,6 +9,7 @@ const Home = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [shops, setShops] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (!currentUser) {
@@ -19,6 +20,7 @@ const Home = () => {
     }, [currentUser]);
 
     const fetchShops = async () => {
+        setIsLoading(true);
         try {
             const response = await axios.get(`/shops/active`);
             const data = await response.data
@@ -38,6 +40,7 @@ const Home = () => {
         } catch (error) {
             console.error('Error fetching shops:', error);
         }
+        setIsLoading(false);
     };
 
     const calculateAverageRating = (ratings) => {
@@ -79,7 +82,15 @@ const Home = () => {
                     <p>Start Simplifying Your Campus Cravings!</p>
                 </div>
                 <div className="h-content">
-                    {shops.map((shop, index) => (
+                    {isLoading ? (<div className="flex justify-center items-center h-[60vh] w-[170vh]">
+                        <div
+                            className="inline-block h-36 w-36 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): shops.map((shop, index) => (
                         <div key={index} className="h-card" onClick={() => handleCardClick(shop.id)}>
                             <div className="h-img">
                                 <img src={shop.imageUrl} className="h-image-cover" alt="store" />
