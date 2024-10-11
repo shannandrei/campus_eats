@@ -5,6 +5,7 @@ import "./css/AdminDasherLists.css";
 import AdminAcceptDasherModal from "./AdminAcceptDasherModal";
 import axios from "../utils/axiosConfig"; // Use axios from axiosConfig.js
 import ImageModal from "./ImageModal";
+import AlertModal from "./AlertModal";
 
 const AdminShopList = () => {
     const { currentUser } = useAuth();
@@ -15,6 +16,23 @@ const AdminShopList = () => {
     const [selectedShopId, setSelectedShopId] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageModalOpen, setImageModalOpen] = useState(false);
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+    const openModal = (title, message, confirmAction = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => confirmAction);
+        setIsAlertModalOpen(true);
+    };
+
+    const closeAlertModal = () => {
+        setIsAlertModalOpen(false);
+        setOnConfirmAction(null);
+    };
+
     const closeModal = () => {
         setImageModalOpen(false); // Close the modal
         setSelectedImage(""); // Reset selected image
@@ -24,17 +42,21 @@ const AdminShopList = () => {
         setImageModalOpen(true); // Open the modal
     };
 
-    const handleDeclineClick = async (shopId) => {
-        if (window.confirm("Are you sure you want to decline this shop?")) {
-            try {
-                await axios.put(`/shops/update/${shopId}/status`, null, { params: { status: 'declined' } });
-                // Optionally update the state to remove the declined shop from the list
-                setPendingShops(pendingShops.filter(shop => shop.id !== shopId));
-            } catch (error) {
-                console.error('Error updating shop status:', error);
-                alert('Error updating shop status');
+    const handleDeclineClick = (shopId) => {
+        openModal(
+            "Confirm Decline",
+            "Are you sure you want to decline this shop?",
+            async () => {
+                try {
+                    await axios.put(`/shops/update/${shopId}/status`, null, { params: { status: 'declined' } });
+                    // Optionally update the state to remove the declined shop from the list
+                    setPendingShops(pendingShops.filter(shop => shop.id !== shopId));
+                } catch (error) {
+                    console.error('Error updating shop status:', error);
+                    openModal("Error", "Error updating shop status");
+                }
             }
-        }
+        );
     };
 
     const handleAcceptClick = (googleLink, shopId) => {
@@ -60,8 +82,14 @@ const AdminShopList = () => {
 
     return (
         <>
-            
-
+        <AlertModal 
+                isOpen={isAlertModalOpen} 
+                closeModal={closeAlertModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />      
             <div className="adl-body">
                 <ImageModal 
                     isOpen={imageModalOpen} 

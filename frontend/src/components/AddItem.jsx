@@ -103,29 +103,29 @@ const AddItem = () => {
     );
 
     if (!hasCategorySelected) {
-      openModal('Warning', 'Please select at least one category.');
+      openModal('Input Required', 'Please select at least one category.');
       setLoading(false);
       return;
     }
 
     if (quantity < 1) {
-      openModal('Warning', 'Quantity must be at least 1.');
+      openModal('Input Required', 'Quantity must be at least 1.');
       setLoading(false);
       return;
     }
 
     if (!description) {
-      openModal('Warning', 'You have not set a description. Are you sure you want to continue?', submitItem);
+      openModal('Important Notice', 'You have not set a description. Are you sure you want to continue?', submitItem);
         setLoading(false);
         return;
     }
 
     if (!uploadedImage) {
-      openModal('Warning', 'You have not set an item image. Are you sure you want to continue?', submitItem);
+      openModal('Important Notice', 'You have not set an item image. Are you sure you want to continue?', submitItem);
       setLoading(false);
       return;
     }
-    openModal('Confirmation', 'Are you sure you want to add this item?', submitItem);
+    openModal('Please Confirm', 'Are you sure you want to add this item?', submitItem);
   };
 
   const submitItem = async () => {

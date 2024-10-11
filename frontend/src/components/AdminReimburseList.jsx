@@ -6,6 +6,7 @@ import axios from "../utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import ImageModal from "./ImageModal";
 import AdminAcceptReimburseModal from "./AdminAcceptReimburseModal";
+import AlertModal from "./AlertModal";
 
 const AdminReimburseList = () => {
     const { currentUser } = useAuth();
@@ -16,6 +17,22 @@ const AdminReimburseList = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [selectedReimburseId, setSelectedReimburseId] = useState(null);
     const navigate = useNavigate();
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+    const openModal = (title, message, confirmAction = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => confirmAction);
+        setIsAlertModalOpen(true);
+    };
+
+    const closeAlertModal = () => {
+        setIsAlertModalOpen(false);
+        setOnConfirmAction(null);
+    };
 
     const handleImageClick = (imageSrc) => {
         setSelectedImage(imageSrc); // Set the selected image
@@ -29,16 +46,20 @@ const AdminReimburseList = () => {
 
 
     const handleDeclineClick = async (reimburseId) => {
-        if (window.confirm("Are you sure you want to decline this reimburse?")) {
-            try {
-                await axios.put(`/reimburses/update/${reimburseId}/status`, null, { params: { status: 'declined' } });
-                alert('Reimburse status updated successfully');
-                setPendingReimburses((prev) => prev.filter(reimburse => reimburse.id !== reimburseId));
-            } catch (error) {
-                console.error('Error updating reimburse status:', error);
-                alert('Error updating reimburse status');
+        openModal(
+            'Confirm Decline',
+            'Are you sure you want to decline this reimburse?',
+            async () => {
+                try {
+                    await axios.put(`/reimburses/update/${reimburseId}/status`, null, { params: { status: 'declined' } });
+                    openModal('Success', 'Reimburse status updated successfully');
+                    setPendingReimburses((prev) => prev.filter(reimburse => reimburse.id !== reimburseId));
+                } catch (error) {
+                    console.error('Error updating reimburse status:', error);
+                    openModal('Error', 'Error updating reimburse status');
+                }
             }
-        }
+        );
     };
 
     const handleAcceptClick = async (reimburseId) => {
@@ -107,7 +128,14 @@ const AdminReimburseList = () => {
 
     return (
         <>
-            
+          <AlertModal 
+                isOpen={isAlertModalOpen} 
+                closeModal={closeAlertModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />  
             <div className="adl-body">
                 <ImageModal 
                     isOpen={isModalOpen} 
