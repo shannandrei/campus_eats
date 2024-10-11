@@ -42,17 +42,6 @@ const AdminReimburseList = () => {
     };
 
     const handleAcceptClick = async (reimburseId) => {
-        // if (window.confirm("Are you sure you want to accept this reimburse?")) {
-        //     try {
-        //         await axios.put(`/reimburses/update/${reimburseId}/status`, null, { params: { status: 'paid' } });
-        //         alert('Reimburse status updated successfully');
-        //         setPendingReimburses((prev) => prev.filter(reimburse => reimburse.id !== reimburseId));
-        //     } catch (error) {
-        //         console.error('Error updating reimburse status:', error);
-        //         alert('Error updating reimburse status');
-        //     }
-
-        // }
         setSelectedReimburseId(reimburseId);
         setIsConfirmModalOpen(true);
     };

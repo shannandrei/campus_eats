@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from "./AlertModal";
 
 const AddItem = () => {
   const { currentUser } = useAuth();
@@ -37,6 +38,22 @@ const AddItem = () => {
   });
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+  const openModal = (title, message, confirmAction = null) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setOnConfirmAction(() => confirmAction);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setOnConfirmAction(null);
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -86,38 +103,39 @@ const AddItem = () => {
     );
 
     if (!hasCategorySelected) {
-      alert("Please select at least one category.");
+      openModal('Warning', 'Please select at least one category.');
       setLoading(false);
       return;
     }
 
     if (quantity < 1) {
-      alert("Quantity must be at least 1.");
+      openModal('Warning', 'Quantity must be at least 1.');
       setLoading(false);
       return;
     }
 
     if (!description) {
-      if (!window.confirm("You have not set a description. Are you sure you want to continue?")) {
+      openModal('Warning', 'You have not set a description. Are you sure you want to continue?', submitItem);
         setLoading(false);
         return;
-      }
     }
 
     if (!uploadedImage) {
-      if (!window.confirm("You have not set an item image. Are you sure you want to continue?")) {
-        setLoading(false);
-        return;
-      }
+      openModal('Warning', 'You have not set an item image. Are you sure you want to continue?', submitItem);
+      setLoading(false);
+      return;
     }
+    openModal('Confirmation', 'Are you sure you want to add this item?', submitItem);
+  };
 
+  const submitItem = async () => {
     const selectedCategories = Object.keys(categories).filter(category => categories[category]);
     const item = {
       name: itemName,
-      price: price,
+      price,
       quantity,
       description,
-      categories: selectedCategories
+      categories: selectedCategories,
     };
 
     const formData = new FormData();
@@ -133,44 +151,59 @@ const AddItem = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      setSuccess("Item added successfully!");
-      setItemName("");
-      setPrice(0);
-      setQuantity(1);
-      setDescription("");
-      setUploadedImage(null);
-      setImageFile(null);
-      setCategories({
-        food: false,
-        drinks: false,
-        clothing: false,
-        chicken: false,
-        sisig: false,
-        samgyupsal: false,
-        "burger steak": false,
-        pork: false,
-        bbq: false,
-        "street food": false,
-        desserts: false,
-        "milk tea": false,
-        coffee: false,
-        snacks: false,
-        breakfast: false,
-        others: false
-      });
-      navigate("/shop-manage-item");
+      openModal('Success', 'Item added successfully!');
+      console.log("Item added successfully:", response.data);
+      resetForm();
+      setTimeout(() => {
+        closeModal();
+        navigate("/shop-manage-item");
+      }, 3000);
+  
     } catch (error) {
       console.error("Error making an item:", error.response.data.error);
-      alert(error.response.data.error || "An error occurred. Please try again.");
+      openModal('Error', 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const resetForm = () => {
+    setItemName("");
+    setPrice(0);
+    setQuantity(1);
+    setDescription("");
+    setUploadedImage(null);
+    setImageFile(null);
+    setCategories({
+      food: false,
+      drinks: false,
+      clothing: false,
+      chicken: false,
+      sisig: false,
+      samgyupsal: false,
+      "burger steak": false,
+      pork: false,
+      bbq: false,
+      "street food": false,
+      desserts: false,
+      "milk tea": false,
+      coffee: false,
+      snacks: false,
+      breakfast: false,
+      others: false,
+    });
+  };
   return (
     <>
-      
-
+      {loading && <div>Loading...</div>}
+      <AlertModal 
+        isOpen={isModalOpen} 
+        closeModal={closeModal} 
+        title={modalTitle} 
+        message={modalMessage} 
+        onConfirm={onConfirmAction} 
+        showConfirmButton={!!onConfirmAction}
+      />
       <div className="ai-body">
         <div className="ai-content-current">
           <div className="ai-card-current">
