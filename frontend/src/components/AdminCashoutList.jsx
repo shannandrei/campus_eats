@@ -42,17 +42,6 @@ const AdminCashoutList = () => {
     };
 
     const handleAcceptClick = async (cashoutId) => {
-        // if (window.confirm("Are you sure you want to accept this cashout?")) {
-        //     try {
-        //         await axios.put(`/cashouts/update/${cashoutId}/status`, null, { params: { status: 'paid' } });
-        //         alert('Cashout status updated successfully');
-        //         setPendingCashouts((prev) => prev.filter(cashout => cashout.id !== cashoutId));
-        //     } catch (error) {
-        //         console.error('Error updating cashout status:', error);
-        //         alert('Error updating cashout status');
-        //     }
-
-        // }
         setSelectedCashoutId(cashoutId);
         setIsConfirmModalOpen(true);
     };

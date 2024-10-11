@@ -4,8 +4,9 @@ import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import Navbar from "./Navbar/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import axiosConfig from "../utils/axiosConfig"; // Updated import
+import axiosConfig from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from "./AlertModal";
 
 const UpdateItem = () => {
     const { currentUser } = useAuth();
@@ -38,6 +39,22 @@ const UpdateItem = () => {
     });
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [onConfirmAction, setOnConfirmAction] = useState(null);
+
+    const openModal = (title, message, confirmAction = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => confirmAction);
+        setIsModalOpen(true);
+      };
+    
+      const closeModal = () => {
+        setIsModalOpen(false);
+        setOnConfirmAction(null);
+      };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -108,29 +125,35 @@ const UpdateItem = () => {
         e.preventDefault();
         setLoading(true);
         const hasCategorySelected = Object.values(categories).some(selected => selected);
-      
+
         if (!hasCategorySelected) {
-          alert("Please select at least one category.");
-          setLoading(false);
-          return;
+            openModal('Warning', 'Please select at least one category.');
+            setLoading(false);
+            return;
         }
-      
+
         if (quantity < 1) {
-          alert("Quantity must be at least 1.");
-          setLoading(false);
-          return;
+            openModal('Warning', 'Quantity must be at least 1.');
+            setLoading(false);
+            return;
         }
-      
-        if (!description && !window.confirm("You have not set a description. Are you sure you want to continue?")) {
-          setLoading(false);
-          return;
+
+        if (!description) {
+            openModal('Warning', 'You have not set a description. Are you sure you want to continue?', submitUpdate);
+            setLoading(false);
+            return;
         }
-      
-        if (!uploadedImage && !window.confirm("You have not set an item image. Are you sure you want to continue?")) {
-          setLoading(false);
-          return;
+
+        if (!uploadedImage) {
+            openModal('Warning', 'You have not set an item image. Are you sure you want to continue?', submitUpdate);
+            setLoading(false);
+            return;
         }
-      
+
+        openModal('Confirmation', 'Are you sure you want to update this item?', submitUpdate);
+    };
+
+    const submitUpdate = async () => {
         const selectedCategories = Object.keys(categories).filter(category => categories[category]);
         const formData = new FormData();
         const item = JSON.stringify({
@@ -142,32 +165,38 @@ const UpdateItem = () => {
         });
         formData.append("item", item);
         if (imageFile) {
-          formData.append("image", imageFile);
+            formData.append("image", imageFile);
         }
-      
+
         try {
-          const response = await axiosConfig.put(`/items/shop-update-item/${itemId}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          alert(response.data.message);
-          setSuccess("Item updated successfully!");
-          setLoading(false);
-          navigate("/shop-manage-item");
+            const response = await axiosConfig.put(`/items/shop-update-item/${itemId}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            openModal('Success', response.data.message);
+            setLoading(false);
+            navigate("/shop-manage-item");
         } catch (error) {
-          console.error("Error updating item:", error.response.data.error);
-          alert(error.response.data.error || "An error occurred. Please try again.");
-          setLoading(false);
+            console.error("Error updating item:", error.response.data.error);
+            openModal('Error', error.response.data.error || "An error occurred. Please try again.");
+            setLoading(false);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-      
+    };
+
     return (
         <>
-            
-
+            {loading && <div>Loading...</div>}
+            <AlertModal 
+                isOpen={isModalOpen} 
+                closeModal={closeModal} 
+                title={modalTitle} 
+                message={modalMessage} 
+                onConfirm={onConfirmAction} 
+                showConfirmButton={!!onConfirmAction}
+            />
             <div className="ui-body">
                 <div className="ui-content-current">
                     <div className="ui-card-current">
