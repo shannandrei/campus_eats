@@ -116,29 +116,30 @@ public class OrderService {
                 break;
             case "cancelled_by_customer":
                 notificationMessage = "Order has been cancelled.";
-                if (order.getDasherId() != null) {
-                    Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
-                    if (userOptional.isPresent()) {
-                        UserEntity user = userOptional.get();
-                        int currentOffenses = user.getOffenses();
-                        currentOffenses++;
-                        user.setOffenses(currentOffenses);
+                // if (order.getDasherId() != null) {
+                // Optional<UserEntity> userOptional = userRepository.findById(order.getUid());
+                // if (userOptional.isPresent()) {
+                // UserEntity user = userOptional.get();
+                // int currentOffenses = user.getOffenses();
+                // currentOffenses++;
+                // user.setOffenses(currentOffenses);
 
-                        if (currentOffenses == 1) {
-                            notificationMessage += " Warning: You have canceled 1 order.";
-                        } else if (currentOffenses == 2) {
-                            notificationMessage += " Warning: You have canceled 2 orders. One more cancellation will result in a ban.";
-                        } else if (currentOffenses >= 3) {
-                            notificationMessage += " You have been banned due to excessive cancellations.";
-                            user.setBanned(true); // Ban the user after 3 cancellations
-                        }
-                        userRepository.save(user);
-                    }
-                }
+                // if (currentOffenses == 1) {
+                // notificationMessage += " Warning: You have canceled 1 order.";
+                // } else if (currentOffenses == 2) {
+                // notificationMessage += " Warning: You have canceled 2 orders. One more
+                // cancellation will result in a ban.";
+                // } else if (currentOffenses >= 3) {
+                // notificationMessage += " You have been banned due to excessive
+                // cancellations.";
+                // user.setBanned(true); // Ban the user after 3 cancellations
+                // }
+                // userRepository.save(user);
+                // }
+                // }
                 break;
             case "active_waiting_for_cancel_confirmation.":
                 notificationMessage = "Order is waiting for cancellation confirmation.";
-
                 break;
             case "completed":
                 notificationMessage = "Order has been completed.";

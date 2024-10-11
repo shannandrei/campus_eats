@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.capstone.campuseats.Controller.NotificationController;
 import com.capstone.campuseats.Entity.ConfirmationEntity;
 import com.capstone.campuseats.Entity.UserEntity;
 import com.capstone.campuseats.Repository.ConfirmationRepository;
@@ -27,6 +28,10 @@ public class UserService {
     private ConfirmationRepository confirmationRepository;
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private NotificationController notificationController;
+
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -61,6 +66,29 @@ public class UserService {
         Optional<UserEntity> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             return optionalUser.get().getOffenses();
+        } else {
+            throw new CustomException("User not found.");
+        }
+    }
+
+    public void addOffense(String id) throws CustomException {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            user.setOffenses(user.getOffenses() + 1);
+            String notificationMessage = "";
+            int currentOffenses = user.getOffenses();
+            if (currentOffenses == 1) {
+                notificationMessage += " Warning: You have canceled 1 order.";
+            } else if (currentOffenses == 2) {
+                notificationMessage += " Warning: You have canceled 2 orders. One more cancellation will result in a ban.";
+            } else if (currentOffenses >= 3) {
+                notificationMessage += " You have been banned due to excessive cancellations.";
+                user.setBanned(true); // Ban the user after 3 cancellations
+            }
+
+            notificationController.sendNotification(notificationMessage);
+            userRepository.save(user);
         } else {
             throw new CustomException("User not found.");
         }

@@ -62,6 +62,17 @@ public class UserController {
         }
     }
 
+    @PostMapping("/{id}/offenses")
+    public int addOffenses(@PathVariable String id) {
+        try {
+            userService.addOffense(id);
+            return userService.getOffenses(id);
+        } catch (CustomException e) {
+            // Handle the exception, e.g., return a proper HTTP status code and message
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @PostMapping("/sendVerificationCode")
     public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
         try {
