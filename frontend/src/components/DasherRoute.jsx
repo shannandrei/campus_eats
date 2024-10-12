@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig';
-import Home from "./Home";
 import LoginSignUp from "./LoginSignUp";
 const DasherRoute = ({ Component }) => {
   const { currentUser } = useAuth();
@@ -56,7 +55,7 @@ const DasherRoute = ({ Component }) => {
 
 
 
-  return <Home />;
+  return null;
 };
 
 export default DasherRoute;

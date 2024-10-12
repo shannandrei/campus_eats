@@ -23,7 +23,6 @@ const ShopManage = () => {
             console.log("shop BUANG KA!", response.data);
         } catch (error) {
             console.error('Error fetching shop:', error);
-        }finally {
         }
     };
 
@@ -36,7 +35,6 @@ const ShopManage = () => {
             setItems(response.data);
         } catch (error) {
             console.error('Error fetching shop items:', error);
-        }finally{
         }
     };
 
@@ -66,7 +64,7 @@ const ShopManage = () => {
         <>
             
             <div className="o-body">
-                 {isLoading  ? <div className="flex justify-center items-center h-[90vh] w-[170vh]">
+                 {isLoading  || shop === null || items.length === 0 ? <div className="flex justify-center items-center h-[90vh] w-[170vh]">
                         <div
                             className="inline-block h-36 w-36 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
                             role="status">

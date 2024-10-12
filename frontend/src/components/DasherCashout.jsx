@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
+import AlertModal from './AlertModal';
 import DasherCashoutModal from "./DasherCashoutModal";
 import "./css/ShopApplication.css";
-import AlertModal from './AlertModal';
 
 const DasherCashout = () => {
 const { currentUser } = useAuth();
@@ -22,6 +22,7 @@ const [wallet, setWallet] = useState(0);
 const [isEditMode, setIsEditMode] = useState(false);
 const [editData, setEditData] = useState(null);
 const [dasherData, setDasherData] = useState({});
+const [loading, setLoading] = useState(false);
   
 const [alertModal, setAlertModal] = useState({
   isOpen: false,
@@ -46,10 +47,16 @@ const [alertModal, setAlertModal] = useState({
 
  const fetchCashoutData = async () => {
     try {
+      setLoading(true);
         const response = await axios.get(`/cashouts/${currentUser.id}`);
-            setCashout(response.data); 
+        const cashout = response.data;
+           if(cashout && cashout.status !== 'paid' && cashout.status !== 'declined'){
+            setCashout(cashout);
+           }
     } catch (error) {
         console.error("Error fetching cashout data:", error);
+    }finally{
+      setLoading(false);
     }
 };
 
@@ -157,7 +164,7 @@ const HandleEditClick = async (id) => {
             />
             <div className="adl-body">
                 <div className="adl-title">
-                    <h2>You have a pending cashout request</h2>
+                   {cashout === null ? <h2>You have no pending cashout request </h2> : <h2>You have a pending cashout request</h2>}
                 </div>
                 <div className="adl-row-container">
                     <div className="adl-word">Timestamp</div>

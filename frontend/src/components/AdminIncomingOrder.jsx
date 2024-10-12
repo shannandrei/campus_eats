@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import DeclineOrderModal from './AdminDeclineOrderModal';
-import "./css/AdminOrders.css";
 import AlertModal from './AlertModal';
+import "./css/AdminOrders.css";
 
 const AdminIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -18,6 +18,7 @@ const AdminIncomingOrder = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [onConfirmAction, setOnConfirmAction] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const openModal = (title, message, confirmAction = null) => {
     setModalTitle(title);
@@ -43,6 +44,8 @@ const AdminIncomingOrder = () => {
         setOrders(ordersWithShopData);
       } catch (error) {
         console.error('Error fetching orders:', error);
+      }finally{
+        setLoading(false);
       }
     };
 
@@ -57,6 +60,8 @@ const AdminIncomingOrder = () => {
         setActiveDashers(dasherUser);
       } catch (error) {
         console.error('Error fetching active dashers:', error);
+      }finally{
+        setLoading(false);
       }
     };
     
@@ -145,7 +150,15 @@ const AdminIncomingOrder = () => {
         <div className="ao-title font-semibold">
           <h2>Incoming Orders</h2>
         </div>
-        {orders.length === 0 && <div className="ao-no-orders">No incoming orders...</div>}
+        {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>):orders.length === 0 && <div className="ao-no-orders">No incoming orders...</div>}
         {orders.map((order) => (
           <div key={order.id} className="ao-content-current">
             <div className="ao-card-current ao-card-large">
@@ -206,7 +219,15 @@ const AdminIncomingOrder = () => {
             <h3 className="ao-modal-title font-semibold">Active Dashers</h3>
             
             <div className="ao-modal-body">
-            {activeDashers.length === 0 && <div>No active dashers...</div>}
+            {loading ? (<div className="flex justify-center items-center h-[20vh] w-[47vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): activeDashers.length === 0 && <div>No active dashers...</div>}
                 <div className="ao-items">
                 {activeDashers.map((dasher, index) => (
                     <div key={index} className="ao-item">

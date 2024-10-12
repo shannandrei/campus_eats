@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import axiosConfig
+import AlertModal from './AlertModal';
 import "./css/DasherHome.css";
 import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
 import DasherCancelByShopModal from "./DasherCancelByShopModal";
 import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCompletedModal from "./DasherCompletedModal";
-import AlertModal from './AlertModal';
 
 const DasherHome = () => {
     const { currentUser } = useAuth();
@@ -273,7 +273,7 @@ const DasherHome = () => {
                 <div className="j-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
-                {activeOrder ? (
+              {activeOrder ? (
                 <div className="j-content-current">
                     <div className="j-card-current j-card-large">
                         <div className="j-text">
@@ -386,7 +386,15 @@ const DasherHome = () => {
                 <div className="j-title font-semibold">
                     <h2>Past Orders</h2>
                 </div>
-                {orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
+                 {loading ? (<div className="flex justify-center items-center h-[40vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): orders.length === 0 && <div className="j-no-orders">No past orders...</div>}
                 <div className="j-content-past">
                     {orders.map((order, index) => (
                     <div className="j-card-past" key={index}>

@@ -419,15 +419,7 @@ useEffect(() => {
                 <div className="o-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
-                {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
-                        <div
-                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status">
-                            <span
-                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                            >Loading...</span>
-                        </div>
-                    </div>) : activeOrder ? (
+                 {activeOrder ? (
                 <div className="o-content-current">
                     <div className="o-card-current o-card-large">
                         <div className="o-text">
@@ -544,7 +536,7 @@ useEffect(() => {
                     </div>
                 </div>
                 ) : (
-                    <p>No active orders found.</p>
+                    <p>No active order found.</p>
                 )}
                 <div className="o-title flex w-[73%] justify-between">
                     <h2 className="font-semibold">Past Orders</h2> 
@@ -593,7 +585,7 @@ useEffect(() => {
                                                 ? 'Order was cancelled by dasher'
                                                 : order.status === 'refunded'
                                                 ? 'Order was refunded'
-                                                : order.status === 'no_Show'
+                                                : order.status === 'no-show'
                                                 ? 'Customer did not show up for delivery'
                                                 : `Delivered on ${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
                                         </p>

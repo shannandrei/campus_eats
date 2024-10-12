@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axiosConfig from "../utils/axiosConfig";
-import "./css/DasherOrders.css";
 import AlertModal from './AlertModal';
+import "./css/DasherOrders.css";
 
 const DasherIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -13,6 +13,7 @@ const DasherIncomingOrder = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isActive, setIsActive] = useState(false);
   const [dasherData, setDasherData] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const [alertModal, setAlertModal] = useState({
@@ -25,6 +26,7 @@ const DasherIncomingOrder = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true);
       try {
         const response = await axiosConfig.get('/orders/incoming-orders/dasher');
         const ordersWithShopData = await Promise.all(response.data.map(async order => {
@@ -35,11 +37,15 @@ const DasherIncomingOrder = () => {
         setOrders(ordersWithShopData);
       } catch (error) {
         console.error('Error fetching orders:', error);
+      }finally {
+        setLoading(false);
       }
     };
 
     const fetchDasherData = async () => {
+
       if (currentUser) {
+        setLoading(true);
         try {
           const response = await axiosConfig.get(`/dashers/${currentUser.id}`);
           const data = response.data;
@@ -47,6 +53,8 @@ const DasherIncomingOrder = () => {
           setIsActive(data.status === 'active' && data.wallet > -100);
         } catch (error) {
           console.error("Error fetching dasher data:", error);
+        }finally{
+          setLoading(false);
         }
       }
     };
@@ -171,7 +179,15 @@ const DasherIncomingOrder = () => {
             <h2>Incoming Orders</h2>
           </div>
           {!isActive && <div className="do-no-orders">Turn on your active status to receive incoming orders...</div>}
-          {isActive && orders.length === 0 && <div className="do-no-orders">No incoming orders...</div>}
+           {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>):isActive && orders.length === 0 && <div className="do-no-orders">No incoming orders...</div>}
           {orders.map((order) => (
             <div key={order.id} className="do-content-current">
               <div className="do-card-current do-card-large">

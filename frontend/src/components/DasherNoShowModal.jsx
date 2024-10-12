@@ -8,7 +8,7 @@ const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
         try {
             const updateResponse = await axios.post('/orders/update-order-status', {
                 orderId: orderData.id,
-                status: "no_Show"
+                status: "no-show"
             });
 
             if (updateResponse.status === 200) {

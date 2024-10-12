@@ -17,6 +17,7 @@ const DasherCashoutModal = ({
   const [GCASHNumber, setGCASHNumber] = useState(dasherData.gcashNumber || "");
   const [cashoutAmount, setCashoutAmount] = useState(editData ? editData.amount : 0);
   const [uploadedImage, setUploadedImage] = useState(editData ? editData.gcashQr : null);
+  const [status, setStatus] = useState('pending'); 
   const [imageFile, setImageFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [wallet, setWallet] = useState(dasherData.wallet || 0);
@@ -35,6 +36,7 @@ const DasherCashoutModal = ({
       setGCASHNumber(editData.gcashNumber);
       setCashoutAmount(editData.amount);
       setUploadedImage(editData.gcashQr);
+      setStatus(editData.status || 'pending'); 
     } else {
                 console.log("TRUE BA ITO??",isEditMode)
       setGCASHName(dasherData.gcashName || "");
@@ -116,6 +118,7 @@ const DasherCashoutModal = ({
       gcashName: GCASHName,
       gcashNumber: GCASHNumber,
       amount: cashoutAmount,
+      status: status || 'pending',
     };
 
     const formData = new FormData();
