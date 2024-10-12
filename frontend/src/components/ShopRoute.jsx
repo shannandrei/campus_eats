@@ -3,6 +3,7 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import Home from "./Home";
 import LoginSignUp from "./LoginSignUp";
+import { Navigate } from "react-router-dom";
 
 const ShopRoute = ({ Component }) => {
   const { currentUser } = useAuth();
