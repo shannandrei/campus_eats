@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import "./css/AdminDasherLists.css";
-import axios from "../utils/axiosConfig";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ImageModal from "./ImageModal";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
 import AdminAcceptReimburseModal from "./AdminAcceptReimburseModal";
 import AlertModal from "./AlertModal";
+import ImageModal from "./ImageModal";
+import "./css/AdminDasherLists.css";
 
 const AdminReimburseList = () => {
     const { currentUser } = useAuth();
@@ -21,6 +20,7 @@ const AdminReimburseList = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
     const [onConfirmAction, setOnConfirmAction] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const openModal = (title, message, confirmAction = null) => {
         setModalTitle(title);
@@ -69,6 +69,7 @@ const AdminReimburseList = () => {
 
     useEffect(() => {
         const fetchReimburses = async () => {
+            
             try {
                 const response = await axios.get('/reimburses/pending-lists');
                 const pendingReimbursesHold = response.data.pendingReimburses;
@@ -98,6 +99,8 @@ const AdminReimburseList = () => {
                 console.log("currentReimburses: ", currentReimburses);
             } catch (error) {
                 console.error('Error fetching reimburses:', error.response.data.error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -145,7 +148,15 @@ const AdminReimburseList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Pending Reimburses</h2>
                 </div>
-                {pendingReimburses && pendingReimburses.length > 0 ? (
+                 {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): pendingReimburses && pendingReimburses.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Timestamp</div>
@@ -207,7 +218,15 @@ const AdminReimburseList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Reimburses</h2>
                 </div>
-                {currentReimburses && currentReimburses.length > 0 ? (
+                 {loading ? (<div className="flex justify-center items-center h-[40vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>):currentReimburses && currentReimburses.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Order ID</div>

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
-import "./css/AdminDasherLists.css";
 import AlertModal from "./AlertModal";
+import "./css/AdminDasherLists.css";
 
 const AdminDasherList = () => {
     const { currentUser } = useAuth();
@@ -14,6 +14,7 @@ const AdminDasherList = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
     const [onConfirmAction, setOnConfirmAction] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const openModal = (title, message, confirmAction = null) => {
         setModalTitle(title);
@@ -74,6 +75,7 @@ const AdminDasherList = () => {
 
     useEffect(() => {
         const fetchDashers = async () => {
+            setLoading(true);
             try {
                 const response = await axios.get('/dashers/pending-lists');
                 const pendingDashersHold = response.data.pendingDashers;
@@ -101,6 +103,8 @@ const AdminDasherList = () => {
                 setCurrentDashers(currentDashersData);
             } catch (error) {
                 console.error('Error fetching dashers:', error.response.data.error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -126,7 +130,15 @@ const AdminDasherList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Pending Dashers</h2>
                 </div>
-                {pendingDashers && pendingDashers.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): pendingDashers && pendingDashers.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Dasher Name</div>
@@ -165,7 +177,15 @@ const AdminDasherList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Dashers</h2>
                 </div>
-                {currentDashers && currentDashers.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[40vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : currentDashers && currentDashers.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Dasher Name</div>

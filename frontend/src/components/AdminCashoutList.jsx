@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import "./css/AdminDasherLists.css";
-import axios from "../utils/axiosConfig";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ImageModal from "./ImageModal";
+import { useAuth } from "../utils/AuthContext";
+import axios from "../utils/axiosConfig";
 import AdminAcceptCashoutModal from "./AdminAcceptCashoutModal";
 import AlertModal from "./AlertModal";
+import ImageModal from "./ImageModal";
+import "./css/AdminDasherLists.css";
 
 const AdminCashoutList = () => {
     const { currentUser } = useAuth();
@@ -21,6 +20,7 @@ const AdminCashoutList = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
     const [onConfirmAction, setOnConfirmAction] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const openModal = (title, message, confirmAction = null) => {
         setModalTitle(title);
@@ -72,6 +72,7 @@ const AdminCashoutList = () => {
 
     useEffect(() => {
         const fetchCashouts = async () => {
+            setLoading(true);
             try {
                 const response = await axios.get('/cashouts/pending-lists');
                 const pendingCashoutsHold = response.data.pendingCashouts;
@@ -101,6 +102,8 @@ const AdminCashoutList = () => {
                 console.log("currentCashouts: ", currentCashouts);
             } catch (error) {
                 console.error('Error fetching cashouts:', error.response.data.error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -148,7 +151,15 @@ const AdminCashoutList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Pending Cashouts</h2>
                 </div>
-                {pendingCashouts && pendingCashouts.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): pendingCashouts && pendingCashouts.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Timestamp</div>
@@ -161,7 +172,7 @@ const AdminCashoutList = () => {
                         </div>
 
                         <div className="adl-container">
-                            {pendingCashouts.map(cashout => (
+                            { pendingCashouts.map(cashout => (
                                 <div key={cashout.id} className="adl-box">
                                     {console.log("cashout pending: ", cashout.userData.firstname)}
                                     <div className="adl-box-content">
@@ -195,7 +206,15 @@ const AdminCashoutList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Cashouts</h2>
                 </div>
-                {currentCashouts && currentCashouts.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[40vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) :currentCashouts && currentCashouts.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Date Requested</div>

@@ -12,6 +12,9 @@ const DasherCancelByDasherModal = ({ isOpen, closeModal, shopData, orderData }) 
             });
     
             if (removeDasherResponse.status === 200) {
+                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
+                    params: { status: 'active' }
+                });
                 alert('Dasher has been removed from the order');
                 window.location.reload();
             }

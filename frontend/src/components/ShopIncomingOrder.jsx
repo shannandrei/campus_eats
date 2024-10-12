@@ -14,6 +14,7 @@ const ShopIncomingOrder = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   
@@ -31,10 +32,13 @@ const ShopIncomingOrder = () => {
         console.log('Approving Orders:', ordersWithShopData);
       } catch (error) {
         console.error('Error fetching approving orders:', error);
+      }finally{
+        setIsLoading(false);
       }
     };
 
     const fetchPastOrders = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get('/orders/past-orders'); // New endpoint for past orders
         const pastOrdersWithShopData = await Promise.all(response.data.map(async order => {
@@ -46,8 +50,11 @@ const ShopIncomingOrder = () => {
         const filteredPastOrders = pastOrdersWithShopData.filter(order => order.shopId === currentUser.id);
 
         setPastOrders(filteredPastOrders);
+        console.log("BUANG",filteredPastOrders);
       } catch (error) {
         console.error('Error fetching past orders:', error);
+      }finally{
+        setIsLoading(false);
       }
     };
 
@@ -66,13 +73,17 @@ const ShopIncomingOrder = () => {
         console.log('Ongoing Orders:', ongoingOrdersWithShopData);
       } catch (error) {
         console.error('Error fetching ongoing orders:', error);
+      }finally{
+         setIsLoading(false);
       }
+     
     };
 
   useEffect(() => {
     fetchOrders();
     fetchPastOrders();
     fetchOngoingOrders();
+    console.log('ATAYYY', pastOrders);
   }, []);
 
   const toggleAccordion = (orderId) => {
@@ -197,7 +208,15 @@ const ShopIncomingOrder = () => {
         <div className="ao-title font-semibold">
           <h2>Approving Orders</h2>
         </div>
-        {orders.length === 0 && <div className="ao-no-orders">No approving orders...</div>}
+        {isLoading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : orders.length === 0 && <div className="ao-no-orders">No approving orders...</div>}
         {orders.map((order) => (
           <div key={order.id} className="ao-content-current">
             <div className="ao-card-current ao-card-large">
@@ -257,7 +276,15 @@ const ShopIncomingOrder = () => {
           <h3 className="ao-modal-title font-semibold">Ongoing Orders</h3>
           
           <div className="ao-modal-body ">
-          {ongoingOrders.length === 0 && <div>No ongoing orders...</div>}
+          {isLoading ? (<div className="flex justify-center items-center h-[60vh] w-[47vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : ongoingOrders.length === 0 && <div>No ongoing orders...</div>}
             <div className="ao-items">
               {ongoingOrders.map((order) => (
                 <div key={order.id} className="ao-item">
@@ -312,7 +339,15 @@ const ShopIncomingOrder = () => {
         <div className="ao-title font-semibold">
           <h2>Past Orders</h2>
         </div>
-        {pastOrders.length === 0 && <div className="ao-no-orders">No past orders...</div>}
+        {isLoading || pastOrders.length === 0 ? (<div className="flex justify-center items-center h-[60vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): pastOrders.length === 0 && <div className="ao-no-orders">No past orders...</div>}
         {pastOrders.map((order) => (
           <div key={order.id} className="ao-content-past">
             <div className="ao-card-past ao-card-large">
@@ -329,6 +364,8 @@ const ShopIncomingOrder = () => {
             </div>
           </div>
         ))}
+
+      
         <DeclineOrderModal 
           isOpen={isDeclineModalOpen}
           closeModal={closeModal}

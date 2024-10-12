@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import "./css/Shop.css";
-import { useAuth } from "../utils/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar/Navbar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
+import "./css/Shop.css";
 
 const ShopManage = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [shop, setShop] = useState(null);
     const [items, setItems] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchShop = async () => {
         try {
@@ -20,9 +20,10 @@ const ShopManage = () => {
                 throw new Error('Failed to fetch shop');
             }
             setShop(response.data);
-            console.log("shop", response.data);
+            console.log("shop BUANG KA!", response.data);
         } catch (error) {
             console.error('Error fetching shop:', error);
+        }finally {
         }
     };
 
@@ -35,17 +36,19 @@ const ShopManage = () => {
             setItems(response.data);
         } catch (error) {
             console.error('Error fetching shop items:', error);
+        }finally{
         }
     };
 
-    useEffect(() => {
-        // if (!currentUser) {
-        //     navigate('/login');
-        // } else {
-            fetchShop();
-            fetchShopItems();
-        // }
-    }, [currentUser, navigate]);
+   useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true); // Set loading to true before fetching
+        await Promise.all([fetchShop(), fetchShopItems()]);
+        setIsLoading(false); // Set loading to false after all fetches are complete
+    };
+
+    fetchData();
+}, []);
 
     if (!shop) {
         return <div>Loading...</div>;
@@ -58,15 +61,20 @@ const ShopManage = () => {
         ));
     };
 
-    if(!currentUser) {
-        navigate('/login');
-    }
 
     return (
         <>
             
             <div className="o-body">
-                <div className="s-container">
+                 {isLoading  ? <div className="flex justify-center items-center h-[90vh] w-[170vh]">
+                        <div
+                            className="inline-block h-36 w-36 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>: <div className="s-container">
                     <div className="s-title-container">
                         <div className="s-photo">
                             <img src={shop.imageUrl} alt="store" className="s-photo-image" />
@@ -109,7 +117,7 @@ const ShopManage = () => {
                             ))}
                         </div>
                     </div>
-                </div>
+                </div>}
             </div>
         </>
     );

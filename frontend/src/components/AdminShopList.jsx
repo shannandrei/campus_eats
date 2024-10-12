@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import Navbar from "./Navbar/Navbar";
-import "./css/AdminDasherLists.css";
-import AdminAcceptDasherModal from "./AdminAcceptDasherModal";
 import axios from "../utils/axiosConfig"; // Use axios from axiosConfig.js
-import ImageModal from "./ImageModal";
+import AdminAcceptDasherModal from "./AdminAcceptDasherModal";
 import AlertModal from "./AlertModal";
+import ImageModal from "./ImageModal";
+import "./css/AdminDasherLists.css";
 
 const AdminShopList = () => {
     const { currentUser } = useAuth();
@@ -20,6 +19,7 @@ const AdminShopList = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
     const [onConfirmAction, setOnConfirmAction] = useState(null);
+    const [loading,setLoading] = useState(true);
 
     const openModal = (title, message, confirmAction = null) => {
         setModalTitle(title);
@@ -67,6 +67,7 @@ const AdminShopList = () => {
 
     useEffect(() => {
         const fetchShops = async () => {
+            setLoading(true);
             try {
                 const response = await axios.get('/shops/pending-lists');
                 const { pendingShops, nonPendingShops } = response.data;
@@ -74,6 +75,8 @@ const AdminShopList = () => {
                 setCurrentShops(nonPendingShops);
             } catch (error) {
                 console.error('Error fetching shops:', error);
+            }finally {
+                setLoading(false);
             }
         };
 
@@ -99,7 +102,15 @@ const AdminShopList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Pending Shops</h2>
                 </div>
-                {pendingShops.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[20vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>): pendingShops.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Name</div>
@@ -141,7 +152,15 @@ const AdminShopList = () => {
                 <div className="adl-title font-semibold">
                     <h2>Shops</h2>
                 </div>
-                {currentShops.length > 0 ? (
+                {loading ? (<div className="flex justify-center items-center h-[40vh] w-[80vh]">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : currentShops.length > 0 ? (
                     <>
                         <div className="adl-row-container">
                             <div className="adl-word">Name</div>
