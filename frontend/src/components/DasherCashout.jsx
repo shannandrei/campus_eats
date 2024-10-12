@@ -5,24 +5,31 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import DasherCashoutModal from "./DasherCashoutModal";
 import "./css/ShopApplication.css";
+import AlertModal from './AlertModal';
 
 const DasherCashout = () => {
-  const { currentUser } = useAuth();
-  const [cashout, setCashout] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-     const [GCASHName, setGCASHName] = useState("");
+const { currentUser } = useAuth();
+const [cashout, setCashout] = useState(null);
+const [selectedImage, setSelectedImage] = useState(null);
+const [imageModalOpen, setImageModalOpen] = useState(false);
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [GCASHName, setGCASHName] = useState("");
 const [GCASHNumber, setGCASHNumber] = useState("");
 const [cashoutAmount, setCashoutAmount] = useState(0);
 const [uploadedImage, setUploadedImage] = useState(null);
 const [imageFile, setImageFile] = useState(null);
 const [wallet, setWallet] = useState(0);
 const [isEditMode, setIsEditMode] = useState(false);
-  const [editData, setEditData] = useState(null);
-  const [dasherData, setDasherData] = useState({});
+const [editData, setEditData] = useState(null);
+const [dasherData, setDasherData] = useState({});
   
-
+const [alertModal, setAlertModal] = useState({
+  isOpen: false,
+  title: '',
+  message: '',
+  onConfirm: null,
+  showConfirmButton: true,
+});
 
 
   const navigate = useNavigate();
@@ -73,11 +80,24 @@ const fetchDasherData = async () => {
 
       setCashout(null);
 
-      alert("Cashout request deleted successfully.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Success',
+        message: 'Cashout request deleted successfully.',
+        showConfirmButton: false,
+      });
+      setTimeout(() => {
+          setAlertModal({ ...alertModal, isOpen: false });
+      }, 3000);
       
     } catch (error) {
       console.error("Error deleting cashout request:", error);
-      alert(error.message);
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: 'There was an error. Please try again. Error: ' + error.message,
+        showConfirmButton: false,
+      });
     }
   };
 
@@ -127,6 +147,14 @@ const HandleEditClick = async (id) => {
 
   return (
     <>
+    <AlertModal
+                isOpen={alertModal.isOpen}
+                closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+                onConfirm={alertModal.onConfirm}
+                showConfirmButton={alertModal.showConfirmButton}
+            />
             <div className="adl-body">
                 <div className="adl-title">
                     <h2>You have a pending cashout request</h2>

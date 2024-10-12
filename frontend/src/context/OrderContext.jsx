@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import api from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
-
+import AlertModal from "../components/AlertModal";
 const OrderContext = createContext();
 
 const fetchCartData = async (currentUser) => {
@@ -28,6 +28,13 @@ export function OrderProvider({ children }) {
   const { currentUser } = useAuth();
   const [cartData, setCartData] = useState([]);
   const [cartQuantity, setCartQuantity] = useState(0);
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    showConfirmButton: false,
+  });
 
   const fetchData = async () => {
     const data = await fetchCartData(currentUser);
@@ -87,7 +94,12 @@ export function OrderProvider({ children }) {
 
       } catch (error) {
         console.error("Error adding item to cart:", error);
-        alert(error.message);
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: error.message,
+          showConfirmButton: false,
+        });
       }
     }
   };
@@ -103,6 +115,13 @@ export function OrderProvider({ children }) {
       }}
     >
       {children}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+        title={alertModal.title}
+        message={alertModal.message}
+        showConfirmButton={alertModal.showConfirmButton}
+      />
     </OrderContext.Provider>
   );
 }

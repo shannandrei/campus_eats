@@ -6,16 +6,25 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from './AlertModal';
 
 const DasherTopup = () => {
   const { currentUser } = useAuth();
   const [dasherData, setDasherData] = useState(0);
   const [topupAmount, setTopupAmount] = useState(0);
-    const [paymentLinkId, setPaymentLinkId] = useState("");
-    const [waitingForPayment, setWaitingForPayment] = useState(false);
-    const [loading, setLoading] = useState(false);
-    let pollInterval;
+  const [paymentLinkId, setPaymentLinkId] = useState("");
+  const [waitingForPayment, setWaitingForPayment] = useState(false);
+  const [loading, setLoading] = useState(false);
+  let pollInterval;
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: false,
+  });
 
   useEffect(() => {
     const fetchDasherData = async () => {
@@ -41,7 +50,12 @@ const DasherTopup = () => {
   
     console.log("Topup amount:", topupAmount);
     if(topupAmount < 100 ) {
-      alert("Minimum topup amount is ₱100.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Amount too low',
+        message: 'Minimum topup amount is ₱100.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
@@ -64,8 +78,16 @@ const DasherTopup = () => {
                 setWaitingForPayment(false);
                 clearInterval(pollInterval);
                 await axios.put(`/dashers/update/${dasherData.id}/wallet`, null, { params: { amountPaid: -(topupAmount) } });
-                alert("Payment successful!");
-                navigate("/profile");
+                setAlertModal({
+                  isOpen: true,
+                  title: 'Success',
+                  message: 'Payment successful!',
+                  showConfirmButton: false,
+                });
+                setTimeout(() => {
+                  navigate("/profile");
+                  setAlertModal(prev => ({ ...prev, isOpen: false }));
+                }, 3000);
             }
         } catch (error) {
             console.error("Error checking payment status:", error);
@@ -101,8 +123,14 @@ const DasherTopup = () => {
 
   return (
     <>
-      
-
+     <AlertModal
+            isOpen={alertModal.isOpen}
+            closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+            title={alertModal.title}
+            message={alertModal.message}
+            onConfirm={alertModal.onConfirm}
+            showConfirmButton={alertModal.showConfirmButton}
+            /> 
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">

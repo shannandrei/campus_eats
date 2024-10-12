@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from '@mui/material/Modal';
 import React, { useEffect, useState } from 'react';
 import axios from "../utils/axiosConfig";
-
+import AlertModal from './AlertModal';
 
 const DasherCashoutModal = ({
   isOpen,
@@ -20,6 +20,14 @@ const DasherCashoutModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [wallet, setWallet] = useState(dasherData.wallet || 0);
+  
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: false,
+  });
 
  useEffect(() => {    
     if (editData) {
@@ -76,16 +84,31 @@ const DasherCashoutModal = ({
     e.preventDefault();
 
     if (!uploadedImage) {
-      alert("Please upload a GCASH QR image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Image Required',
+        message: 'Please upload a GCASH QR image.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
-      alert("Please provide a valid GCASH Number.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid GCASH Number',
+        message: 'Please provide a valid GCASH Number.',
+        showConfirmButton: false,
+      });
       return;
     }
     if (cashoutAmount < 100) {
-      alert("Minimum cashout amount is ₱100.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Cashout Amount',
+        message: 'Minimum cashout amount is ₱100.',
+        showConfirmButton: false,
+      });
       return;
     }
 
@@ -118,29 +141,54 @@ if (imageFile) {
       console.log("response: ", response);
 
       if (response.status === 200 || response.status === 201) {
-        alert(isEditMode ? "Cashout request updated successfully." : "Cashout request submitted successfully.");
-        onClose();
-        //refresh screen
-        window.location.reload();
-        // Optionally, you can refresh the data here
+        setAlertModal({
+          isOpen: true,
+          title: 'Success',
+          message: isEditMode ? "Cashout request updated successfully." : "Cashout request submitted successfully.",
+          showConfirmButton: false,
+        });
+        setTimeout(() => {
+          onClose();
+          window.location.reload();
+        }, 3000);
       } else {
-        alert("Failed to submit cashout request.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: "Failed to submit cashout request.",
+          showConfirmButton: false,
+        });
       }
     } catch (error) {
       console.error("Error submitting cashout request:", error);
-      alert("An error occurred while submitting the cashout request.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: "An error occurred while submitting the cashout request.",
+        showConfirmButton: false,
+      });
     }
   };
 
   if (!isOpen) return null;
 
   return (
+    <>
+    <AlertModal
+    isOpen={alertModal.isOpen}
+    closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+    title={alertModal.title}
+    message={alertModal.message}
+    onConfirm={alertModal.onConfirm}
+    showConfirmButton={alertModal.showConfirmButton}
+    />
     <Modal
       open={isOpen}
       onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
       keepMounted
+      style={{ zIndex: 40 }} 
     >
       <div className="adl-body">
         <div className="p-content-current">
@@ -275,6 +323,7 @@ if (imageFile) {
         </div>
       </div>
     </Modal>
+    </>
   );
 };
 

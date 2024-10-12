@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axiosConfig from "../utils/axiosConfig";
 import "./css/DasherOrders.css";
+import AlertModal from './AlertModal';
 
 const DasherIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -13,6 +14,14 @@ const DasherIncomingOrder = () => {
   const [isActive, setIsActive] = useState(false);
   const [dasherData, setDasherData] = useState({});
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: false,
+  });
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -82,15 +91,33 @@ const DasherIncomingOrder = () => {
             // Update dasher's status to "Ongoing Order"
             await updateDasherStatus('ongoing order');
 
-            // Navigate to dasher orders page
-            navigate('/dasher-orders');
-            alert('Dasher assigned successfully');
+            setAlertModal({
+              isOpen: true,
+              title: 'Success',
+              message: 'Dasher assigned successfully',
+              showConfirmButton: false,
+          });
+          setTimeout(() => {
+              // Navigate to dasher orders page
+              navigate('/dasher-orders');
+              setAlertModal(prev => ({ ...prev, isOpen: false }));
+          }, 3000);
         } else {
-            alert(response.data.message);
+            setAlertModal({
+              isOpen: true,
+              title: 'Error',
+              message: 'There was an error. Please try again. Error: ' + response.data.message,
+              showConfirmButton: false,
+            });
         }
     } catch (error) {
         console.error('Error assigning dasher:', error);
-        alert('An error occurred while assigning the dasher. Please try again.');
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'An error occurred while assigning the dasher. Please try again.',
+          showConfirmButton: false,
+      });
     }
 };
 
@@ -115,7 +142,12 @@ const DasherIncomingOrder = () => {
       if (newStatus === 'offline') {
         setOrders([]);
       } else if (dasherData.wallet <= -100) {
-        alert('Your wallet balance is below -100. Please top up your wallet to continue receiving orders.');
+        setAlertModal({
+          isOpen: true,
+          title: 'Low Wallet Balance',
+          message: 'Your wallet balance is below -100. Please top up your wallet to continue receiving orders.',
+          showConfirmButton: false,
+        });
         setIsActive(false);
       }
     } catch (error) {
@@ -125,6 +157,14 @@ const DasherIncomingOrder = () => {
 
   return (
     <>
+    <AlertModal
+            isOpen={alertModal.isOpen}
+            closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+            title={alertModal.title}
+            message={alertModal.message}
+            onConfirm={alertModal.onConfirm}
+            showConfirmButton={alertModal.showConfirmButton}
+            /> 
       <div className="do-body">
         <div className="j-card-large">
           <div className="do-title font-semibold">

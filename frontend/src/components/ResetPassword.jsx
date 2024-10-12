@@ -3,6 +3,7 @@ import "./css/ForgotPassword.css";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../utils/axiosConfig";
+import AlertModal from "./AlertModal";
 
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,24}$/;
 
@@ -22,6 +23,14 @@ const ResetPassword = () => {
     const [success, setSuccess] = useState('');
 
     const email = location.state && location.state.email;
+
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        showConfirmButton: false,
+    });
 
     useEffect(() => {
         document.title = "Campus Eats";
@@ -45,7 +54,7 @@ const ResetPassword = () => {
 
     if (!email) {
         return <div className="fp-main">
-                    <span className="small-text">This page is for admin-only access. You don't have the necessary privileges to view this content.</span>
+                    <span className="small-text "style={{ color: 'white' }}>This page is for admin-only access. You don't have the necessary privileges to view this content.</span>
                 </div>
     }
 
@@ -75,8 +84,15 @@ const ResetPassword = () => {
 
             if (response.status === 200) {
                 setSuccess('Password updated successfully.');
-                alert('Password updated successfully. You may now log in with your new password.');
-                navigate('/login');
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Success',
+                    message: 'Password updated successfully. You may now log in with your new password.',
+                    showConfirmButton: false,
+                });
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000);
             } else {
                 console.error('Update failed:', response.statusText);
                 setError('Error updating user data');
@@ -88,6 +104,15 @@ const ResetPassword = () => {
     };
 
     return (
+        <>
+        <AlertModal
+                isOpen={alertModal.isOpen}
+                closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+                onConfirm={alertModal.onConfirm}
+                showConfirmButton={alertModal.showConfirmButton}
+            />  
         <main className="fp-main">
             <div className={`fp-box fp-half-box`}>
                 <div className="fp-inner-box">
@@ -144,6 +169,7 @@ const ResetPassword = () => {
                 </div>
             </div>
         </main>
+        </>
     );
 }
 

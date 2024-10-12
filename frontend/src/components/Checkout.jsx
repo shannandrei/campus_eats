@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import your axiosConfig
 import "./css/Checkout.css";
-
+import AlertModal from './AlertModal';
 const Checkout = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -24,13 +24,21 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [waitingForPayment, setWaitingForPayment] = useState(false);
     let pollInterval;
+    
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        showConfirmButton: true,
+    });
 
     useEffect(() => {
         setLoading(true);
         
         setFirstName(currentUser.firstname || "");
         setLastName(currentUser.lastname || "");
-        setMobileNum(currentUser.phone || "");
+        setMobileNum(currentUser.phone ? currentUser.phone.replace(/^0/, '') : "");
         
 
         const fetchCartData = async () => {
@@ -121,14 +129,24 @@ const Checkout = () => {
         
 
         if (mobileNum.length !== 10 && mobileNum.startsWith('9')) {
-            alert("Please enter a valid mobile number");
+            setAlertModal({
+                isOpen: true,
+                title: 'Invalid Mobile Number',
+                message: ` Please enter a valid mobile number:  ${mobileNum}`,
+                showConfirmButton: false,
+            });
             setLoading(false);
             return;
         }
 
         if (paymentMethod === "cash") {
             if (changeFor < cart.totalPrice) {
-                alert("Change for must be greater than or equal to the total price");
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Invalid Amount',
+                    message: 'Change for must be greater than or equal to the total price',
+                    showConfirmButton: false,
+                });
                 setLoading(false);
                 return;
             } else {
@@ -158,7 +176,12 @@ const Checkout = () => {
             } catch (error) {
                 console.error("Error creating GCash payment:", error);
                 setLoading(false);
-                alert(error.response.data.error);
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Error',
+                    message: `Error creating GCash payment: ${error.response?.data?.error || 'An unknown error occurred.'}`,
+                    showConfirmButton: false,
+                });
                 return;
             }
         }
@@ -179,16 +202,31 @@ const Checkout = () => {
     //     }
     // }
 
+    const showConfirmation = async (message) => {
+        return new Promise((resolve) => {
+            setAlertModal({
+                isOpen: true,
+                title: 'No Dashers Available',
+                message,
+                onConfirm: () => {
+                    setAlertModal({ ...alertModal, isOpen: false });
+                    resolve(true);
+                },
+                showConfirmButton: true,
+            });
+        });
+    };
+    
     const handleOrderSubmission = async (refNum) => {
         console.log("Submitting order... refnum : ", refNum);
         const activeDashers = await checkDasherStatus();
-        if(!activeDashers){
+        if (!activeDashers) {
             setLoading(false);
-            const proceed = window.confirm('There are no active dashers available at the moment. Do you want to continue finding?');
-             if (!proceed) {
-            return;
-        }
-        setLoading(true);
+            const proceed = await showConfirmation('There are no active dashers available at the moment. Do you want to continue finding?');
+            if (!proceed) {
+                return;
+            }
+            setLoading(true);
         }
         const order = {
             uid: currentUser.id,
@@ -237,7 +275,14 @@ const Checkout = () => {
 
     return (
         <>
-            
+          <AlertModal
+                isOpen={alertModal.isOpen}
+                closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+                onConfirm={alertModal.onConfirm}
+                showConfirmButton={alertModal.showConfirmButton}
+            />  
             <div className="co-body">
                 <div className="co-content-current">
                     <div className="co-card-current co-card-large">
@@ -276,7 +321,7 @@ const Checkout = () => {
                                         <div className="gcash-input-container">
                                             <span className="gcash-prefix">+63 </span>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 className="gcash-num"
                                                 value={mobileNum}
                                                 onChange={(e) => setMobileNum(e.target.value)}

@@ -7,6 +7,7 @@ import DasherCancelByDasherModal from "./DasherCancelByDasherModal";
 import DasherCancelByShopModal from "./DasherCancelByShopModal";
 import DasherCancelOrderModal from "./DasherCancelOrderModal";
 import DasherCompletedModal from "./DasherCompletedModal";
+import AlertModal from './AlertModal';
 
 const DasherHome = () => {
     const { currentUser } = useAuth();
@@ -32,6 +33,13 @@ const DasherHome = () => {
         noShow: false
     });
     
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        showConfirmButton: false,
+      });
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -176,7 +184,12 @@ const DasherHome = () => {
                     }));
                     updateOrderStatus(newStatus);
                 } else {
-                    alert("Please wait for the shop to confirm the order before marking it as 'preparing'.");
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Cannot change status',
+                        message: "Please wait for the shop to confirm the order before marking it as 'preparing'.",
+                        showConfirmButton: false,
+                      });
                 }
             } else if (newStatus === "pickedUp") {
                 if (buttonClicked.preparing && !buttonClicked.pickedUp) {
@@ -187,7 +200,12 @@ const DasherHome = () => {
                     }));
                     updateOrderStatus(newStatus);
                 } else {
-                    alert("You must mark the order as 'preparing' before you can mark it as 'picked up'.");
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Cannot change status',
+                        message: "You must mark the order as 'preparing' before you can mark it as 'picked up'.",
+                        showConfirmButton: false,
+                      });
                 }
             } else if (newStatus === "onTheWay") {
                 if (buttonClicked.pickedUp && !buttonClicked.onTheWay) {
@@ -198,7 +216,12 @@ const DasherHome = () => {
                     }));
                     updateOrderStatus(newStatus);
                 } else {
-                    alert("You must mark the order as 'picked up' before you can mark it as 'on the way'.");
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Cannot change status',
+                        message: "You must mark the order as 'picked up' before you can mark it as 'on the way'.",
+                        showConfirmButton: false,
+                      });
                 }
             } else if (newStatus === "delivered") {
                 if (buttonClicked.onTheWay && !buttonClicked.delivered) {
@@ -209,10 +232,20 @@ const DasherHome = () => {
                     }));
                     updateOrderStatus(newStatus);
                 } else {
-                    alert("You must mark the order as 'on the way' before you can mark it as 'delivered'.");
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Cannot change status',
+                        message: "You must mark the order as 'on the way' before you can mark it as 'delivered'.",
+                        showConfirmButton: false,
+                      });
                 }
             } else {
-                alert("Invalid status change. Please check your current status and try again.");
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Error',
+                    message: "Invalid status change. Please check your current status and try again.",
+                    showConfirmButton: false,
+                  });
             }
         }
     };
@@ -228,7 +261,14 @@ const DasherHome = () => {
     
     return (
         <>
-            
+         <AlertModal
+            isOpen={alertModal.isOpen}
+            closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+            title={alertModal.title}
+            message={alertModal.message}
+            onConfirm={alertModal.onConfirm}
+            showConfirmButton={alertModal.showConfirmButton}
+            />   
             <div className="j-body">
                 <div className="j-title font-semibold">
                     <h2>Active Order</h2>

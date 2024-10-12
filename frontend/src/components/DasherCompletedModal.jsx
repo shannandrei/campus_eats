@@ -1,30 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosConfig";
-import "./css/AdminAcceptDasherModal.css";
 import DasherNoShowModal from "./DasherNoShowModal";
-
 
 const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
     const [checkingConfirmation, setCheckingConfirmation] = useState(false);
     const [pollingInterval, setPollingInterval] = useState(null);
-    const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false); 
-
+    const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
 
     useEffect(() => {
         if (pollingInterval) {
-            console.log('pollingInterval:', pollingInterval);
             return () => clearInterval(pollingInterval); // Cleanup function
         }
     }, [pollingInterval]);
+
     if (!isOpen) return null;
-    // Function to check the order status
+
     const checkOrderConfirmation = async () => {
         try {
             const response = await axios.get(`/orders/${orderData.id}`);
             const updatedOrder = response.data;
 
-            // If the order status is 'completed_confirmed', complete the order process
-            console.log('updatedOrder:', updatedOrder.status);
             if (updatedOrder.status === "completed") {
                 clearInterval(pollingInterval);  // Stop the interval once confirmed
                 setCheckingConfirmation(false);
@@ -35,16 +30,13 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
         }
     };
 
-    // Function to handle confirming the order and setting the initial status
     const confirmAccept = async () => {
         try {
-            // Update order status to 'completed_waiting_for_confirmation'
             await axios.post('/orders/update-order-status', {
                 orderId: orderData.id,
                 status: "active_waiting_for_confirmation"
             });
 
-            // Start polling every 5 seconds to check if the order is confirmed
             setCheckingConfirmation(true);
             const intervalId = setInterval(checkOrderConfirmation, 5000);
             setPollingInterval(intervalId);
@@ -65,14 +57,13 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
                 totalPrice: orderData.totalPrice,
                 items: orderData.items
             };
-    
+
             const response = await axios.post('/payments/confirm-order-completion', completedOrder);
             if (response.status === 200) {
-                // Update dasher status back to "active"
                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
                     params: { status: 'active' }
                 });
-                closeModal()
+                closeModal();
                 window.location.reload();
             }
         } catch (error) {
@@ -84,33 +75,31 @@ const DasherCompletedModal = ({ isOpen, closeModal, shopData, orderData }) => {
         setIsNoShowModalOpen(true);
     };
 
-
-    // Cleanup polling interval on component unmount
-    
-
     return (
-        <div className="aadm-modal-overlay">
-            <div className="aadm-modal-content">
-                <button className="aadm-close" onClick={closeModal}>X</button>
-                <h2>Order Completion</h2>
-                <div className="aadm-input-container">
-                    <h4>Payment has been completed.</h4>
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-50">
+            <div className="bg-white rounded-none shadow-lg p-6 w-96 relative">
+                <button className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700" onClick={closeModal}>
+                    ✖
+                </button>
+                <h2 className="text-2xl font-bold text-black mb-2">Order Completion</h2>
+                <hr className="border-t border-gray-300 my-2" />
+                <div className="mb-4">
+                    <h4 className="text-lg font-medium text-center">Payment has been completed.</h4>
                     {checkingConfirmation && (
-                        <p>Waiting for user confirmation...</p>
+                        <p className="text-gray-500 text-center">Waiting for user confirmation...</p>
                     )}
                 </div>
-                <div className="aadm-modal-buttons">
-                    <button className="aadm-cancel" onClick={closeModal}>Cancel</button>
-                    <button className="aadm-confirm" onClick={confirmAccept} disabled={checkingConfirmation}>
+                <div className="flex justify-center mt-4">
+                    <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-200" onClick={confirmAccept} disabled={checkingConfirmation}>
                         Confirm
                     </button>
-
-                    <div className="text-xs text-red-500 cursor-pointer underline hover:text-red-950 hover:no-underline" onClick={handleNoShowClick}>
+                </div>
+                <hr className="border-t border-gray-300 my-2" />
+                <div className="mt-2 text-xs text-red-500 cursor-pointer underline hover:text-red-700 text-center" onClick={handleNoShowClick}>
                     Customer did not show? Click Here
                 </div>
-                </div>
             </div>
-             {isNoShowModalOpen && (
+            {isNoShowModalOpen && (
                 <DasherNoShowModal
                     isOpen={isNoShowModalOpen}
                     closeModal={() => setIsNoShowModalOpen(false)}

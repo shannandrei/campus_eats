@@ -4,6 +4,7 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import LoginSignUp from "./LoginSignUp";
 
+
 const ShopRoute = ({ Component }) => {
   const { currentUser } = useAuth();
   const [accountType, setAccountType] = useState('');
