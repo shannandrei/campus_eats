@@ -41,6 +41,7 @@ import VerificationSuccess from './components/VerificationSuccess';
 import { OrderProvider } from './context/OrderContext';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import ProfileRoute from './components/ProfileRoute';
 
 function App() {
   return (
@@ -55,7 +56,7 @@ function App() {
                 <Route path="/signup" element={<PublicRoute Component={LoginSignUp} />} />
                 <Route path="/" element={<PublicRoute Component={LandingPage} />} />
                 <Route path="/home" element={<PrivateRoute Component={Home}/>} />
-                <Route path="/profile" element={<PrivateRoute Component={UserProfile} />} />
+                <Route path="/profile" element={<ProfileRoute Component={UserProfile} />} />
 
                 <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
                 <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
