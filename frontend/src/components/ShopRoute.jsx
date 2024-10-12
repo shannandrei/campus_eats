@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import LoginSignUp from "./LoginSignUp";
-import Home from "./Home";
-import DasherHome from "./DasherHome";
 import axios from "../utils/axiosConfig";
+import Home from "./Home";
+import LoginSignUp from "./LoginSignUp";
 
 const ShopRoute = ({ Component }) => {
   const { currentUser } = useAuth();
@@ -44,11 +43,15 @@ const ShopRoute = ({ Component }) => {
   }
 
   if (accountType === 'regular') {
-    return <Home />;
+    return <Navigate to="/home" replace />;
   }
 
-  if (accountType === 'dasher' || accountType === 'admin') {
-    return <DasherHome />
+  if(accountType === 'admin'){
+    return <Navigate to="/admin-incoming-order" replace />;
+  }
+
+  if (accountType === 'dasher') {
+    return <Navigate to="/dasher-orders" replace />;
   }
 
 

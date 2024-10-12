@@ -1,57 +1,60 @@
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig';
-import DasherHome from "./DasherHome";
-import Home from "./Home";
 import LoginSignUp from "./LoginSignUp";
-import ShopManage from "./ShopManage";
 
 const AdminRoute = ({ Component }) => {
   const { currentUser } = useAuth();
   const [accountType, setAccountType] = useState('');
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    console.log("admin route current user: ", currentUser);
-    setLoading(true);
-    if (currentUser) {
-        const fetchUserAccountType = async () => {
-            try {
-                const response = await axios.get(`/users/${currentUser.id}/accountType`);
-                setAccountType(response.data); 
-                console.log("admin route account type: ", response.data);
-                // Directly setting the response data since it's a plain string
-            } catch (error) {
-                console.error('Error fetching user account type:', error);
-            }
-        };
-    
-        fetchUserAccountType();
-    }
-    setLoading(false);
-    
-}, [currentUser]);
+    const fetchUserAccountType = async () => {
+      if (currentUser) {
+        try {
+          // Start loading
+          setLoading(true);
+          const response = await axios.get(`/users/${currentUser.id}/accountType`);
+          setAccountType(response.data); // Assuming response.data is the account type (e.g., 'admin', 'dasher', 'shop')
+          console.log("Fetched account type: ", response.data);
+        } catch (error) {
+          console.error('Error fetching user account type:', error);
+        } finally {
+          // Stop loading after fetching
+          setLoading(false);
+        }
+      } else {
+        // Handle case where currentUser is null (like when the user is logged out)
+        setLoading(false);
+      }
+    };
+
+    fetchUserAccountType();
+  }, [currentUser]);
 
   if (loading) {
-    return <div>Checking permissions...</div>; // Or a loading spinner
+    return <div>Checking permissions...</div>; // You could add a loading spinner here
   }
 
+  // If user is not authenticated
   if (!currentUser) {
     return <LoginSignUp />;
   }
 
-  if (accountType === 'admin') {
-    return <Component />;
+  // Handle different account types
+  switch (accountType) {
+    case 'admin':
+      return <Component />;
+    case 'dasher':
+    return <Navigate to="/dasher-orders" replace />;
+    case 'shop':
+    return <Navigate to="/shop-dashboard" replace />;
+    default:
+         return <Navigate to="/Home" replace />;
+ // Fallback for unknown account type
   }
-
-  if(accountType === 'dasher'){
-    return <DasherHome />;
-  }
-
-  if (accountType === 'shop') {
-    return <ShopManage />;
-  }
-  return <Home />;
 };
 
 export default AdminRoute;

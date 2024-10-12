@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
-import LoginSignUp from "./LoginSignUp";
-import Home from "./Home";
-import ShopManage from "./ShopManage";
 import axios from '../utils/axiosConfig';
-
+import Home from "./Home";
+import LoginSignUp from "./LoginSignUp";
 const DasherRoute = ({ Component }) => {
   const { currentUser } = useAuth();
   const [accountType, setAccountType] = useState('');
@@ -40,14 +39,18 @@ const DasherRoute = ({ Component }) => {
   }
 
   if (accountType === 'shop') {
-    return <ShopManage />;
+      return <Navigate to="/shop-dashboard" replace />;
   }
 
   if (accountType === 'regular') {
-    return <Home />;
+      return <Navigate to="/home" replace />;
   }
 
-  if (accountType === 'dasher' || accountType === 'admin') {
+  if(accountType === 'admin'){
+    return <Navigate to="/admin-incoming-order" replace />;
+  }
+
+  if (accountType === 'dasher') {
     return <Component />;
   }
 
