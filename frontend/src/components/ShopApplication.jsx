@@ -6,7 +6,8 @@
   import { useNavigate } from "react-router-dom";
   import axios from "../utils/axiosConfig";
   import { useAuth } from "../utils/AuthContext";
-
+  import AlertModal from './AlertModal';
+  
   const ShopApplication = () => {
     
     const { currentUser } = useAuth();
@@ -42,6 +43,14 @@
       breakfast: false,
     });
     const navigate = useNavigate();
+
+    const [alertModal, setAlertModal] = useState({
+      isOpen: false,
+      title: '',
+      message: '',
+      showConfirmButton: false,
+    });
+
     const handleFileChange = (e) => {
       const file = e.target.files[0];
       setImageFile(file);
@@ -85,37 +94,70 @@
       );
     
       if (!hasCategorySelected) {
-        alert("Please select at least one category.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Action Needed',
+          message: 'Please select at least one category.',
+          showConfirmButton: false,
+        });
         setLoading(false);
         return;
       }
     
       if (!uploadedImage) {
-        alert("Please upload a shop image.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Action Needed',
+          message: 'Please upload a shop image.',
+          showConfirmButton: false,
+        });
         setLoading(false);
         return;
       }
     
       if (!googleLink.startsWith("https://maps.app.goo.gl/")) {
-        alert("Please provide a valid Google Maps address link.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Action Needed',
+          message: 'Please provide a valid Google Maps address link.',
+          showConfirmButton: false,
+        });
         setLoading(false);
         return;
       }
     
-      if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
-        alert("Please provide a valid GCASH Number.");
-        setLoading(false);
-        return;
-      }
     
       if (shopOpen >= shopClose) {
-        alert("Shop close time must be later than shop open time.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Invalid Time',
+          message: 'Shop close time must be later than shop open time.',
+          showConfirmButton: false,
+        });
         setLoading(false);
         return;
       }
 
+      if(acceptGCASH === true){
+        if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
+          setAlertModal({
+            isOpen: true,
+            title: 'Invalid Number',
+            message: 'Please provide a valid GCASH Number.',
+            showConfirmButton: false,
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       if (acceptGCASH === null) {
-        alert("Please select whether you accept GCASH payment.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Action Needed',
+          message: 'Please select whether you accept GCASH payment.',
+          showConfirmButton: false,
+        });
         setLoading(false);
         return;
       }
@@ -148,22 +190,42 @@
         });
     
         if (response.status === 200 || response.status === 201) {
-          alert("Shop application submitted successfully!");
-    
-          // Update account type to "shop"
-          
-    
-          navigate("/profile");
+          setAlertModal({
+            isOpen: true,
+            title: 'Success',
+            message: 'Shop application submitted successfully! Please wait for admin approval.',
+            showConfirmButton: false,
+          });
+          setTimeout(() => {
+            navigate("/profile");
+            window.location.reload();
+          }, 2000);
+
         } else {
-          alert("Failed to submit shop application.");
+          setAlertModal({
+            isOpen: true,
+            title: 'Error',
+            message: 'Failed to submit shop application.',
+            showConfirmButton: false,
+          });
         }
         setLoading(false);
       } catch (error) {
         if (error.response && error.response.data) {
-          alert(error.response.data);
+          setAlertModal({
+            isOpen: true,
+            title: 'Error',
+            message: 'Something went wrong. Please try again. Error: ' + error.response.data,
+            showConfirmButton: false,
+          });
         } else {
           console.error("Error submitting form:", error);
-          alert("Error submitting form");
+          setAlertModal({
+            isOpen: true,
+            title: 'Error',
+            message: 'Error submitting form',
+            showConfirmButton: false,
+          });
         }
         setLoading(false);
       }
@@ -172,7 +234,13 @@
 
     return (
       <>
-        
+       <AlertModal
+          isOpen={alertModal.isOpen}
+          closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+          title={alertModal.title}
+          message={alertModal.message}
+          showConfirmButton={alertModal.showConfirmButton}
+        /> 
         <div className="sa-body">
           <div className="sa-content-current">
             <div className="sa-card-current">

@@ -6,6 +6,7 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from './AlertModal';
 
 const ShopUpdate = () => {
   const { currentUser } = useAuth();
@@ -42,6 +43,14 @@ const ShopUpdate = () => {
   });
 
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: false,
+  });
 
   useEffect(() => {
     const fetchShopData = async () => {
@@ -120,35 +129,67 @@ const ShopUpdate = () => {
       (selected) => selected
     );
     if (!hasCategorySelected) {
-      alert("Please select at least one category.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Input',
+        message: 'Please select at least one category.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
     if (!uploadedImage) {
-      alert("Please upload a shop image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Image Required',
+        message: 'Please upload a shop image.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
 
     if (!googleLink.startsWith("https://maps.app.goo.gl/")) {
-      alert("Please provide a valid Google Maps address link.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Input',
+        message: 'Please provide a valid Google Maps address link.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
 
-    if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
-      alert("Please provide a valid GCASH Number.");
-      setLoading(false);
-      return;
+    if(acceptGCASH === true){
+      if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
+        setAlertModal({
+          isOpen: true,
+          title: 'Invalid Number',
+          message: 'Please provide a valid GCASH Number.',
+          showConfirmButton: false,
+        });
+        setLoading(false);
+        return;
+      }
     }
 
     if (shopOpen >= shopClose) {
-      alert("Shop close time must be later than shop open time.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Time',
+        message: 'Shop close time must be later than shop open time.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
     if (acceptGCASH === null) {
-      alert("Please select whether you accept GCASH payment.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Time',
+        message: 'Please select whether you accept GCASH payment.',
+        showConfirmButton: false,
+      });
       setLoading(false);
       return;
     }
@@ -179,12 +220,27 @@ const ShopUpdate = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Shop updated successfully!");
-      setLoading(false);
-      navigate("/profile");
+      
+      setAlertModal({
+        isOpen: true,
+        title: 'Success',
+        message: 'Shop updated successfully!',
+        showConfirmButton: false,
+      });
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/profile");
+        window.location.reload();
+      }, 2000);
+
     } catch (error) {
       console.error("Error updating shop:", error.response?.data?.error || error);
-      alert(error.response?.data?.error || "An error occurred. Please try again.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to update shop. Please try again. Error: ' + error.response?.data?.error || error,
+        showConfirmButton: false,
+      });
       setLoading(false);
     }
   };
@@ -195,7 +251,13 @@ const ShopUpdate = () => {
 
   return (
     <>
-      
+     <AlertModal
+          isOpen={alertModal.isOpen}
+          closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+          title={alertModal.title}
+          message={alertModal.message}
+          showConfirmButton={alertModal.showConfirmButton}
+        />  
       <div className="sa-body">
         <div className="sa-content-current">
           <div className="sa-card-current">

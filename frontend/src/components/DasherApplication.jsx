@@ -6,6 +6,7 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from './AlertModal';
 
 const DasherApplication = () => {
   const { currentUser } = useAuth();
@@ -26,6 +27,14 @@ const DasherApplication = () => {
     SUN: false,
   });
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: true,
+  });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -73,22 +82,42 @@ const DasherApplication = () => {
     const hasCategorySelected = Object.values(days).some(selected => selected);
   
     if (!hasCategorySelected) {
-      alert("Please select at least one day.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Selection Required',
+        message: 'Please select at least one day.',
+        showConfirmButton: false,
+      });
       return;
     }
   
     if (!uploadedImage) {
-      alert("Please upload a School ID image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Image Required',
+        message: 'Please upload a school ID image.',
+        showConfirmButton: false,
+      });
       return;
     }
   
     if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
-      alert("Please provide a valid GCASH Number.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Number',
+        message: 'Please enter a valid GCASH number.',
+        showConfirmButton: false,
+      });
       return;
     }
   
     if (availableStartTime >= availableEndTime) {
-      alert("Available end time must be later than start time.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Time',
+        message: 'Available end time must be later than start time.',
+        showConfirmButton: false,
+      });
       return;
     }
   
@@ -115,19 +144,42 @@ const DasherApplication = () => {
       console.log("response: ", response);
   
       if (response.status === 200 || response.status === 201) {
-        alert("Dasher Application Submitted Successfully");
+        setAlertModal({
+          isOpen: true,
+          title: 'Success',
+          message: 'Dasher Application Submitted Successfully',
+          showConfirmButton: false,
+        });
         
-  
+      setTimeout(() => {
+        setAlertModal((prev) => ({ ...prev, isOpen: false }));
+      }, 3000);
+        
         navigate("/profile");
       } else {
-        alert("Failed to submit dasher application.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Failed to submit dasher application.',
+          showConfirmButton: false,
+        });
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        alert(error.response.data);
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: `${error.response.data}`,
+          showConfirmButton: false,
+        });
       } else {
         console.error("Error submitting form:", error);
-        alert("Error submitting form");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Error submitting form.',
+          showConfirmButton: false,
+        });
       }
     }
   };
@@ -135,8 +187,14 @@ const DasherApplication = () => {
 
   return (
     <>
-      
-
+     <AlertModal
+                isOpen={alertModal.isOpen}
+                closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+                onConfirm={alertModal.onConfirm}
+                showConfirmButton={alertModal.showConfirmButton}
+            />   
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">

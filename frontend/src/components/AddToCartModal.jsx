@@ -99,14 +99,21 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                                     <FontAwesomeIcon icon={faPlus} />
                                 </button>
                             </div>
-                            <button className="add-to-cart-button" onClick={async () => {
-                                await void addToCart({
-                                    item,
-                                    userQuantity,
-                                    totalPrice,
-                                });
-                                onClose();
-                            }}>Add to Cart</button>
+                            <button
+                                disabled={userQuantity === 0} // Disable if userQuantity is 0
+                                className={`bg-[#a14447] text-white border-none px-3 py-2 rounded-md text-l cursor-pointer transition duration-300 ease-in-out shadow-lg 
+                                    ${userQuantity === 0 ? 'bg-gray-300 text-gray-600 cursor-not-allowed opacity-60' : 'hover:bg-[#823033]'} w-32`}
+                                onClick={async () => {
+                                    await addToCart({
+                                        item,
+                                        userQuantity,
+                                        totalPrice,
+                                    });
+                                    onClose();
+                                }}
+                            >
+                                Add to Cart
+                            </button>
                         </div>
                     </>
                 )}

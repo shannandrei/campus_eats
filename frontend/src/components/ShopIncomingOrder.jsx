@@ -5,6 +5,7 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig";
 import DeclineOrderModal from './AdminDeclineOrderModal';
 import "./css/ShopOrders.css"; // Updated CSS file
+import AlertModal from './AlertModal';
 
 const ShopIncomingOrder = () => {
   const { currentUser } = useAuth();
@@ -14,7 +15,12 @@ const ShopIncomingOrder = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState({});
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    showConfirmButton: false,
+  });
 
   
   // approving orders only for gcash
@@ -131,7 +137,12 @@ const ShopIncomingOrder = () => {
     const referenceNumber = selectedOrder.id
 
     if (!referenceNumber) {
-      alert("No reference number found for this order.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: 'No reference number found for this order.',
+        showConfirmButton: false,
+      });
       return;
     }
 
@@ -152,7 +163,12 @@ const ShopIncomingOrder = () => {
       const refundResponse = await axios.post("/payments/process-refund", refundPayload);
       
       console.log('refundResponse:', refundResponse);
-      alert("Refund successful!");
+      setAlertModal({
+        isOpen: true,
+        title: 'Success',
+        message: 'Refund successful!',
+        showConfirmButton: false,
+      });
       // Update the orders state
       setOrders(prevOrders => {
         return prevOrders.map(order => {
@@ -167,7 +183,12 @@ const ShopIncomingOrder = () => {
   }
   } catch (error) {
     console.error('Error declining order:', error);
-    alert("An error occurred while declining the order. Please try again.");
+    setAlertModal({
+      isOpen: true,
+      title: 'Error',
+      message: 'An error occurred while declining the order. Please try again.',
+      showConfirmButton: false,
+    });
   }
 };
 
@@ -183,8 +204,15 @@ const ShopIncomingOrder = () => {
           }
         });
       });
-      alert('Order status updated successfully');
-      window.location.reload();
+      setAlertModal({
+        isOpen: true,
+        title: 'Success',
+        message: 'Order status updated successfully',
+        showConfirmButton: false,
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -192,7 +220,13 @@ const ShopIncomingOrder = () => {
 
   return (
     <>
-      
+     <AlertModal
+          isOpen={alertModal.isOpen}
+          closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+          title={alertModal.title}
+          message={alertModal.message}
+          showConfirmButton={alertModal.showConfirmButton}
+        /> 
       <div className="ao-body">
         <div className="ao-title font-semibold">
           <h2>Approving Orders</h2>

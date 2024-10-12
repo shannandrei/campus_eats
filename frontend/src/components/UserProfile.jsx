@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Navbar from "./Navbar/Navbar";
 import axios from "../utils/axiosConfig"; // Import axios config
+import AlertModal from "./AlertModal";
 
 const UserProfile = () => {
     const { logout, currentUser, updatePassword } = useAuth();
@@ -27,6 +28,14 @@ const UserProfile = () => {
     const [dasherData, setDasherData] = useState({});
     const [shopData, setShopData] = useState({});
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        showConfirmButton: false,
+      });
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -102,12 +111,22 @@ const UserProfile = () => {
 
     const handleSave = async () => {
         if (pwd && pwd !== confirmpwd) {
-            alert("New passwords do not match");
+            setAlertModal({
+                isOpen: true,
+                title: 'Error',
+                message: 'New passwords do not match',
+                showConfirmButton: false,
+              });
             return;
         }
 
         if (pwd && !passwordRegex.test(pwd)) {
-            alert("New password must have at least 8 characters, one capital letter and one number");
+            setAlertModal({
+                isOpen: true,
+                title: 'Password Requirements',
+                message: 'New password must have at least 8 characters, one capital letter and one number',
+                showConfirmButton: false,
+              });
             return;
         }
 
@@ -135,7 +154,12 @@ const UserProfile = () => {
             console.log("update profile response:", data);
 
             if (response.status === 200) {
-                alert("Profile updated successfully");
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Success',
+                    message: 'Profile updated successfully',
+                    showConfirmButton: false,
+                  }); 
                 setEditMode(false);
                 setEditUsername(false);
                 setInitialData({
@@ -150,14 +174,24 @@ const UserProfile = () => {
             }
         } catch (error) {
             console.error(error.response.data);
-            alert(error.response.data);
+            setAlertModal({
+                isOpen: true,
+                title: 'Error',
+                message: '' + error.response.data,
+                showConfirmButton: false,
+              }); 
         }
     };
 
     return (
         <>
-            
-
+         <AlertModal
+          isOpen={alertModal.isOpen}
+          closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+          title={alertModal.title}
+          message={alertModal.message}
+          showConfirmButton={alertModal.showConfirmButton}
+        />    
             <div className="p-body">
                 <div className="p-content-current">
                     <div className="p-card-current">

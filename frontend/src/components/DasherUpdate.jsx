@@ -6,6 +6,7 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axiosConfig from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from './AlertModal';
 
 const DasherUpdate = () => {
   const { currentUser } = useAuth();
@@ -26,6 +27,14 @@ const DasherUpdate = () => {
     SUN: false,
   });
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    showConfirmButton: false,
+  });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -97,22 +106,42 @@ const DasherUpdate = () => {
     const hasCategorySelected = Object.values(days).some(selected => selected);
 
     if (!hasCategorySelected) {
-      alert("Please select at least one day.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Input',
+        message: 'Please select at least one day.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (!uploadedImage) {
-      alert("Please upload a School ID image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'School ID Required',
+        message: 'Please upload a School ID image.',
+        showConfirmButton: false,
+      });
       return;
     }
 
-    if (!GCASHNumber.startsWith('9')) {
-      alert("Please provide a valid GCASH Number.");
+    if (GCASHNumber.length !== 10 || !GCASHNumber.startsWith('9')) {
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Number',
+        message: 'Please provide a valid GCASH Number.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (availableStartTime >= availableEndTime) {
-      alert("Available end time must be later than start time.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Time',
+        message: 'Available end time must be later than start time.',
+        showConfirmButton: false,
+      });
       return;
     }
 
@@ -141,18 +170,35 @@ const DasherUpdate = () => {
       navigate("/profile");
     } catch (error) {
       if (error.response && error.response.data.error === 'Dasher not found') {
-        alert('Dasher not found.');
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Dasher not found.',
+          showConfirmButton: false,
+        });
         return;
       } else {
         console.error("Error updating dasher:", error);
-        alert("Error updating dasher.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Error updating dasher.',
+          showConfirmButton: false,
+        });
       }
     }
   };
 
   return (
     <>
-      
+     <AlertModal
+            isOpen={alertModal.isOpen}
+            closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+            title={alertModal.title}
+            message={alertModal.message}
+            onConfirm={alertModal.onConfirm}
+            showConfirmButton={alertModal.showConfirmButton}
+            />  
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">

@@ -6,24 +6,33 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosConfig";
 import { useAuth } from "../utils/AuthContext";
+import AlertModal from './AlertModal';
 
 const DasherReimburse = () => {
-  const { currentUser } = useAuth();
-  const [gcashQr, setGcashQr] = useState(null);
-  const [imageFile_gcashQr, setImageFile_gcashQr] = useState(null);
-  const [dragOver_gcashQr, setDragOver_gcashQr] = useState(false);
-  const [GCASHName, setGCASHName] = useState("");
-  const [GCASHNumber, setGCASHNumber] = useState("");
-  const [noShowOrders, setNoShowOrders] = useState([]);
+const { currentUser } = useAuth();
+const [gcashQr, setGcashQr] = useState(null);
+const [imageFile_gcashQr, setImageFile_gcashQr] = useState(null);
+const [dragOver_gcashQr, setDragOver_gcashQr] = useState(false);
+const [GCASHName, setGCASHName] = useState("");
+const [GCASHNumber, setGCASHNumber] = useState("");
+const [noShowOrders, setNoShowOrders] = useState([]);
 const [selectedOrder, setSelectedOrder] = useState(null);
 const [amount, setAmount] = useState(0);
 const [locationProof, setLocationProof] = useState(null);
 const [imageFile_locationProof, setImageFile_locationProof] = useState(null);
-  const [dragOver_locationProof, setDragOver_locationProof] = useState(false);
+const [dragOver_locationProof, setDragOver_locationProof] = useState(false);
 const [noShowProof, setNoShowProof] = useState(null);
 const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
-  const [dragOver_noShowProof, setDragOver_noShowProof] = useState(false);   
-  const navigate = useNavigate();
+const [dragOver_noShowProof, setDragOver_noShowProof] = useState(false);   
+const navigate = useNavigate();
+
+const [alertModal, setAlertModal] = useState({
+  isOpen: false,
+  title: '',
+  message: '',
+  onConfirm: null,
+  showConfirmButton: false,
+});
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -186,27 +195,52 @@ const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
   
   
     if (!gcashQr) {
-      alert("Please upload a GCASH QR image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Image Required',
+        message: 'Please upload a GCASH QR image.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (!locationProof) {
-      alert("Please upload a location proof image.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Location Proof Image Required',
+        message: 'Please upload a location proof image.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (!noShowProof) {
-        alert("Please upload a no show proof image.");
+        setAlertModal({
+          isOpen: true,
+          title: 'No Show Proof Image Required',
+          message: 'Please upload a no show proof image.',
+          showConfirmButton: false,
+        });
         return;
         }
   
     if (!GCASHNumber.startsWith('9') || GCASHNumber.length !== 10) {
-      alert("Please provide a valid GCASH Number.");
+      setAlertModal({
+        isOpen: true,
+        title: 'Invalid Number',
+        message: 'Please provide a valid GCASH Number.',
+        showConfirmButton: false,
+      });
       return;
     }
 
     if (selectedOrder === null) {
-        alert("Please select an order.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Order Required',
+          message: 'Please select an order.',
+          showConfirmButton: false,
+        });
         return;
     }
 
@@ -236,17 +270,40 @@ const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
       console.log("response: ", response);
   
       if (response.status === 200 || response.status === 201) {
-        alert("Reimburse request submitted successfully.");
-        navigate("/profile");
+        setAlertModal({
+          isOpen: true,
+          title: 'Success',
+          message: 'Reimburse request submitted successfully.',
+          showConfirmButton: false,
+        });
+        setTimeout(() => {
+          navigate("/profile");
+          setAlertModal(prev => ({ ...prev, isOpen: false }));
+        }, 3000);
       } else {
-        alert("Failed to submit dasher application.");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Failed to submit dasher application.',
+          showConfirmButton: false,
+        });
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        alert(error.response.data);
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'There was an error. Please try again. Error: ' + error.response.data,
+          showConfirmButton: false,
+        });
       } else {
         console.error("Error submitting form:", error);
-        alert("Error submitting form");
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Error submitting form',
+          showConfirmButton: false,
+        });
       }
     }
   };
@@ -254,8 +311,14 @@ const [imageFile_noShowProof, setImageFile_noShowProof] = useState(null);
 
   return (
     <>
-      
-
+      <AlertModal
+            isOpen={alertModal.isOpen}
+            closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+            title={alertModal.title}
+            message={alertModal.message}
+            onConfirm={alertModal.onConfirm}
+            showConfirmButton={alertModal.showConfirmButton}
+            />
       <div className="p-body">
         <div className="p-content-current">
           <div className="p-card-current">

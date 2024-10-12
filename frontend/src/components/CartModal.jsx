@@ -2,26 +2,33 @@ import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from 'react-bootstrap';
-import { confirmAlert } from 'react-confirm-alert';
 import { useNavigate } from 'react-router-dom';
 import { useOrderContext } from "../context/OrderContext";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig';
+import AlertModal from './AlertModal';
 import "./css/CartModal.css";
 
 const CartModal = ({ showModal, onClose }) => {
     const { currentUser } = useAuth();
     const [cartData, setCartData] = useState(null);
     const [shopData, setShopData] = useState(null);
-
     const { cartData: contextCartData, fetchData } = useOrderContext();
     const navigate = useNavigate();
+
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        showConfirmButton: true,
+    });
 
     const handleProceed = () => {
         handleProceedToCheckout();
         onClose();
-    }
-    
+    };
+
     const fetchCartData = useCallback(async () => {
         try {
             const response = await axios.get(`/carts/cart`, {
@@ -31,8 +38,7 @@ const CartModal = ({ showModal, onClose }) => {
         } catch (error) {
             console.error('Error fetching cart data:', error);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [currentUser]);
 
     useEffect(() => {
         if (showModal && currentUser) {
@@ -51,28 +57,29 @@ const CartModal = ({ showModal, onClose }) => {
                 }
             }
         };
-
         fetchShopData();
     }, [cartData]);
 
     const updateCartItem = async (itemId, action) => {
         try {
-            console.log('Updating cart item:', itemId, action, currentUser.id);
             const response = await axios.post('/carts/update-cart-item', {
                 uid: currentUser.id,
                 itemId,
                 action
             });
-            console.log(response.data);
             setCartData(response.data.cartData);
             fetchData();
             fetchCartData();
-            
         } catch (error) {
             if (error.response && error.response.status === 400) {
-                alert('Quantity limit reached');
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Error',
+                    message: 'Quantity limit reached',
+                    showConfirmButton: false,
+                });
             } else {
-                console.log(error.response);
+                console.error(error.response);
             }
         }
     };
@@ -82,41 +89,48 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     const handleItemDecrease = (item) => {
-        console.log('decreasing item:', item.itemId);
         updateCartItem(item.itemId, 'decrease');
     };
 
     const handleItemRemove = (item) => {
-        confirmAlert({
+        setAlertModal({
+            isOpen: true,
             title: "Confirm to Remove",
             message: `Are you sure you want to remove ${item.name} from your cart?`,
-            buttons: [
-              {
-                label: 'Yes',
-                onClick: () => updateCartItem(item.itemId, 'remove')
-              },
-              {
-                label: 'No',
-              }
-            ]
-        })
+            onConfirm: () => updateCartItem(item.itemId, 'remove'),
+            showConfirmButton: true,
+        });
     };
 
     const handleShopRemove = async () => {
-        if (window.confirm(`Are you sure you want to remove ${shopData.shopName}? This will remove all items in your cart.`)) {
-            try {
-                const response = await axios.delete('/carts/remove-cart', {
-                    data: { uid: currentUser.id }
-                });
-
-                alert(response.data.message);
-                setCartData(null);
-                fetchData();
-                fetchCartData();
-            } catch (error) {
-                console.error('Error removing cart:', error);
-            }
-        }
+        setAlertModal({
+            isOpen: true,
+            title: "Confirm to Remove Shop",
+            message: `Are you sure you want to remove ${shopData.name}? This will remove all items in your cart.`,
+            onConfirm: async () => {
+                try {
+                    const response = await axios.delete('/carts/remove-cart', {
+                        data: { uid: currentUser.id }
+                    });
+                    setCartData(null);
+                    fetchData();
+                    fetchCartData();
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Success',
+                        message: response.data.message,
+                        showConfirmButton: false,
+                    });
+                    
+                    setTimeout(() => {
+                        setAlertModal((prev) => ({ ...prev, isOpen: false }));
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error removing cart:', error);
+                }
+            },
+            showConfirmButton: true,
+        });
     };
 
     const handleProceedToCheckout = () => {
@@ -124,14 +138,21 @@ const CartModal = ({ showModal, onClose }) => {
     };
 
     return (
+        <>
+        <AlertModal
+                isOpen={alertModal.isOpen}
+                closeModal={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+                onConfirm={alertModal.onConfirm}
+                showConfirmButton={alertModal.showConfirmButton}
+            />
         <div className={`cart-modal ${showModal ? 'show' : ''}`}>
             <div className="cm-modal">
                 <div className="cm-modal-divider">
                     <div className="cm-modal-header">
                         {!cartData || cartData.items.length === 0 ? (
-                            <>
-                                <h3 className="cm-modal-title">Your cart is empty...</h3>
-                            </>
+                            <h3 className="cm-modal-title">Your cart is empty...</h3>
                         ) : (
                             <>
                                 <div className="cm-items">
@@ -162,8 +183,7 @@ const CartModal = ({ showModal, onClose }) => {
                                     <div className="cm-item-left">
                                         <div className="cm-item-buttons">
                                             <button className="cm-button" onClick={() => item.quantity > 1 ? handleItemDecrease(item) : handleItemRemove(item)}>
-                                                {item.quantity > 1 && <FontAwesomeIcon icon={faMinus} />}
-                                                {item.quantity <= 1 && <img src={'/Assets/remove-icon.png'} alt="remove" className="cm-image-remove" />}
+                                                {item.quantity > 1 ? <FontAwesomeIcon icon={faMinus} /> : <img src={'/Assets/remove-icon.png'} alt="remove" className="cm-image-remove" />}
                                             </button>
                                             <span className="cm-item-count">{item.quantity}</span>
                                             <button className="cm-button" onClick={() => handleItemIncrease(item)}>
@@ -200,13 +220,13 @@ const CartModal = ({ showModal, onClose }) => {
                         disabled={!cartData || cartData.items.length === 0}
                         className="cm-proceed-button"
                         onClick={handleProceed}
-
                     >
                         Proceed to Checkout
                     </button>
                 </div>
             </div>
         </div>
+        </>
     );
 }
 

@@ -101,7 +101,7 @@ const AdminIncomingOrder = () => {
             setTimeout(() => {
                 closeAlertModal();
                 window.location.reload();
-            }, 3000);
+            }, 2000);
     } catch (error) {
       console.error('Error updating order status:', error);
     }

@@ -1,67 +1,45 @@
 import React from "react";
 import axios from "../utils/axiosConfig";
-import "./css/AdminAcceptDasherModal.css";
 
 const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
     if (!isOpen) return null;
 
     const confirm = async () => {
         try {
-            // Update order status to "active_noShow"
             const updateResponse = await axios.post('/orders/update-order-status', {
                 orderId: orderData.id,
                 status: "no_Show"
             });
 
             if (updateResponse.status === 200) {
-                // Proceed with confirming order completion and updating dasher status
                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
                     params: { status: 'active' }
                 });
                 window.location.reload();
-
             }
         } catch (error) {
             console.error('Error updating order status:', error);
         }   
     };
 
-    const proceedWithCompletion = async () => {
-        try {
-            const completedOrder = {
-                orderId: orderData.id,
-                dasherId: orderData.dasherId,
-                shopId: orderData.shopId,
-                userId: orderData.uid,
-                paymentMethod: orderData.paymentMethod,
-                deliveryFee: shopData.deliveryFee,
-                totalPrice: orderData.totalPrice,
-                items: orderData.items
-            };
-
-            const response = await axios.post('/payments/confirm-order-completion', completedOrder);
-            if (response.status === 200) {
-                // Update dasher status back to "active"
-                
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error('Error completing the order:', error);
-        }
-    };
-
     return (
-        <div className="aadm-modal-overlay">
-            <div className="aadm-modal-content">
-                <button className="aadm-close" onClick={closeModal}>X</button>
-                <h2>Marked Order as No Show</h2>
-                <div className="aadm-input-container">
-                    <h4>The customer failed to show up for the delivery.</h4>
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
+                <button className="absolute top-2 right-3 text-2xl text-gray-500 hover:text-gray-700" onClick={closeModal}>
+                    ✖
+                </button>
+                <h2 className="text-2xl font-bold text-black mb-2 text-center">Marked Order as No Show</h2>
+                <hr className="border-t border-gray-300 my-2" />
+                <div className="mb-4 text-center">
+                    <h4 className="text-lg font-medium">The customer failed to show up for the delivery.</h4>
                 </div>
-                <div className="aadm-modal-buttons">
-                    <button className="aadm-confirm" onClick={confirm}>Confirm</button>
-                    <button  className="aadm-cancel" onClick={closeModal}>Cancel</button>
-
+                <div className="flex justify-center space-x-4 mt-4">
+                    <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-200" onClick={confirm}>
+                        Confirm
+                    </button>
+                    <button className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-200" onClick={closeModal}>
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>

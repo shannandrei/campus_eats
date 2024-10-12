@@ -23,7 +23,7 @@ const AlertModal = ({ isOpen, closeModal, title, message, onConfirm, showConfirm
                 <div className="flex justify-end">
                     {showConfirmButton && (
                         <button
-                            className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition duration-200"
+                            className="bg-[#a14447] text-white px-5 py-2 rounded-lg hover:bg-[#823033] transition duration-200"
                             onClick={() => {
                                 onConfirm();
                                 closeModal();
