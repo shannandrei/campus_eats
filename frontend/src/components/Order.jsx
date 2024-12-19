@@ -8,6 +8,7 @@ import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 import UserNoShowModal from './UserNoShowModal';
+import OrderEditPhoneNumModal from './OrderEditPhoneNumModal';
 import ShopCancelModal from './UserShopCancelModal';
 
 const Order = () => {
@@ -23,6 +24,7 @@ const Order = () => {
     const [selectedOrder, setSelectedOrder] = useState(null); // State for the selected order
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+    const [isEditPhoneNumModalOpen, setIsEditPhoneNumModalOpen] = useState(false);
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
@@ -103,6 +105,9 @@ useEffect(() => {
                     case 'active_waiting_for_dasher':
                         setStatus('Searching for Dashers. Hang tight, this might take a little time!');
                         break;
+                    case 'active_shop_confirmed':
+                        setStatus('Dasher is on the way to the shop.');
+                        break;
                     case 'active_preparing':
                         setStatus('Order is being prepared');
                         break;
@@ -131,9 +136,6 @@ useEffect(() => {
                     case 'cancelled_by_shop': 
                         setStatus('Order has been cancelled');
                         break;
-                    case 'active_shop_confirmed': 
-                        setStatus('Order is being prepared');
-                        break;
                     case 'active_waiting_for_shop': 
                         setStatus('Dasher is on the way to the shop');
                         break;
@@ -143,7 +145,7 @@ useEffect(() => {
                     case 'active_waiting_for_cancel_confirmation': 
                         setStatus('Order is waiting for cancellation confirmation');
                         break;
-                    case 'no_Show': 
+                    case 'no-show': 
                         setStatus('Customer did not show up for the delivery');
                         break;
                     case 'active_waiting_for_no_show_confirmation': 
@@ -173,7 +175,7 @@ useEffect(() => {
 
     // Setup SSE for notifications
     useEffect(() => {
-        const eventSource = new EventSource('http://localhost:8080/api/notifications/stream'); // Update this URL based on your API
+        const eventSource = new EventSource('https://campuseats-production.up.railway.app/api/notifications/stream');
     
         eventSource.onmessage = (event) => {
           console.log('Received:', event.data);
@@ -188,6 +190,9 @@ useEffect(() => {
           case "Looking for a Dasher to be assigned.":
           case "Dasher is on the way to deliver your order.":
           case "Order has been cancelled.":
+          case "Order is waiting for cancellation confirmation.":
+          case "Order is waiting for confirmation.":
+          case "Dasher is waiting for the shop to confirm the order.":
             toast.info(event.data); // Show info toast for these messages
             break;
 
@@ -196,7 +201,8 @@ useEffect(() => {
           case "Order has been cancelled by the Shop.":
             toast.error(event.data); // Show error toast for these messages
             break;
-
+          
+          case "Order has been confirmed by the shop.":
           case "Order has been delivered.":
           case "Order has been picked up.":
           case "Order has been completed.":
@@ -251,9 +257,9 @@ useEffect(() => {
                 const orderStatusResponse = await axios.get(`/orders/${activeOrder.id}`);
                 const orderStatus = orderStatusResponse.data.status;
                 console.log(orderStatus);
-                if (orderStatus === 'no_Show') {
+                if (orderStatus === 'no-show') {
                     setIsNoShowModalOpen(true);
-                    clearInterval(intervalId); 
+                    clearInterval(intervalId);
                 }
 
                 // Check for cancelled status
@@ -329,6 +335,7 @@ useEffect(() => {
 
             if (updateResponse.status === 200) {
                 await postOffenses();
+
             }
 
         } catch (error) {
@@ -345,11 +352,20 @@ useEffect(() => {
         setIsReviewShopModalOpen(true);
     };
 
+    
+    const closeEditPhoneNumModal = () => {
+        setIsEditPhoneNumModalOpen(false);
+    };
+
+
     const handleCancelOrder = () => {
         setIsCancelModalOpen(true); 
     };
     const closeCancelModal = () => {
-        setIsCancelModalOpen(false); 
+        setIsCancelModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); 
     };
     const handleRefundOrder = () => {
         setIsRefundModalOpen(true); 
@@ -368,6 +384,28 @@ useEffect(() => {
         || status === 'Order has been completed'
         || status === 'Order is waiting for cancellation confirmation'
         || status === 'Waiting for your confirmation';
+
+    const handleNoShowModalClose = () => {
+        setIsNoShowModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+
+    const handleShopCancelModalClose = () => {
+        setIsShopCancelModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+
+    const handleReviewModalClose = () => {
+        setIsReviewModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+    
     return (
         <>
             
@@ -377,7 +415,7 @@ useEffect(() => {
                     isOpen={isReviewModalOpen} 
                     order={activeOrder}
                     shop={shop}
-                    onClose={() => setIsReviewModalOpen(false)} 
+                    onClose={handleReviewModalClose} 
                 />
             )}
             {isReviewShopModalOpen && (
@@ -407,13 +445,21 @@ useEffect(() => {
             {isNoShowModalOpen && ( // Render the No-Show Modal
                     <UserNoShowModal 
                         isOpen={isNoShowModalOpen}
-                        closeModal={() => setIsNoShowModalOpen(false)} 
+                        closeModal={handleNoShowModalClose}
                     />
                 )}
             {isShopCancelModalOpen && ( // Render the Shop Cancel Modal
                     <ShopCancelModal 
                         isOpen={isShopCancelModalOpen}
-                        closeModal={() => setIsShopCancelModalOpen(false)} 
+                        closeModal={handleShopCancelModalClose} 
+                    />
+                )}
+            {isEditPhoneNumModalOpen && ( // Render the Edit Phone Number Modal
+                    <OrderEditPhoneNumModal
+                        isOpen={isEditPhoneNumModalOpen}
+                        closeModal={closeEditPhoneNumModal} 
+                        mobileNum={activeOrder.mobileNum}
+                        orderId={activeOrder.id}
                     />
                 )}
                 <div className="o-title font-semibold">
@@ -459,6 +505,19 @@ useEffect(() => {
                                             <h4>#{activeOrder ? activeOrder.id : ''}</h4>
                                             <p>Payment Method</p> 
                                             <h4>{activeOrder ? activeOrder.paymentMethod : ''}</h4>
+                                            <p>Phone number</p> 
+                                            <h4>{activeOrder ? activeOrder.mobileNum : ''} <a 
+                                                     // Adding +63 to the telephone link
+                                                    style={{ 
+                                                        textDecoration: 'underline', 
+                                                        color: '#007BFF',
+                                                        padding: '2px 4px',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                onClick={() => {setIsEditPhoneNumModalOpen(true)}}>
+                                                    edit 
+                                                </a></h4>
                                         </div>
                                     </div>
                                 </div>
@@ -559,7 +618,7 @@ useEffect(() => {
                             className="o-card-past" 
                             key={index}
                             onClick={() => {
-                                if(!order.status.includes('cancelled_') && !order.status.includes('no_') ? 'disabled' :'') {                                
+                                if(!order.status.includes('cancelled_') && !order.status.includes('no-') ? 'disabled' :'') {                                
                                 handleOpenReviewShopModal(order)}}
                                 } // Make the order clickable
                         >

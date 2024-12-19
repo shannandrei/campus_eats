@@ -23,6 +23,7 @@ import UserProfile from './components/UserProfile';
 import { AuthProvider } from './utils/AuthContext';
 // import UpdateShop from './components/UpdateShop';
 import { Toaster } from 'sonner';
+import AdminAnalytics from './components/AdminAnalytics';
 import AdminCashoutList from './components/AdminCashoutList';
 import AdminReimburseList from './components/AdminReimburseList';
 import AdminShopList from './components/AdminShopList';
@@ -42,6 +43,7 @@ import { OrderProvider } from './context/OrderContext';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import ProfileRoute from './components/ProfileRoute';
+import AdminUsers from './components/AdminUsers';
 
 function App() {
   return (
@@ -58,10 +60,12 @@ function App() {
                 <Route path="/home" element={<PrivateRoute Component={Home}/>} />
                 <Route path="/profile" element={<ProfileRoute Component={UserProfile} />} />
 
+                <Route path="/admin-analytics" element={<AdminRoute Component={AdminAnalytics} />} />
                 <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
                 <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
                 <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
                 <Route path="/admin-shops" element={<AdminShopList />} />
+                <Route path="/admin-users" element={<AdminUsers />} />
 
                 <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} />
                 <Route path="/shop/:shopId" element={<PrivateRoute Component={Shop} />} />
@@ -76,7 +80,7 @@ function App() {
                 <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
                 <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
 
-                <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
+                <Route path="/cashout" element={<DasherRoute Component={DasherCashout}/>} />
                 <Route path="/admin-cashouts" element={<AdminRoute Component={AdminCashoutList} />} />
                 <Route path="/dasher-reimburse" element={<DasherRoute Component={DasherReimburse}/>} />
                 <Route path="/admin-reimburse" element={<AdminRoute Component={AdminReimburseList} />} />

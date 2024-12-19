@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.capstone.campuseats.Entity.ShopEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,13 +93,15 @@ public class OrderService {
                 notificationMessage = "Order has been cancelled by the Shop.";
                 break;
             case "active_shop_confirmed":
+                notificationMessage = "Order has been confirmed by the shop.";
+                break;
             case "active_preparing":
                 notificationMessage = "Order is being prepared.";
                 break;
             case "active_waiting_for_dasher":
                 notificationMessage = "Looking for a Dasher to be assigned.";
                 break;
-            case "no_Show":
+            case "no-show":
                 notificationMessage = "You did not show up for the delivery.";
                 break;
             case "active_onTheWay":
@@ -246,5 +249,31 @@ public class OrderService {
                 .stream()
                 .filter(order -> order.getDasherId() != null && !order.getStatus().equals("active_waiting_for_shop"))
                 .collect(Collectors.toList());
+    }
+
+    public List<String> getShopIdsSortedByOrderCount() {
+        // Get all orders
+        List<OrderEntity> orders = orderRepository.findAll();
+
+        // Group orders by shopId and count them
+        Map<String, Long> orderCountByShopId = orders.stream()
+                .collect(Collectors.groupingBy(OrderEntity::getShopId, Collectors.counting()));
+
+        // Sort the shopIds by the order count in descending order
+        return orderCountByShopId.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    public boolean updateOrderMobileNum(String orderId, String mobileNum) {
+        Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            OrderEntity order = orderOptional.get();
+            order.setMobileNum(mobileNum);
+            orderRepository.save(order);
+            return true;
+        }
+        return false;
     }
 }

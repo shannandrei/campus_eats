@@ -9,15 +9,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.capstone.campuseats.Entity.UserEntity;
@@ -30,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class UserController {
 
     @Autowired
@@ -158,11 +150,11 @@ public class UserController {
         if (verified) {
             // Redirect to the frontend page upon successful verification
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:3000/verification-success")
+                    .header("Location", "https://citu-campuseats.vercel.app/verification-success")
                     .build();
         } else {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:3000/verification-failed")
+                    .header("Location", "https://citu-campuseats.vercel.app/verification-failed")
                     .build();
         }
     }
@@ -184,6 +176,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/filter")
+    public List<UserEntity> filterUsers(
+            @RequestParam String accountType,
+            @RequestParam boolean isBanned,
+            @RequestParam boolean isVerified
+    ) {
+        return userService.getUsersByAccountTypeBannedAndVerifiedStatus(accountType, isBanned, isVerified);
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserEntity user) {
         try {
@@ -194,6 +194,7 @@ public class UserController {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @PutMapping("/update/{userId}/accountType")
     public ResponseEntity<Boolean> updateAccountType(@PathVariable String userId, @RequestParam String accountType) {
@@ -216,5 +217,21 @@ public class UserController {
         } catch (CustomException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PutMapping("/ban/{id}/{currentUserId}")
+    public ResponseEntity<?> banUser(
+            @PathVariable String id,
+            @PathVariable String currentUserId,
+            @RequestBody Map<String, Boolean> banStatus
+    ) {
+        boolean isBanned = banStatus.getOrDefault("isBanned", false); // Extract isBanned
+        return userService.banUser(id, currentUserId, isBanned);
+    }
+
+
+    @DeleteMapping("/delete/{userId}/{currentUserId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId, @PathVariable String currentUserId) {
+        return userService.deleteUser(userId, currentUserId);
     }
 }

@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import your axiosConfig
-import "./css/Checkout.css";
 import AlertModal from './AlertModal';
+import "./css/Checkout.css";
 const Checkout = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -34,12 +34,14 @@ const Checkout = () => {
     });
 
     useEffect(() => {
-        setLoading(true);
-        
-        setFirstName(currentUser.firstname || "");
+         setFirstName(currentUser.firstname || "");
         setLastName(currentUser.lastname || "");
         setMobileNum(currentUser.phone ? currentUser.phone.replace(/^0/, '') : "");
-        
+    }, [currentUser]);
+
+    useEffect(() => {
+        setLoading(true);
+     
 
         const fetchCartData = async () => {
             try {
@@ -88,6 +90,10 @@ const Checkout = () => {
         setLoading(false);
     }, [cart]);
 
+    const changeWaitingForPayment = () => {
+        setWaitingForPayment(false);
+    }
+
     const pollPaymentStatus = async (linkId, refNum) => {
         const options = {
             method: 'GET',
@@ -101,10 +107,10 @@ const Checkout = () => {
         try {
             const response = await axios.request(options);
             const paymentStatus = response.data.data.attributes.status;
-            console.log("Payment status:", paymentStatus);
             if (paymentStatus === 'paid') {
                 setWaitingForPayment(false);
                 handleOrderSubmission(refNum);
+                
             }
         } catch (error) {
             console.error("Error checking payment status:", error);
@@ -246,6 +252,10 @@ const Checkout = () => {
         if (paymentMethod === "cash" && changeFor) {
             order.changeFor = changeFor;
         }
+
+        if(paymentMethod === 'gcash'){
+                await axios.put(`/shops/update/${shop.id}/wallet`, null, { params: { totalPrice: cart.totalPrice } });
+            }
     
         console.log("Order:", order);
     
@@ -263,9 +273,19 @@ const Checkout = () => {
             } catch (error) {
                 console.error('Error removing cart:', error);
             }
+
+            
             navigate(`/orders`)
+            
         } catch (error) {
-            console.log("Error placing order:", error);
+            setAlertModal({
+                isOpen: true,
+                title: 'Existing active order',
+                message: error.response?.data?.error,
+                showConfirmButton: false,
+            });
+            setLoading(false);
+            return;
         }
     
         setLoading(false);
@@ -434,6 +454,9 @@ const Checkout = () => {
                                     {!waitingForPayment && (
                                     <button onClick={()=>navigate('/home')} className="p-logout-button">Cancel</button>
                                     )}
+                                   {waitingForPayment && <button type="submit" className="p-logout-button" onClick={()=> changeWaitingForPayment()}>
+                                        Cancel Online Payment
+                                    </button>}
                                     <button type="submit" className="p-save-button" disabled={loading || waitingForPayment}>
                                         {waitingForPayment ? "Waiting for Payment" : "Place Order"}
                                     </button>
